@@ -32,7 +32,7 @@
 
     
 
-2. 使用VCN向导分别在seoul和chuncheon区域创建VCN：VCN-seoul和VCN-chuncheon。**注意：**两个VCN的网段不能重叠。
+2. 使用VCN向导分别在seoul和chuncheon区域创建VCN：VCN-seoul和VCN-chuncheon。**注意**：两个VCN的网段不能重叠。
 
     ![image-20210915092112014](images/image-20210915092112014.png)
 
