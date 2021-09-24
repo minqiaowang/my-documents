@@ -1,6 +1,10 @@
 {
       "tutorials": [
         {
+          "title": "How to Setup Remote VCN Peering",
+          "filename":"./how-to-set-remote-vcn-peer/How to Setup Remote VCN Peering.md"
+        },
+        {
             "title": "How to Attach UHP Block Storage",
             "filename": "./how-to-attach-uhp-blockstorage/how to attach UHP block storage.md"
         },
