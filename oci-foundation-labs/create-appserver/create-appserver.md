@@ -94,7 +94,180 @@
 
     
 
-6. sdf
+6. 在后面的练习中，要创建该计算实例的定制映像，期间该计算实例会重启。我们可以创建nginx开机自启动服务。编辑init.d文件。
+
+    ```
+    [opc@compute01 ~]$ sudo vi /etc/init.d/nginx
+    ```
+
+    
+
+7. 将以下内容粘贴到该文件中。
+
+    ```
+    <copy>
+    #!/bin/sh
+    #
+    # nginx - this script starts and stops the nginx daemon
+    #
+    # chkconfig:   - 85 15
+    # description:  NGINX is an HTTP(S) server, HTTP(S) reverse \
+    #               proxy and IMAP/POP3 proxy server
+    # processname: nginx
+    # config:      /etc/nginx/nginx.conf
+    # config:      /etc/sysconfig/nginx
+    # pidfile:     /var/run/nginx.pid
+    
+    # Source function library.
+    . /etc/rc.d/init.d/functions
+    
+    # Source networking configuration.
+    . /etc/sysconfig/network
+    
+    # Check that networking is up.
+    [ "$NETWORKING" = "no" ] && exit 0
+    
+    nginx="/usr/sbin/nginx"
+    prog=$(basename $nginx)
+    
+    NGINX_CONF_FILE="/etc/nginx/nginx.conf"
+    
+    [ -f /etc/sysconfig/nginx ] && . /etc/sysconfig/nginx
+    
+    lockfile=/var/lock/subsys/nginx
+    
+    make_dirs() {
+       # make required directories
+       user=`$nginx -V 2>&1 | grep "configure arguments:.*--user=" | sed 's/[^*]*--user=\([^ ]*\).*/\1/g' -`
+       if [ -n "$user" ]; then
+          if [ -z "`grep $user /etc/passwd`" ]; then
+             useradd -M -s /bin/nologin $user
+          fi
+          options=`$nginx -V 2>&1 | grep 'configure arguments:'`
+          for opt in $options; do
+              if [ `echo $opt | grep '.*-temp-path'` ]; then
+                  value=`echo $opt | cut -d "=" -f 2`
+                  if [ ! -d "$value" ]; then
+                      # echo "creating" $value
+                      mkdir -p $value && chown -R $user $value
+                  fi
+              fi
+           done
+        fi
+    }
+    
+    start() {
+        [ -x $nginx ] || exit 5
+        [ -f $NGINX_CONF_FILE ] || exit 6
+        make_dirs
+        echo -n $"Starting $prog: "
+        daemon $nginx -c $NGINX_CONF_FILE
+        retval=$?
+        echo
+        [ $retval -eq 0 ] && touch $lockfile
+        return $retval
+    }
+    
+    stop() {
+        echo -n $"Stopping $prog: "
+        killproc $prog -QUIT
+        retval=$?
+        echo
+        [ $retval -eq 0 ] && rm -f $lockfile
+        return $retval
+    }
+    
+    restart() {
+        configtest || return $?
+        stop
+        sleep 1
+        start
+    }
+    
+    reload() {
+        configtest || return $?
+        echo -n $"Reloading $prog: "
+        killproc $prog -HUP
+        retval=$?
+        echo
+    }
+    
+    force_reload() {
+        restart
+    }
+    
+    configtest() {
+      $nginx -t -c $NGINX_CONF_FILE
+    }
+    
+    rh_status() {
+        status $prog
+    }
+    
+    rh_status_q() {
+        rh_status >/dev/null 2>&1
+    }
+    
+    case "$1" in
+        start)
+            rh_status_q && exit 0
+            $1
+            ;;
+        stop)
+            rh_status_q || exit 0
+            $1
+            ;;
+        restart|configtest)
+            $1
+            ;;
+        reload)
+            rh_status_q || exit 7
+            $1
+            ;;
+        force-reload)
+            force_reload
+            ;;
+        status)
+            rh_status
+            ;;
+        condrestart|try-restart)
+            rh_status_q || exit 0
+                ;;
+        *)
+            echo $"Usage: $0 {start|stop|status|restart|condrestart|try-restart|reload|force-reload|configtest}"
+            exit 2
+    esac
+    </copy>
+    ```
+
+    
+
+8. 保存后设置文件的执行权限。
+
+    ```
+    [opc@compute01 ~]$ sudo chmod a+x /etc/init.d/nginx
+    ```
+
+    
+
+9. 将nginx服务加入chkconfig管理列表。
+
+    ```
+    [opc@compute01 ~]$ sudo chkconfig --add /etc/init.d/nginx
+    ```
+
+    
+
+10. 设置开机自动启动。
+
+    ```
+    [opc@compute01 ~]$ sudo chkconfig nginx on
+    Note: Forwarding request to 'systemctl enable nginx.service'.
+    Created symlink from /etc/systemd/system/multi-user.target.wants/nginx.service to /usr/lib/systemd/system/nginx.service.
+    [opc@compute01 ~]$
+    ```
+
+    
 
 ## Step 2：打开服务端口
 
