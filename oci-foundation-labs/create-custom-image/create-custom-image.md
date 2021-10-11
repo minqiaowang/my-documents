@@ -104,8 +104,7 @@
     Your MySQL connection id is 26 (X protocol)
     Server version: 8.0.26-u2-cloud MySQL Enterprise - Cloud
     No default schema selected; type \use <schema> to set one.
-      MySQL  10.0.1.102:33060+ ssl  SQL > create database testdb;
-    Query OK, 1 row affected (0.0022 sec)
+    
      MySQL  10.0.1.102:33060+ ssl  SQL > show databases;
     +--------------------+
     | Database           |
@@ -178,7 +177,7 @@
 
     
 
-6. 将`Welcome to nginx!`修改为`Welcome to custom-compute`，如下所示。
+6. 将`Welcome to nginx!`修改为`Welcome to custom-compute!`，如下所示。
 
     ```
     <!DOCTYPE html>
