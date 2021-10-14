@@ -109,7 +109,7 @@ MySQL数据库服务部署在私有子网里，只开放了私有IP端口（即�
 
 ## Step 4：连接并测试MySQL数据库服务
 
-1. 连接到堡垒机。Mac或Linux可以直接用命令行工具，Windows可以使用putty工具。计算实例缺省通过opc用户连接。以下是以Mac为例。putty的连接方法请参见附录。
+1. 连接到堡垒机。Mac或Linux可以直接用命令行工具，Windows可以使用putty工具。计算实例缺省通过opc用户连接。以下是以Mac为例。putty的连接方法请参见附录。（**注意：**putty使用的私钥格式和Mac使用的私钥格式不一样，需要进行转换。）
 
     ```
     $ ssh -i labkey opc@152.70.234.21
