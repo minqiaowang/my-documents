@@ -19,6 +19,10 @@
         {
           "title": "Lab 5: 创建负载平衡器",
           "filename":"../../create-loadbalancer/create-loadbalancer.md"
+        },
+        {
+          "title": "Lab 1: 块存储卷",
+          "filename":"../../oci-block-storage-tutorial/oci-block-storage-tutorial.md"
         }
     ]
 }
