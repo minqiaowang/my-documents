@@ -1,0 +1,24 @@
+{
+      "tutorials": [
+        {
+          "title": "Lab 1: 创建新的VCN和子网",
+          "filename":"../../create-vcn/create-vcn.md"
+        },
+        {
+          "title": "Lab 2: 创建数据库服务实例",
+          "filename": "../../provision-mds/provision-mds.md"
+        },
+        {
+          "title": "Lab 3: 创建应用服务器",
+          "filename":"../../create-appserver/create-appserver.md"
+        },
+        {
+          "title": "Lab 4: 创建定制映像并启动新的实例",
+          "filename":"../../create-custom-image/create-custom-image.md"
+        },
+        {
+          "title": "Lab 5: 创建负载平衡器",
+          "filename":"../../create-loadbalancer/create-loadbalancer.md"
+        }
+    ]
+}

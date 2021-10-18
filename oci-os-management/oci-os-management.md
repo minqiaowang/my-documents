@@ -214,8 +214,3 @@ Windows:
 
 [OS Management Services](https://docs.oracle.com/en-us/iaas/os-management/osms/index.htm)
 
-## 备注
-
-**作者：**王敏桥
-
-**最新修改日期：**2021年5月
