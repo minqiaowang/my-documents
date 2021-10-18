@@ -6,15 +6,15 @@
         },
         {
           "title": "Lab 2: 对象存储",
-          "filename": "../../oci-learning-library-master/oci-object-storage-tutorial/README.md"
+          "filename": "../../oci-object-storage-tutorial/oci-object-storage-tutorial.md"
         },
         {
           "title": "Lab 3: 身份和访问管理（IAM",
-          "filename":"../../oci-learning-library-master/oci-iam-tutorial/README.md"
+          "filename":"../../oci-iam-tutorial/oci-iam-tutorial.md"
         },
         {
           "title": "Lab 4: 计费，用量和成本分析",
-          "filename":"../../oci-learning-library-master/oci-billing-tutorial/README.md"
+          "filename":"../../oci-billing-tutorial/oci-billing-tutorial.md"
         }
     ]
 }
