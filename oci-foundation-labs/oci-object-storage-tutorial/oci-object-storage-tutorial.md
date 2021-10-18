@@ -17,7 +17,7 @@
 
 
 
-## 先决条件
+### 先决条件
 
 - Oracle Cloud Infrastructure帐户凭据（用户，密码和租户）
 
@@ -27,24 +27,11 @@
 - 控制台的URL：[https : //cloud.oracle.com/](https://cloud.oracle.com/)
   - Oracle Cloud Infrastructure支持最新版本的Google Chrome，Firefox和Internet Explorer 11
 
-## 目录
-[1：使用OCI控制台使用对象存储服务](#practice-1-objectstorage-cloud-console)
-
-[2：使用预先验证请求上传对象](#practice-2-objectstorage-pre-authenticated)
-
-[3：使用CLI Multipart方式上载大文件](#practice-1-objectstorage-cloud-console)
-
-[4：生命周期策略](#practice-1-objectstorage-cloud-console)
-
-[5：挂载对象存储到计算实例（S3 Compatible API）](#practice-1-objectstorage-cloud-console)
-
-[6：对象复制](#practice-1-objectstorage-cloud-console)
 
 **注意：** *某些UI可能与说明中包含的屏幕截图有些许不同，但是您仍然可以使用本说明来完成动手实验。*
 
 
 
-<a name="practice-1-objectstorage-cloud-console"></a>
 
 ## 1：使用OCI控制台使用对象存储服务
 
@@ -64,7 +51,6 @@
 
 ![image-20210104133839380](images/image-20210104133839380.png)
 
-<a name="practice-2-objectstorage-pre-authenticated"></a>
 ## 2：使用预先验证请求上传对象
 
 1. 使用命令行终端，切换到要上传的对象文件目录
@@ -97,7 +83,6 @@
 
 
 
-<a name="practice-3-objectstorage-multipart"></a>
 ## 3：使用CLI Multipart方式上载大文件
 
 1. 登录甲骨文云基础设施控制台，并创建对象存储桶（参考实验一）
@@ -128,7 +113,7 @@ oci os object put --namespace sehubjapacprod --bucket-name test111 --file ./bigf
 
 ![image-20210114152831669](images/image-20210114152831669.png)
 
-<a name="practice-4-objectstorage-life-cycle"></a>
+
 ## 4：生命周期策略
 
 1. 在对象**存储服务** - 存储桶详细信息页面左侧的**资源**栏点击 **生命周期策略规则** 按钮，点击 **创建规则** 按钮创建生命周期规则。
@@ -139,7 +124,7 @@ oci os object put --namespace sehubjapacprod --bucket-name test111 --file ./bigf
 
 ![image-20210114155017371](images/image-20210114155017371.png)
 
-<a name="practice-5-objectstorage-s3-compatible"></a>
+
 ## 5：挂载对象存储到计算实例（S3 Compatible API）
 
 1. 在计算实例上安装s3fs-fuse
@@ -154,7 +139,7 @@ sudo yum install s3fs-fuse
 
 ![image-20210114170712769](images/image-20210114170712769.png)
 
-2. 编辑 ${HOME}/.passwd-s3fs配置文件 
+3. 编辑 ${HOME}/.passwd-s3fs配置文件 
 
 ```shell
 echo ACCESS_KEY_ID:SECRET_ACCESS_KEY > ${HOME}/.passwd-s3fs
@@ -170,7 +155,7 @@ sudo chmod +x /usr/bin/fusermount
 
 
 
-2. 创建文件夹，并使用下面的命令将对象存储桶挂载到计算实例上
+4. 创建文件夹，并使用下面的命令将对象存储桶挂载到计算实例上
 
 ```shell
 mkdir test
@@ -182,11 +167,10 @@ s3fs [bucket] [destination directory] -o endpoint=[region] -o passwd_file=${HOME
 
 ![image-20210114172633183](images/image-20210114172633183.png)
 
-3. 在OCI Console中查看对象存储桶中上传的文件
+5. 在OCI Console中查看对象存储桶中上传的文件
 
 ![image-20210202101742.png](images/image-20210202101742.png)
 
-<a name="practice-6-objectstorage-copy"></a>
 
 ## 6：对象复制
 
@@ -206,7 +190,7 @@ s3fs [bucket] [destination directory] -o endpoint=[region] -o passwd_file=${HOME
 
 ![image-20210114164439611](images/image-20210114164439611.png)
 
-3. 打开目标存储桶，查看对象是否被成功复制
+4. 打开目标存储桶，查看对象是否被成功复制
 
 ![image-20210114164536394](images/image-20210114164536394.png)
 
