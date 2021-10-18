@@ -1,7 +1,5 @@
 # 计费，用量和成本分析
 
-
-
 ## 概览
 
 Oracle Cloud Infrastructure提供了各种计费和支付查看工具，可轻松管理OCI上运行服务的成本。
@@ -18,8 +16,6 @@ Oracle Cloud Infrastructure提供了各种计费和支付查看工具，可轻�
 
 Oracle Cloud Infrastructure控制台的“付款方式”部分使您可以轻松管理如何支付Oracle Cloud Infrastructure使用费。
 
-
-
 ### 前提条件
 
 - Oracle Cloud Infrastructure帐户凭据（用户，密码和租户）
@@ -29,17 +25,13 @@ Oracle Cloud Infrastructure控制台的“付款方式”部分使您可以轻�
   - Oracle Cloud Infrastructure支持最新版本的Google Chrome，Firefox和Internet Explorer 11
 
 
-
-
 **注意：** *某些UI可能与说明中包含的屏幕截图有些许不同，但是您仍然可以使用说明来完成动手实验。*
-
 
 
 
 ## 1：成本分析
 
 成本分析是一种易于使用的可视化工具，可帮助您跟踪和优化Oracle Cloud Infrastructure支出，允许您生成图表以及下载关于Oracle Cloud Infrastructure消耗的汇总成本数据的准确，可靠的表格报告。使用该工具可以对支出趋势进行抽查并生成报告。
-
 
 
 1. 导航至菜单**帐户管理**，然后单击**成本分析**。
@@ -61,7 +53,6 @@ Oracle Cloud Infrastructure控制台的“付款方式”部分使您可以轻�
    ![image-20210221163742131](images/image-20210221163742131.png)
 
    
-
 
 ## 2：**预算管理**
 
@@ -94,14 +85,11 @@ Oracle Cloud Infrastructure控制台的“付款方式”部分使您可以轻�
    PS: 请注意您邮箱相关的过滤策略。
 
 
-
-
 ## 3：使用情况报告
 
 费用报告是类似于使用情况报告的逗号分隔值（CSV）文件，但还包括费用列。该报告可用于获取资源级别的发票行项目明细。因此，您可以优化Oracle Cloud Infrastructure支出，并做出更明智的云支出决策。
 
 使用情况报告是一个逗号分隔值（CSV）文件，可用于获取Oracle Cloud Infrastructure中资源的详细明细，以进行审计或发票对帐。
-
 
 
 1. 导航到“菜单**帐户管理”** ，然后单击“**成本和使用情况报告”** 。
@@ -140,14 +128,11 @@ Oracle Cloud Infrastructure控制台的“付款方式”部分使您可以轻�
 
 
 
-
-
 ## 4：两种资源限制
 
 Oracle Cloud Infrastructure中，有两种资源限制：**租户资源限制**和**用户定义限额**。
 
 首先看一下**租户资源限制**，它是注册Oracle Cloud Infrastructure时，为您的租户配置一组限制。服务限制是对资源设置的配额或配额。例如，您的租户允许每个可用性域中的最大计算实例数。购买Oracle Cloud Infrastructure时，通常会与Oracle销售代表一起确定这些限制。如果您没有与Oracle销售代表建立限制，或者如果您通过Oracle Store注册，则将为您的租户设置默认或试用限制。这些限制可能会根据您的Oracle Cloud Infrastructure资源使用情况和帐户信誉自动增加。
-
 
 
 1. 导航至菜单**管理**，然后单击**限制，配额和用法**。
@@ -159,8 +144,6 @@ Oracle Cloud Infrastructure中，有两种资源限制：**租户资源限制**�
    ![image-20210221170055328](images/image-20210221170055328.png)
 
    
-
-
 
 接下来看一下**用户定义限额**，它类似于软性的服务限额；二者最大的区别是**租户资源限制**是由Oracle设置的，而**用户定义限额**是由管理员设置的，它们的组合使用，让您可以高度灵活地分配和使用OCI资源。在定义用户定义限额时，我们使用以类似于IAM策略的简单声明性语言，来编写策略声明进行相应配额的设置。
 
