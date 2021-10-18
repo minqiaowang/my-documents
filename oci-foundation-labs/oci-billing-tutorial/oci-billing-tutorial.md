@@ -20,7 +20,7 @@ Oracle Cloud Infrastructure控制台的“付款方式”部分使您可以轻�
 
 
 
-## 前提条件
+### 前提条件
 
 - Oracle Cloud Infrastructure帐户凭据（用户，密码和租户）
 - 要登录控制台，您需要满足以下条件：
@@ -30,21 +30,11 @@ Oracle Cloud Infrastructure控制台的“付款方式”部分使您可以轻�
 
 
 
-## 目录
-
-[1：**成本分析**](#practice-1-cost-analysis)
-
-[2：**预算管理**](#practice-2-budet-management)
-
-[3：**使用情况报告**](#practice-3-usage-report)
-
-[4：**两种资源限制**](#practice-4-soft-quota)
 
 **注意：** *某些UI可能与说明中包含的屏幕截图有些许不同，但是您仍然可以使用说明来完成动手实验。*
 
 
 
-<a name="practice-1-configuring-vcn-security-list-rules-for-file-storage"></a>
 
 ## 1：成本分析
 
@@ -72,9 +62,6 @@ Oracle Cloud Infrastructure控制台的“付款方式”部分使您可以轻�
 
    
 
-
-
-<a name="practice-2-budet-management"></a>
 
 ## 2：**预算管理**
 
@@ -108,9 +95,6 @@ Oracle Cloud Infrastructure控制台的“付款方式”部分使您可以轻�
 
 
 
-
-
-<a name="practice-3-usage-report"></a>
 
 ## 3：使用情况报告
 
@@ -157,8 +141,6 @@ Oracle Cloud Infrastructure控制台的“付款方式”部分使您可以轻�
 
 
 
-
-<a name="practice-4-soft-quota"></a>
 
 ## 4：两种资源限制
 

@@ -1,4 +1,5 @@
-### 概览
+# 身份和访问管理（IAM）服务
+## 概览
 
 Oracle Cloud Infrastructure 身份和访问管理（IAM）服务使您可以控制谁有权访问您的云资源。您可以控制一组用户拥有的访问类型以及对哪些特定资源的访问。本实验的目的是为您提供 IAM 服务组件的概述以及示例场景，以帮助您了解它们如何协同工作。
 
@@ -14,19 +15,6 @@ Oracle Cloud Infrastructure 身份和访问管理（IAM）服务使您可以控�
 
 
 
-### 目录
-
-[1 登录控制台](#step1)
-
-[2 创建区间 ](#step2)
-
-[3 管理用户，组和策略以控制访问 ](#step3)
-
- 
-
-------
-
- <a name="step1"></a>
 
 ## 1 登录控制台 
 
@@ -54,7 +42,6 @@ Oracle Cloud Infrastructure 身份和访问管理（IAM）服务使您可以控�
 
 
 
-  <a name="step2"></a>
 
 ## 2 创建区间 
 
@@ -76,7 +63,6 @@ Oracle Cloud Infrastructure 身份和访问管理（IAM）服务使您可以控�
 
 
 
-  <a name="step3"></a>
 
 ## 3 管理用户，组和策略以控制访问 
 
