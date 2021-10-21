@@ -26,23 +26,23 @@
 
 ![image-20210225142930731](images/image-20210225142930731.png)
 
-2.点击 **创建块存储卷** 按钮，在打开的引导界面中填写块存储卷的名称、区间、可用性域、备份策略等参数，然后点击 **创建块存储卷**按钮完成创建。
+2.确认所在正确的区域和区间后，点击 **创建块存储卷** 按钮，在打开的引导界面中填写块存储卷的名称，如：`demo_block01`，其它均为缺省值。然后点击 **创建块存储卷**按钮完成创建。
 
-![image-20210225143546577](images/image-20210225143546577.png)
+![image-20211021132554624](images/image-20211021132554624.png)
 
 3.等待几秒钟后，块存储卷图标变成绿色，表示已经完成了创建。该页面展示了块存储卷的详细信息和监控度量。
 
 ![image-20210225143954209](images/image-20210225143954209.png)
 
-4.（如果没有其它区间权限，忽略这一步）使用 **移动资源** 按钮，打开移动块存储卷页面。 在页面中选择想要移动到的区间，点击**移动资源**按钮可以将块存储卷移动到其它区间。
+4.（没有其它区间权限，请忽略这一步）使用 **移动资源** 按钮，打开移动块存储卷页面。 在页面中选择想要移动到的区间，点击**移动资源**按钮可以将块存储卷移动到其它区间。
 
 ![image-20210225144148344](images/image-20210225144148344.png)
 
-5.在左侧 **资源栏**下选择 **附加的实例**， 打开附加实例引导界面。 选择**附件类型**、**访问类型**、**选择实例**和**设备名称**，点击**附加**按钮。
+5.在左侧 **资源栏**下选择 **附加的实例**， 打开附加实例引导界面。 选择要附加的目标实例，其它均为缺省值，点击**附加**按钮。
 
-![image-20210225150131046](images/image-20210225150131046.png)
+![image-20211021133438206](images/image-20211021133438206.png)
 
-6. 在**附加的实例**列表中，打开右侧菜单选择 **iSCSI命令和信息**，打开页面
+6. 附加成功后，在**附加的实例**列表中，打开右侧菜单选择 **iSCSI命令和信息**，打开页面
 
 ![image-20210225151653112](images/image-20210225151653112.png)
 
@@ -56,17 +56,63 @@
 
 9. 使用命令 sudo fdisk -l 查看成功附加的块存储卷
 
-![image-20210225152642592](images/image-20210225152642592.png)
+```
+[opc@compute01 ~]$ sudo iscsiadm -m node -o new -T iqn.2015-12.com.oracleiaas:28a3fcd8-8d0a-4d28-9dc0-676c57e52c90 -p 169.254.2.2:3260
+New iSCSI node [tcp:[hw=,ip=,net_if=,iscsi_if=default] 169.254.2.2,3260,-1 iqn.2015-12.com.oracleiaas:28a3fcd8-8d0a-4d28-9dc0-676c57e52c90] added
+[opc@compute01 ~]$ sudo iscsiadm -m node -o update -T iqn.2015-12.com.oracleiaas:28a3fcd8-8d0a-4d28-9dc0-676c57e52c90 -n node.startup -v automatic
+[opc@compute01 ~]$ sudo iscsiadm -m node -T iqn.2015-12.com.oracleiaas:28a3fcd8-8d0a-4d28-9dc0-676c57e52c90 -p 169.254.2.2:3260 -l
+Logging in to [iface: default, target: iqn.2015-12.com.oracleiaas:28a3fcd8-8d0a-4d28-9dc0-676c57e52c90, portal: 169.254.2.2,3260] (multiple)
+Login to [iface: default, target: iqn.2015-12.com.oracleiaas:28a3fcd8-8d0a-4d28-9dc0-676c57e52c90, portal: 169.254.2.2,3260] successful.
+[opc@compute01 ~]$  sudo fdisk -l
+WARNING: fdisk GPT support is currently new, and therefore in an experimental phase. Use at your own discretion.
 
-10. 通过上面红色选择框可以看到 Disk /dev/sdc 是我们的路径。利用此路径。在系统中使用以下命令创建挂载点，并挂载块存储卷
+Disk /dev/sda: 50.0 GB, 50010783744 bytes, 97677312 sectors
+Units = sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 4096 bytes
+I/O size (minimum/optimal): 4096 bytes / 1048576 bytes
+Disk label type: gpt
+Disk identifier: 4E05BFB5-8B93-4170-9F08-8ED358FA34E2
 
-```shell
-sudo mkfs.ext4 /dev/sdc[你的路径]  #为disk创建文件系统
-sudo mkdir -p /mnt/vol1  #创建挂载点
-sudo mount /dev/sdc[你的路径] /mnt/vol1  #挂载卷
+
+#         Start          End    Size  Type            Name
+ 1         2048       411647    200M  EFI System      EFI System Partition
+ 2       411648     17188863      8G  Linux swap      
+ 3     17188864     97675263   38.4G  Microsoft basic 
+
+Disk /dev/sdb: 1099.5 GB, 1099511627776 bytes, 2147483648 sectors
+Units = sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 4096 bytes
+I/O size (minimum/optimal): 4096 bytes / 1048576 bytes
+
+[opc@compute01 ~]$
 ```
 
-11. 移除卷：首先移除挂载，再执行步骤9中DETACH COMMANDS命令移除卷
+
+
+10. 通过上面结果可以看到 Disk /dev/sdb 是我们的路径。利用此路径。在系统中使用以下命令创建挂载点，并挂载块存储卷
+
+```shell
+sudo mkfs.ext4 /dev/sdb #[你的路径]为disk创建文件系统
+sudo mkdir -p /mnt/vol1  #创建挂载点
+sudo mount /dev/sdb /mnt/vol1  #[你的路径]挂载卷
+```
+
+11. 挂载完成，查看磁盘挂载状态。`mnt/vol1`可以正常使用。
+
+    ```
+    [opc@compute01 ~]$ sudo lsblk
+    NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+    sdb      8:16   0    1T  0 disk /mnt/vol1
+    sda      8:0    0 46.6G  0 disk 
+    |-sda2   8:2    0    8G  0 part [SWAP]
+    |-sda3   8:3    0 38.4G  0 part /
+    `-sda1   8:1    0  200M  0 part /boot/efi
+    [opc@compute01 ~]$
+    ```
+
+    
+
+12. 移除卷：首先移除挂载，再执行步骤9中DETACH COMMANDS命令移除卷
 
 ```shell
 sudo umount -l /mnt/vol1 #卸载磁盘
@@ -75,7 +121,7 @@ sudo lsblk #查看磁盘
 
 ![image-20210225155210100](images/image-20210225155210100.png)
 
-12. 从**附加的实例**列表右侧的菜单中，选择 **从实例分离**
+12. 我们可以在虚机里直接运行iSCSI命令来使卷从实例分离出来，也可以通过控制台。在**块存储卷详细信息**页面，从**附加的实例**列表右侧的菜单中，选择 **从实例分离**。
 
 ![image-20210225155310071](images/image-20210225155310071.png)
 
@@ -87,41 +133,41 @@ sudo lsblk #查看磁盘
 
 ## 2: 修改块存储卷性能
 
-1. 进入**块存储卷详情**页面，点击**编辑**按钮打开块存储编辑页面。 该页面可以编辑卷大小以及调整性能和备份策略。 编辑完成后点击**保存更改**按钮使编辑生效。
+1. 进入**块存储卷详情**页面，点击**编辑**按钮打开块存储编辑页面。 该页面可以编辑卷大小以及调整性能和备份策略。 比如将VPU从缺省的10增加到20，观察目标卷性能的变化。编辑完成后点击**保存更改**按钮使编辑生效。
 
-![image-20210225163625996](images/image-20210225163625996.png)
+![image-20211021140138826](images/image-20211021140138826.png)
 
 2. 编辑提交后需要几秒钟时间完成更新。
 
-![image-20210225163729960](images/image-20210225163729960.png)
+![image-20211021140416438](images/image-20211021140416438.png)
 
 
 ## 3: 块存储卷的备份和恢复
 
-1. 打开**块存储卷详细信息**页面，从左侧**资源**栏选择 **块存储卷备份** 选项卡，在打开的页面中点击**创建块存储卷备份**按钮，打开**块存储卷备份**页面
+1. 打开**块存储卷详细信息**页面，从左侧**资源**栏选择 **块存储卷备份** 选项卡，在打开的页面中点击**创建块存储卷备份**按钮，打开**块存储卷备份**页面。填写**备份名称**，如：backup01。选择**备份类型**，如：增量备份。点击**创建块存储卷备份**按钮，
 
-![image-20210303134455394](images/image-20210303134455394.png)
+![image-20211021140749677](images/image-20211021140749677.png)
 
-2. 填写备份名称，选择备份类型，增加必要的标记，点击**创建块存储卷备份**按钮，等待几秒钟即可成功创建备份
+2. 等待几秒钟即可成功创建备份
 
-![image-20210303140828953](images/image-20210303140828953.png)
+![image-20211021141144789](images/image-20211021141144789.png)
 
 3. 除了手动备份外，也可以使用备份策略执行自动备份。 从左侧菜单中选择 **块存储 - 备份策略** 打开备份策略页面
 
 ![image-20210303141150058](images/image-20210303141150058.png)
 
-4. 除了列出的Oracle定义的备份策略，也可以点击 **创建备份策略按钮**，在打开的页面中填写名称，点击**创建备份策略按钮**。
+4. Oracle缺省定义了gold，silver，bronze三种备份策略。我们也可以创建自定义的备份策略。点击 **创建备份策略按钮**，在打开的页面中填写**名称**，如：my-backup-policy01，点击**创建备份策略按钮**。
 
-![image-20210303141334502](images/image-20210303141334502.png)
+![image-20211021141422682](images/image-20211021141422682.png)
 
-5. 点击 **添加计划**按钮为备份策略添加备份计划。根据页面提示，即可完成自定义备份计划的创建。
+5. 点击 **添加计划**按钮为备份策略添加备份计划。根据页面提示，即可完成自定义备份计划的创建。如：每周日2:00AM进行增量备份。
 
-![image-20210303141543174](images/image-20210303141543174.png)
+![image-20211021141918667](images/image-20211021141918667.png)
 
 6. 在**块存储卷详情**页面，点击**编辑**按钮，在最下方的备份策略中选择自定义的策略，保存后应用策略生效。
 
-![image-20210303141901386](images/image-20210303141901386.png)
+![image-20211021142326827](images/image-20211021142326827.png)
 
-7. 块存储卷备份可以被用来创建新的块存储卷，或者**复制和移动到另一个区域**。 打开**块存储卷备份详情**页面，根据提示操作即可。
+7. （忽略该步骤）块存储卷备份可以被用来创建新的块存储卷，或者**复制和移动到另一个区域**。 打开**块存储卷备份详情**页面，根据提示操作即可。
 
 ![image-20210303142636514](images/image-20210303142636514.png)
