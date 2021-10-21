@@ -82,39 +82,7 @@
 ![image-20210104141450286](images/image-20210104141450286.png)
 
 
-
-## 3：使用CLI Multipart方式上载大文件
-
-1. 登录甲骨文云基础设施控制台，并创建对象存储桶（参考实验一）
-
-![image-20210114135751321](images/image-20210114135751321.png)
-
-2. 下载并配置OCI CLI工具环境  [参考文档](https://docs.oracle.com/en-us/iaas/Content/API/SDKDocs/cliinstall.htm)
-
-   切换到要上传的大文件目录，打开命令行工具。
-
-![image-20210114141935905](images/image-20210114141935905.png)
-
-3. 使用以下格式的命令，执行大文件Multipart上载
-
-```shell
-oci os object put --namespace <object_storage_namespace> --bucket-name <bucket_name> --file <file_location> --name <object_name> --part-size <upload_part_size_in_MB> --parallel-upload-count <maximum_number_parallel_uploads>
-```
-
-例如
-
-```shell
-oci os object put --namespace sehubjapacprod --bucket-name test111 --file ./bigfile.img --name bigfile.img --part-size 512 --parallel-upload-count 3
-```
-
-![image-20210114153651946](images/image-20210114153651946.png)
-
-4. 在对象存储桶中查看上传的文件
-
-![image-20210114152831669](images/image-20210114152831669.png)
-
-
-## 4：生命周期策略
+## 3：生命周期策略
 
 1. 在对象**存储服务** - 存储桶详细信息页面左侧的**资源**栏点击 **生命周期策略规则** 按钮，点击 **创建规则** 按钮创建生命周期规则。
 
@@ -125,54 +93,8 @@ oci os object put --namespace sehubjapacprod --bucket-name test111 --file ./bigf
 ![image-20210114155017371](images/image-20210114155017371.png)
 
 
-## 5：挂载对象存储到计算实例（S3 Compatible API）
 
-1. 在计算实例上安装s3fs-fuse
-
-```sh
-sudo yum install s3fs-fuse
-```
-
-![image-20210114170213019](images/image-20210114170213019.png)
-
-2. 从OCI控制台进入用户详细信息界面左侧资源栏，点击 客户密钥 ， 点击生成密钥按钮，在打开的窗口中输入密钥名称，生成一个客户密钥并复制到剪贴板。
-
-![image-20210114170712769](images/image-20210114170712769.png)
-
-3. 编辑 ${HOME}/.passwd-s3fs配置文件 
-
-```shell
-echo ACCESS_KEY_ID:SECRET_ACCESS_KEY > ${HOME}/.passwd-s3fs
-```
-
-```shell
-chmod 600 ${HOME}/.passwd-s3fs
-```
-
-```shell
-sudo chmod +x /usr/bin/fusermount
-```
-
-
-
-4. 创建文件夹，并使用下面的命令将对象存储桶挂载到计算实例上
-
-```shell
-mkdir test
-```
-
-```shell
-s3fs [bucket] [destination directory] -o endpoint=[region] -o passwd_file=${HOME}/.passwd-s3fs -o url=https://[namespace].compat.objectstorage.[region].oraclecloud.com/ -onomultipart -o use_path_request_style 
-```
-
-![image-20210114172633183](images/image-20210114172633183.png)
-
-5. 在OCI Console中查看对象存储桶中上传的文件
-
-![image-20210202101742.png](images/image-20210202101742.png)
-
-
-## 6：对象复制
+## 4：对象复制
 
 1. 范围和限制
 
