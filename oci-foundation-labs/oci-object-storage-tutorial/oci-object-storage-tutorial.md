@@ -24,13 +24,9 @@
 - 要登录控制台，您需要满足以下条件：
 
   - 租户，用户名和密码
-- 控制台的URL：[https : //cloud.oracle.com/](https://cloud.oracle.com/)
-  - Oracle Cloud Infrastructure支持最新版本的Google Chrome，Firefox和Internet Explorer 11
 
 
 **注意：** *某些UI可能与说明中包含的屏幕截图有些许不同，但是您仍然可以使用本说明来完成动手实验。*
-
-
 
 
 ## 1：使用OCI控制台使用对象存储服务
