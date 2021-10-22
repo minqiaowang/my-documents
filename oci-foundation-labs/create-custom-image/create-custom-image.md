@@ -177,39 +177,17 @@
 
     
 
-6. 将`Welcome to nginx!`修改为`Welcome to custom-compute!`，如下所示。
+6. 将文件内容修改为`This is my second nginx02!`，如下所示。
 
     ```
-    <!DOCTYPE html>
-    <html>
-    <head>
-    <title>Welcome to nginx!</title>
-    <style>
-        body {
-            width: 35em;
-            margin: 0 auto;
-            font-family: Tahoma, Verdana, Arial, sans-serif;
-        }
-    </style>
-    </head>
-    <body>
-    <h1>Welcome to custom-compute!</h1>
-    <p>If you see this page, the nginx web server is successfully installed and
-    working. Further configuration is required.</p>
-    
-    <p>For online documentation and support please refer to
-    <a href="http://nginx.org/">nginx.org</a>.<br/>
-    Commercial support is available at
-    <a href="http://nginx.com/">nginx.com</a>.</p>
-    
-    <p><em>Thank you for using nginx.</em></p>
-    </body>
+    This is my second nginx02!
     ```
+    
+    
+    
+7. 在浏览器里输入URL：`http://<该计算实例的IP地址>:80/index.html`。如果显示正常，判断第二个Web sever安装成功。
+
+    ![image-20211022201152959](images/image-20211022201152959.png)
 
     
 
-7. 在浏览器里输入该计算实例的IP地址。判断第二个Web sever安装成功。
-
-    ![image-20211002105517564](images/image-20211002105517564.png)
-
-    

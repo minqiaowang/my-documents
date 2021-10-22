@@ -324,8 +324,32 @@
 
 ## Step 3: 访问nginx服务
 
-1. 在浏览里输入应用服务器主机的公共IP地址，得到nginx的欢迎页面，说明访问应用服务器成功。
+1. 连接到虚拟机实例，备份nginx缺省主页。
 
-    ![image-20210926170317177](images/image-20210926170317177.png)
+    ```
+    [opc@compute01 ~]$ sudo mv /usr/share/nginx/html/index.html /usr/share/nginx/html/index.html.sav
+    ```
+    
+    
+    
+2. 编辑新的nginx主页。
+
+    ```
+    [opc@compute01 ~]$ sudo vi /usr/share/nginx/html/index.html
+    ```
+
+    
+
+3. 在文件里写入下列内容，然后保存并退出编辑器。
+
+    ```
+    This is my first nginx01!
+    ```
+
+    
+
+4. 在浏览里输入URL：`http://<应用服务器主机的公共IP>:80/index.html`，得到nginx的欢迎页面，说明访问应用服务器安装成功。
+
+    ![image-20211022200603381](images/image-20211022200603381.png)
 
     
