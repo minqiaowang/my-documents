@@ -124,29 +124,24 @@ MySQL数据库服务部署在私有子网里，只开放了私有IP端口（即�
 
     
 
-2. 安装MySQL客户端MySQL Shell。
+2. 下载并安装MySQL客户端MySQL Shell。
 
     ```
-    [opc@compute01 ~]$ sudo yum -y install mysql-shell
-    ...
-    ...
-    Downloading packages:
-    mysql-shell-8.0.26-1.el7.x86_64.rpm                                                                                                                           |  33 MB  00:00:00     
-    Running transaction check
-    Running transaction test
-    Transaction test succeeded
-    Running transaction
-      Installing : mysql-shell-8.0.26-1.el7.x86_64                                                                                                                                   1/1 
-      Verifying  : mysql-shell-8.0.26-1.el7.x86_64                                                                                                                                   1/1 
+    [opc@compute01 ~]$ <copy>curl -o mysql-shell-8.0.27-1.el7.x86_64.rpm https://repo.mysql.com/yum/mysql-tools-community/el/7/x86_64/mysql-shell-8.0.27-1.el7.x86_64.rpm</copy>
+      % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                     Dload  Upload   Total   Spent    Left  Speed
+    100 31.7M  100 31.7M    0     0  54.5M      0 --:--:-- --:--:-- --:--:-- 54.5M
     
-    Installed:
-      mysql-shell.x86_64 0:8.0.26-1.el7                                                                                                                                                  
-    
-    Complete!
+    [opc@compute01 ~]$ <copy>sudo rpm -Uvh mysql-shell-8.0.27-1.el7.x86_64.rpm</copy>
+    warning: mysql-shell-8.0.27-1.el7.x86_64.rpm: Header V3 DSA/SHA256 Signature, key ID 5072e1f5: NOKEY
+    Preparing...                          ################################# [100%]
+    Updating / installing...
+       1:mysql-shell-8.0.27-1.el7         ################################# [100%]
+    [opc@compute01 ~]$
     ```
-
     
-
+    
+    
 3. 连接到MySQL数据库。用户名缺省是admin，主机地址为之前创建MySQL数据库服务的私有IP地址。使用创建MySQL设置的密码，如：`Welcome_123`。
 
     ```
