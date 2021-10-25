@@ -39,7 +39,7 @@ Windows:
 
 
 
-## 步骤一：安装Oracle Cloud Agent
+## Task 1：安装Oracle Cloud Agent
 
 默认情况下，在当前Oracle提供的映像上都会安装Oracle Cloud Agent。 如果是旧映像需要手动安装Oracle Cloud Agent。
 
@@ -69,7 +69,7 @@ Windows:
 
    
 
-## 步骤二：为操作系统管理服务设置策略
+## Task 2：为操作系统管理服务设置策略
 
 1. 创建一个动态组，其中包含要由OS Management Service管理的实例集。例如：
 
@@ -136,7 +136,7 @@ Windows:
 
    
 
-## 步骤三：管理Linux软件包
+## Task 3：管理Linux软件包
 
 下面将介绍如何由OS Management Service管理Linux实例的软件包。
 
