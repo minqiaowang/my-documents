@@ -103,18 +103,8 @@ Windows:
 
    下面的结果表明该实例可以成功到达OS Management提取服务。(注：输出中包含403 Forbidden是正常的。)
 
-   ```
-   <html>
-   <head><title>403 Forbidden</title></head>
-   <body>
-   <center><h1>403 Forbidden</h1></center>
-   <hr><center>nginx/1.16.1</center>
-   </body>
-   </html>
-   ```
-
+   ![image-20211025102752861](images/image-20211025102752861.png)
    
-
 5. 验证yum配置。
 
    ```
