@@ -9,11 +9,15 @@
           "filename": "../../oci-object-storage-tutorial/oci-object-storage-tutorial.md"
         },
         {
-          "title": "Lab 3: 身份和访问管理（IAM）",
+          "title": "Lab 3: OCI操作系统管理服务",
+          "filename":"../../oci-os-management/oci-os-management.md"
+        },
+        {
+          "title": "Lab 4: 身份和访问管理（IAM）",
           "filename":"../../oci-iam-tutorial/oci-iam-tutorial.md"
         },
         {
-          "title": "Lab 4: 计费，用量和成本分析",
+          "title": "Lab 5: 计费，用量和成本分析",
           "filename":"../../oci-billing-tutorial/oci-billing-tutorial.md"
         }
     ]

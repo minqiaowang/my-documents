@@ -79,12 +79,13 @@ Windows:
 
    ![image-20210511155645064](images/image-20210511155645064.png)
 
-2. 创建一个策略，授予实例访问操作系统管理服务的权限，同时授予该动态组权限检索实例详细信息的权限。你可以在当前区间创建，也可以创建在上层或根区间。
+2. 创建一个策略，授予实例访问操作系统管理服务的权限，同时授予该动态组权限检索实例详细信息的权限。
 
+   - `Allow service osms to read instances in tenancy`
    - `ALLOW dynamic-group <dynamic_group_name> to use osms-managed-instances in compartment <compartment_name>`
    - `ALLOW dynamic-group <dynamic_group_name> to read instance-family in compartment <compartment_name>`
 
-   ![image-20210511161100386](images/image-20210511161100386.png)
+   ![image-20211025092223954](images/image-20211025092223954.png)
 
 3. 用opc用户ssh连接到虚机实例，重新启动Oracle Cloud Agent。
 

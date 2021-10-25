@@ -10,11 +10,6 @@
 
 **对象存储**还支持通过服务网关从甲骨文云基础设施的VCN中进行私有访问。服务网关允许从私有子网中的私有IP地址连接到对象存储公共端点。例如，您可以通过Oracle Cloud Infrastructure内部网络而不是通过Internet将数据库系统备份到对象存储桶。您可以选择使用IAM策略来控制哪些VCN或IP地址范围可以访问对象存储。
 
-**甲骨文云基础设施-对象存储服务** 提供了两个不同的存储类层，可以满足对高性能，频繁访问的“热”存储和不太频繁访问的“冷”存储的需求。 存储层可帮助您在适当的情况下最大限度地提高性能，并在可能的情况下将成本降至最低。
-
-- **标准存储**用于需要快速，立即和频繁访问的数据。 标准存储保证了数据的可访问性和访问性能，但因此价格也相对较高。
-- **存档存储**用于存储很少访问但必须长时间保留的数据。 存档存储价格更低，同时访问数据所需较长交付时间。
-
 
 
 ### 先决条件
@@ -29,7 +24,7 @@
 **注意：** *某些UI可能与说明中包含的屏幕截图有些许不同，但是您仍然可以使用本说明来完成动手实验。*
 
 
-## 1：使用OCI控制台使用对象存储服务
+## Task 1：使用OCI控制台创建对象存储服务
 
 1. 从浏览器打开OCI控制台界面，输入正确的租户名、用户名和密码登录OCI控制台。从左侧菜单中选择 **对象存储-对象存储**
 
@@ -47,7 +42,7 @@
 
 ![image-20210104133839380](images/image-20210104133839380.png)
 
-## 2：使用预先验证请求上传对象
+## Task 2：使用预先验证请求上传对象
 
 该步骤如果本地机器没有curl命令工具，可以先连接到虚拟计算节点，再进行下面的步骤。
 
@@ -70,8 +65,8 @@ $ curl -X PUT --data-binary '@<local-filename>' <unique-PAR-URL>/remote-filename
 注意，PAR-URL后面需要有远程的文件名。例如：
 
 ```shell
-[opc@compute01 ~]$ touch f102.txt
-[opc@compute01 ~]$ curl -X PUT --data-binary '@f102.txt' https://objectstorage.ap-chuncheon-1.oraclecloud.com/p/IfMtmM4wFmXQVs-751u7QHCnTE6Z85GTg1_10jPfJir3fMqnAOettIqjtNnwKx1Y/n/oraclepartnersas/b/bucket01/o/f102.txt
+[opc@compute01 ~]$ echo "This is a test file." > f102.txt
+[opc@compute01 ~]$ curl -X PUT --data-binary '@f102.txt' https://objectstorage.ap-chuncheon-1.oraclecloud.com/p/IfMtmM4wFmXQVs******ir3fMqnAOettIqjtNnwKx1Y/n/oraclepartnersas/b/bucket01/o/f102.txt
 [opc@compute01 ~]$ 
 ```
 
@@ -82,7 +77,7 @@ $ curl -X PUT --data-binary '@<local-filename>' <unique-PAR-URL>/remote-filename
 ![image-20211021150028370](images/image-20211021150028370.png)
 
 
-## 3：生命周期策略
+## Task 3：生命周期策略
 
 1. 在对象**存储服务** - 存储桶详细信息页面左侧的**资源**栏点击 **生命周期策略规则** 按钮，点击 **创建规则** 按钮创建生命周期规则。
 
@@ -94,7 +89,7 @@ $ curl -X PUT --data-binary '@<local-filename>' <unique-PAR-URL>/remote-filename
 
 
 
-## 4：对象复制
+## Task 4：对象复制
 
 1. 范围和限制
 

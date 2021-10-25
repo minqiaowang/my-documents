@@ -20,7 +20,7 @@
 **注意**：*某些UI可能与说明中包含的名目截图有些许不同，但是您仍然可以使用本说明完成动手实验。*
 
 
-## 1：块存储卷的创建、附加和移除
+## Task 1：块存储卷的创建、附加和移除
 
 1. 浏览器打开甲骨文控制台界面，输入正确的租户名、用户名和密码登录OCI控制台。从左侧菜单中选择 **块存储-块存储卷**
 
@@ -131,7 +131,7 @@ sudo lsblk #查看磁盘
 
 
 
-## 2: 修改块存储卷性能
+## Task 2: 修改块存储卷性能
 
 1. 进入**块存储卷详情**页面，点击**编辑**按钮打开块存储编辑页面。 该页面可以编辑卷大小以及调整性能和备份策略。 比如将VPU从缺省的10增加到20，观察目标卷性能的变化。编辑完成后点击**保存更改**按钮使编辑生效。
 
@@ -142,7 +142,7 @@ sudo lsblk #查看磁盘
 ![image-20211021140416438](images/image-20211021140416438.png)
 
 
-## 3: 块存储卷的备份和恢复
+## Task 3: 块存储卷的备份和恢复
 
 1. 打开**块存储卷详细信息**页面，从左侧**资源**栏选择 **块存储卷备份** 选项卡，在打开的页面中点击**创建块存储卷备份**按钮，打开**块存储卷备份**页面。填写**备份名称**，如：backup01。选择**备份类型**，如：增量备份。点击**创建块存储卷备份**按钮，
 
@@ -171,3 +171,123 @@ sudo lsblk #查看磁盘
 7. （忽略该步骤）块存储卷备份可以被用来创建新的块存储卷，或者**复制和移动到另一个区域**。 打开**块存储卷备份详情**页面，根据提示操作即可。
 
 ![image-20210303142636514](images/image-20210303142636514.png)
+
+
+
+## Task 4: 在线扩展计算实例的引导卷
+
+Linux系统默认驱动盘容量为46.6GB，您可以在OCI中在线扩展引导卷的大小，而不会出现任何停机时间。
+
+1. 在你创建的计算实例详细信息页面，在**资源**下选择**引导卷**，点击相应的引导卷名称链接。
+
+    ![image-20211025094750373](images/image-20211025094750373.png)
+
+2. 在**引导卷详细信息**页面，点击**编辑**。修改**卷大小**，从缺省的47G扩大到100G。点击**保存更改**。
+
+    ![image-20211025095317448](images/image-20211025095317448.png)
+
+3. **复制**重新扫描磁盘命令，然后关闭窗口。
+
+    ![image-20211025095701399](images/image-20211025095701399.png)
+
+4. 连接引导卷所在的虚拟机实例，Mac和Unix可以直接用命令行工具，Windows可以用putty工具。查看当前磁盘大小。可以看到当前磁盘大小为46.6G。
+
+    ```
+    [opc@compute01 ~]$ lsblk
+    NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+    sda      8:0    0 46.6G  0 disk 
+    |-sda2   8:2    0    8G  0 part [SWAP]
+    |-sda3   8:3    0 38.4G  0 part /
+    `-sda1   8:1    0  200M  0 part /boot/efi
+    [opc@compute01 ~]$
+    ```
+
+    
+
+5. 运行之前复制的重新扫描磁盘的命令。
+
+    ```
+    [opc@compute01 ~]$ sudo dd iflag=direct if=/dev/oracleoci/oraclevda of=/dev/null count=1
+    1+0 records in
+    1+0 records out
+    512 bytes (512 B) copied, 0.000724 s, 707 kB/s
+    [opc@compute01 ~]$ echo "1" | sudo tee /sys/class/block/`readlink /dev/oracleoci/oraclevda | cut -d'/' -f 2`/device/rescan
+    1
+    [opc@compute01 ~]$
+    ```
+
+    
+
+6. 重新查看磁盘大小，可以看到磁盘已经扩展到100G。
+
+    ```
+    [opc@compute01 ~]$ lsblk
+    NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+    sda      8:0    0  100G  0 disk 
+    |-sda2   8:2    0    8G  0 part [SWAP]
+    |-sda3   8:3    0 38.4G  0 part /
+    `-sda1   8:1    0  200M  0 part /boot/efi
+    [opc@compute01 ~]$ 
+    ```
+
+    
+
+7. 但此时引导卷的分区并没有真正扩展，运行`df -h`，查看分区大小。
+
+    ```
+    [opc@compute01 ~]$ df -h
+    Filesystem      Size  Used Avail Use% Mounted on
+    devtmpfs        7.6G     0  7.6G   0% /dev
+    tmpfs           7.6G     0  7.6G   0% /dev/shm
+    tmpfs           7.6G   49M  7.6G   1% /run
+    tmpfs           7.6G     0  7.6G   0% /sys/fs/cgroup
+    /dev/sda3        39G  4.9G   34G  13% /
+    /dev/sda1       200M  7.5M  193M   4% /boot/efi
+    tmpfs           1.6G     0  1.6G   0% /run/user/0
+    tmpfs           1.6G     0  1.6G   0% /run/user/994
+    tmpfs           1.6G     0  1.6G   0% /run/user/1000
+    [opc@compute01 ~]$
+    ```
+
+    
+
+8. 执行扩展分区命令。
+
+    ```
+    [opc@compute01 ~]$ sudo /usr/libexec/oci-growfs -y
+    CHANGE: partition=3 start=17188864 old: size=80486400 end=97675264 new: size=192526302 end=209715166
+    CHANGED: partition=3 start=17188864 old: size=80486400 end=97675264 new: size=192526302 end=209715166
+    meta-data=/dev/sda3              isize=256    agcount=4, agsize=2515200 blks
+             =                       sectsz=4096  attr=2, projid32bit=1
+             =                       crc=0        finobt=0, sparse=0, rmapbt=0
+             =                       reflink=0
+    data     =                       bsize=4096   blocks=10060800, imaxpct=25
+             =                       sunit=0      swidth=0 blks
+    naming   =version 2              bsize=4096   ascii-ci=0, ftype=1
+    log      =internal log           bsize=4096   blocks=4912, version=2
+             =                       sectsz=4096  sunit=1 blks, lazy-count=1
+    realtime =none                   extsz=4096   blocks=0, rtextents=0
+    data blocks changed from 10060800 to 24065787
+    [opc@compute01 ~]$ 
+    ```
+
+    
+
+9. 再次运行`df –h`，显示引导卷的分区大小扩展。
+
+    ```
+    [opc@compute01 ~]$ df -h
+    Filesystem      Size  Used Avail Use% Mounted on
+    devtmpfs        7.6G     0  7.6G   0% /dev
+    tmpfs           7.6G     0  7.6G   0% /dev/shm
+    tmpfs           7.6G   49M  7.6G   1% /run
+    tmpfs           7.6G     0  7.6G   0% /sys/fs/cgroup
+    /dev/sda3        92G  4.9G   87G   6% /
+    /dev/sda1       200M  7.5M  193M   4% /boot/efi
+    tmpfs           1.6G     0  1.6G   0% /run/user/0
+    tmpfs           1.6G     0  1.6G   0% /run/user/994
+    tmpfs           1.6G     0  1.6G   0% /run/user/1000
+    [opc@compute01 ~]$
+    ```
+
+    
