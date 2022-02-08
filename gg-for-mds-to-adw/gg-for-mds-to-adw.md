@@ -300,7 +300,7 @@
 
     
 
-## Step 4: 初始化加载
+## Step 4: 初始化加载配置
 
 1. 配置源端初始化抽取参数extinit文件，直接将extract文件存放到目标端的目录下。
 
@@ -314,24 +314,15 @@
 
     
 
-2. 添加并运行extinit
+2. 添加extinit
 
     ```
     add extract extinit, SOURCEISTABLE
-    start extract extinit
     ```
 
     
 
-3. 可以通过命令查看运行结果
-
-    ```
-    view report extinit
-    ```
-
-    
-
-4. 配置目标端初始化加载repinit参数文件
+3. 配置目标端初始化加载repinit参数文件
 
     ```
     SPECIALRUN
@@ -346,19 +337,9 @@
 
     
 
-5. 在操作系统命令下运行下面命令进行加载
+4. sadf
 
-    ```
-    $ replicat paramfile ./dirprm/repinit.prm reportfile ./dirrpt/repinit.rpt
-    ```
-
-    
-
-6. 执行结束后查看repinit.rpt文件，是否有正常完成
-
-7. sadf
-
-## Step 5: 增量复制
+## Step 5: 增量复制配置
 
 1. 源端增量抽取文件extjob01参数
 
@@ -375,12 +356,11 @@
 
     
 
-2. 添加extract并运行
+2. 添加extract
 
     ```
     add ext extjob01,tranlog,begin now
     add exttrail ./dirdat/ej, ext extjob01
-    start extract extjob01
     ```
 
     
@@ -400,15 +380,75 @@
 
     
 
-4. 添加replicat 并运行
+4. 添加replicat
 
     ```
     add replicat repjob01,exttrail /home/oracle/ggs-mysql/dirdat/ej,checkpointtable ggadmin.checkpoint
-    start replicat repjob01
     ```
 
     
 
 5. sdaf
 
-6. 
+## Step 6: 开启初始化复制和增量复制
+
+1. 源端先启动增量抽取
+
+    ```
+    start extract extjob01
+    ```
+
+    
+
+2. 再启动初始化抽取
+
+    ```
+    start extract extinit
+    ```
+
+    
+
+3. 可以通过命令查看运行结果直到初始化抽取完成
+
+    ```
+    view report extinit
+    ```
+
+    
+
+4. 目标端在操作系统命令下运行下面命令进行初始化加载
+
+    ```
+    $ replicat paramfile ./dirprm/repinit.prm reportfile ./dirrpt/repinit.rpt
+    ```
+
+    
+
+5. 执行结束后查看repinit.rpt文件，是否有正常完成
+
+6. 初始化加载后启动增量加载，注意repjob01参数文件中有HANDLECOLLISIONS参数。
+
+    ```
+    start replicat repjob01
+    ```
+
+    
+
+7. 查看replicat状态，直到所有在初始化加载中的更新都完成加载。如初始化更新在12:05结束，增量更新到12:05以后就行。
+
+    ```
+    INFO REPLICAT repjob01
+    ```
+
+    
+
+8. 现在可以关闭HANDLECOLLISIONS参数，这是用来解决初始化加载有数据冲突的。
+
+    ```
+    SEND REPLICAT repjob01, NOHANDLECOLLISIONS
+    ```
+
+    
+
+9. sdaf
+
