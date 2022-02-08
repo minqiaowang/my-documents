@@ -6,9 +6,19 @@
 
 ## Step 1：环境准备
 
-1. Magento软件和demo数据安装，使用MDS
+1. 创建MDS时修改新的配置文件模版，`binlog_row_value_options`设为空，否则GG会有如下警告
 
-2. ADW实例，创建用户
+    ```
+    WARN !! Variable ‘binlog_row_value_options’ is set to PARTIAL_JSON. MySQL capture does not supp
+    ort partial json updates. Extract will abend if a record with partial json updates is encountere
+    d. You can set binlog_row_value_options to empty ('') to aovid extract abend
+    ```
+
+    
+
+2. Magento软件和demo数据安装，使用MDS。
+
+3. ADW实例，创建用户
 
     ```
     create user magento01 identified by "WelcomeOra#2021_";
@@ -18,15 +28,17 @@
 
     
 
-3. 在ADW里创建magento的表，注意不要创建foreign key。另外某些字段要允许为空。
+4. 在ADW里创建magento的表，注意不要创建foreign key。另外某些字段要允许为空。
 
-4. dsf
+5. dsf
 
 ## Step 2: 安装GG
 
-1. 下载oracle instant client 19c，包括basic和sqlplus。
+1. 安装mysql client
 
-2. 安装oracle preinstall rpm 包
+2. 下载oracle instant client 19c，包括basic和sqlplus。
+
+3. 安装oracle preinstall rpm 包
 
     ```
     sudo yum -y install oracle-database-preinstall-19c
@@ -34,9 +46,9 @@
 
     
 
-3. 在oracle用户下解压oracle instant client zip包。
+4. 在oracle用户下解压oracle instant client zip包。
 
-4. 设置环境变量
+5. 设置环境变量
 
     ```
     ORACLE_HOME=/home/oracle/instantclient_19_14
@@ -51,7 +63,7 @@
 
     
 
-5. 下载AWD wallet zip包，展开到instantclient下network/admin下，修改sqlnet.ora, 将？改为绝对路径。
+6. 下载AWD wallet zip包，展开到instantclient下network/admin下，修改sqlnet.ora, 将？改为绝对路径。
 
     ```
     WALLET_LOCATION = (SOURCE = (METHOD = file) (METHOD_DATA = (DIRECTORY="/home/oracle/instantclient_19_14/network/admin")))
@@ -60,7 +72,7 @@
 
     
 
-6. 测试是否能正常连接到ADW
+7. 测试是否能正常连接到ADW
 
     ```
     sqlplus admin/PlatformTS#2021@aetnw_low
@@ -68,7 +80,7 @@
 
     
 
-7. 下载gg 21.4.0.0.1 for MySQL. 使用之前版本在连接MDS时会遇到字符集错误。
+8. 下载OGG 21.4.0.0.1 for MySQL. 使用之前版本在连接MDS时会遇到字符集错误。
 
     ```
     2022-02-07 05:47:18  ERROR   OGG-00768  Failed to Map database character to ULibCharSet. SQL error (0).
@@ -76,7 +88,7 @@
 
     
 
-8. 展开到相应目录下，如ggs-mysql，运行ggsci
+9. 展开到相应目录下，如ggs-mysql，运行ggsci
 
     ```
     GGSCI> CREATE SUBDIRS
@@ -85,7 +97,7 @@
 
     
 
-9. 在MDS中创建一个新的用户，并授予相应权限
+10. 在MDS中创建一个新的用户，并授予相应权限
 
     ```
     grant select,update,insert,delete,create,execute on *.* to ogg@'%' identified by "WelcomeOra#2021_";
@@ -95,7 +107,7 @@
 
     
 
-10. 在ggsci中测试是否能连接到MDS的magento数据库。
+11. 在ggsci中测试是否能连接到MDS的magento数据库。
 
     ```
     dblogin sourcedb magento@132.226.237.217,userid ogg,password "WelcomeOra#2021_"
@@ -103,7 +115,7 @@
 
     
 
-11. 下载ogg for oracle，解压到临时目录，修改`Disk1/respone/oggcore.rsp`文件
+12. 下载ogg for oracle，解压到临时目录，修改`Disk1/respone/oggcore.rsp`文件
 
     ```
     #-------------------------------------------------------------------------------
@@ -175,7 +187,7 @@
 
     
 
-12. 静默安装ogg for oracle，指定response文件需要用绝对路径
+13. 静默安装ogg for oracle，指定response文件需要用绝对路径
 
     ```
     runInstaller -silent -nowait -responseFile absolute_path_to_response_file
@@ -183,9 +195,9 @@
 
     
 
-13. 以root用户运行oraInventory下的orainstRoot.sh
+14. 以root用户运行oraInventory下的orainstRoot.sh
 
-14. 在ggs-oracle目录下运行ggsci
+15. 在ggs-oracle目录下运行ggsci
 
     ```
     GGSCI> CREATE SUBDIRS
@@ -194,7 +206,7 @@
 
     
 
-15. 在ADW中解锁ggadmin用户
+16. 在ADW中解锁ggadmin用户
 
     ```
     alter user ggadmin identified by "WelcomeOra#2021_" account unlock;
@@ -202,7 +214,7 @@
 
     
 
-16. 测试在ggsci中是否能连接ADW
+17. 测试在ggsci中是否能连接ADW
 
     ```
     DBLOGIN userid ggadmin@aetnw_low, PASSWORD "WelcomeOra#2021_"
@@ -210,9 +222,9 @@
 
     
 
-17. eaff
+18. eaff
 
-18. 
+19. 
 
 ## Step 3: 配置GG
 
