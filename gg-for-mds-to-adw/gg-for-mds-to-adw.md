@@ -30,7 +30,7 @@
 
 4. 在ADW里创建magento的表，注意不要创建foreign key。另外某些字段要允许为空。
 
-5. dsf
+    
 
 ## Step 2: 安装GG
 
@@ -222,7 +222,15 @@
 
     
 
-18. eaff
+18. 也可以用创建credential store来连接ADW。
+
+    ```
+    ADD CREDENTIALSTORE 
+    ALTER CREDENTIALSTORE ADD USER ggadmin@aetnw_low PASSWORD "WelcomeOra#2021_" alias adb_alias
+    DBLOGIN USERIDALIAS adb_alias
+    ```
+
+    
 
 19. 
 
@@ -436,7 +444,13 @@
 
     
 
-5. 执行结束后查看repinit.rpt文件，是否有正常完成
+5. 执行结束后查看repinit.rpt文件，是否有正常完成。同时也可查询ggserror.log，大部分错误是因为插入空值到非空字段引起的。可以修改ADW中的表定义，如：
+
+    ```
+    alter table "MAGENTO01"."INTEGRATION" modify("EMAIL" null);
+    ```
+
+    
 
 6. 初始化加载后启动增量加载，注意repjob01参数文件中有HANDLECOLLISIONS参数。
 
