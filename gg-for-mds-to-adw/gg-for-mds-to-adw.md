@@ -18,7 +18,7 @@
 
 2. Magento软件和demo数据安装，使用MDS。
 
-3. ADW实例，创建用户
+3. ADW实例，创建用户。
 
     ```
     create user magento01 identified by "WelcomeOra#2021_";
