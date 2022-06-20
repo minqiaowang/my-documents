@@ -112,7 +112,27 @@ sudo mount /dev/sdb /mnt/vol1  #[你的路径]挂载卷
 
     
 
-12. 移除卷：首先移除挂载，再执行步骤9中DETACH COMMANDS命令移除卷
+12. 在Linux中如果我们想让虚机在重启时自动挂载磁盘，需要做些配置。首先，我们要查看磁盘的设备号。
+
+    ```
+    [opc@compute01 ~]$ sudo blkid
+    /dev/sda3: UUID="fdff5a28-34df-4222-a7f2-a22058607fbf" TYPE="xfs" PARTUUID="063a3c79-064d-4ce5-8e77-ca36fa969ee5" 
+    /dev/sda1: SEC_TYPE="msdos" UUID="3802-1B67" TYPE="vfat" PARTLABEL="EFI System Partition" PARTUUID="d6548156-5872-4e03-b30a-f1737ba0555b" 
+    /dev/sda2: UUID="4f2b766a-c551-408e-abbb-3d1cf5678a4d" TYPE="swap" PARTUUID="40e32313-96f2-4531-b4b2-e20c8bb438ce" 
+    /dev/sdb: UUID="0d235dab-7c5f-4b03-ae94-35fa672b23d7" TYPE="ext4"
+    ```
+
+    
+
+13. 修改/etc/fstab文件，增加如下一行。重启虚机，检查磁盘挂载情况。
+
+    ```
+    UUID=0d235dab-7c5f-4b03-ae94-35fa672b23d7 /mnt/vol1 ext4 defaults,_netdev,nofail 0 2
+    ```
+
+    
+
+12. 要移除卷：首先删除/etc/fstab文件中新加的行，再移除挂载，最后执行步骤9中DETACH COMMANDS命令移除卷
 
 ```shell
 sudo umount -l /mnt/vol1 #卸载磁盘
