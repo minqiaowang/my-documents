@@ -1,0 +1,8 @@
+export TF_VAR_tenancy_ocid=ocid1.tenancy.oc1..aaaaaaaafj37mytx22oquorcznlfuh77cd45int7tt7fo27tuejsfqbybzrq
+export TF_VAR_user_ocid=ocid1.user.oc1..aaaaaaaau4a24oyl3bj2ings4uzmuhcv7a27jhw6mdu3nqb2aoqs7e4pjmpa
+export TF_VAR_fingerprint=18:79:6e:66:25:ff:0c:e1:d6:65:49:f4:40:b8:17:24
+export TF_VAR_private_key_path=~/student01/labkey
+export TF_VAR_compartment_ocid=ocid1.compartment.oc1..aaaaaaaahnn5lmnbuqbbyddbtpd5ixrvi5kuibzbeksokn2nm6ar6zcc5d7q
+export TF_VAR_region=ap-singapore-1
+export TF_VAR_ssh_public_key=$(cat ~/student01/labkey.pub)
+export TF_VAR_ssh_private_key=$(cat ~/student01/labkey)
