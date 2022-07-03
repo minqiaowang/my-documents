@@ -1,0 +1,17 @@
+CentOS 7
+~]# sudo yum -y install cloud-utils-growpart gdisk
+~]# sudo growpart /dev/sda 3
+~]# sudo xfs_growfs /dev/sda3
+
+注：如果运行出现”unexpected output in sfdisk –version [sfdisk，来自 util-linux 2.23.2]”这个错误，就是编码的问题，运行下面这行命令可以解决
+export LANG=en_US.UTF-8
+*********************************************
+
+CentOS 8
+sudo growpart /dev/sda 3
+sudo pvresize  /dev/sda3
+sudo lvextend -rl +100%FREE /dev/mapper/centosvolume-root
+
+
+Oracle Linux
+/usr/libexec/oci-growfs -y
