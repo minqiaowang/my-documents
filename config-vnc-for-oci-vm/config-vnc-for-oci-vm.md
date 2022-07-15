@@ -48,3 +48,21 @@ sudo firewall-cmd --list-all
   ```
 
 8. 客户端连接`localhost:5901`（如果不用ssh tunnel，则用`<public ip>:5901`）
+
+9. 中断vncserver
+
+    ```
+    $ vncserver -kill :1
+    ```
+
+    
+
+10. 如果在VNC中terminal打不开，可以在profile中设置后重启vncserver
+
+    ```
+    export LANG="en_US.UTF-8"
+    export LANGUAGE="en_US"
+    export LC_ALL=C
+    ```
+
+    
