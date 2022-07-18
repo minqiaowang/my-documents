@@ -25,10 +25,11 @@ Swingbench can be used to demonstrate and test technologies such as Real Applica
 
     
 
-2. 安装jdk
+2. 安装jdk17
 
     ```
-    sudo yum -y install java-1.8.0-openjdk-headless.x86_64
+    $ wget https://download.oracle.com/java/17/latest/jdk-17_linux-x64_bin.rpm
+    $ sudo yum -y install jdk-17_linux-x64_bin.rpm
     ```
 
     
@@ -37,14 +38,14 @@ Swingbench can be used to demonstrate and test technologies such as Real Applica
 
     ```
     $ java -version
-    openjdk version "1.8.0_332"
-    OpenJDK Runtime Environment (build 1.8.0_332-b09)
-    OpenJDK 64-Bit Server VM (build 25.332-b09, mixed mode)
+    java version "17.0.3.1" 2022-04-22 LTS
+    Java(TM) SE Runtime Environment (build 17.0.3.1+2-LTS-6)
+    Java HotSpot(TM) 64-Bit Server VM (build 17.0.3.1+2-LTS-6, mixed mode, sharing)
     ```
 
     
 
-4. 下载swingbench最新版。
+4. 下载swingbench最新版。或者采用本文使用的版本[27052022]()
 
     ```
     $ wget https://www.dominicgiles.com/site_downloads/swingbenchlatest.zip
@@ -189,31 +190,121 @@ Swingbench can be used to demonstrate and test technologies such as Real Applica
 2. 生成测试数据，`-h`列出所有参数, 其中`-scale 5` 代表生成5GB的数据，`-cf`为ADB的wallet文件存放的目录。请使用自己的admin的password和要创建的用户soe的password。该过程时间较长，请不要关闭窗口。
 
     ```
-    $ ./oewizard -cl -create -cs ajdtest_medium -cf ~/wallet_adb/Wallet_AJDtest.zip -u soe -p WelcomePTS_2022# -scale 5 -dba admin -dbap WelcomePTS_2022#
+    $ ./oewizard -cl -create -cs ajdtest_medium -cf ~/wallet_adb/Wallet_AJDtest.zip -u soe -p WelcomePTS_2022# -scale 5 -hashpart -dba admin -dbap WelcomePTS_2022# -v
     ```
 
     
 
-3. 运行工作负载，其中`-rt 0:30.00`为运行30分钟
+3. 检查数据库对象创建情况
 
     ```
-    $ ./charbench -c ../configs/SOE_Server_Side_V2.xml \
-                -cs ajdtest_medium \ 
-                -cf ~/wallet_adb/Wallet_AJDtest.zip \
-                -u soe \
-                -p WelcomePTS_2022# \
-                -v users,tpm,tps \
-                -intermin 0 \
-                -intermax 0 \
-                -min 0 \
-                -max 0 \
-                -uc 128 \
-                -di SQ,WQ,WA \
-                -rt 0:30.00
+    $ ./sbutil -soe -cs ajdtest_low -cf ~/wallet_adb/Wallet_AJDtest.zip -u soe -p WelcomePTS_2022# -val
+    Operation is successfully completed.
+    Operation is successfully completed.
+    The Order Entry Schema appears to be valid.
+    --------------------------------------------------
+    |Object Type    |     Valid|   Invalid|   Missing|
+    --------------------------------------------------
+    |Table          |        10|         0|         0|
+    |Index          |        26|         0|         0|
+    |Sequence       |         5|         0|         0|
+    |View           |         2|         0|         0|
+    |Code           |         1|         0|         0|
+    --------------------------------------------------
     ```
 
     
 
-4. sdaf
+4. 查看创建的表
 
-5. 
+    ```
+    $ ./sbutil -soe -cs ajdtest_low -cf ~/wallet_adb/Wallet_AJDtest.zip -u soe -p WelcomePTS_2022# -tables
+    Operation is successfully completed.
+    Operation is successfully completed.
+    Order Entry Schemas Tables
+    +----------------------+------------+---------+----------+-------------+--------------+
+    | Table Name           | Rows       | Blocks  | Size     | Compressed? | Partitioned? |
+    +----------------------+------------+---------+----------+-------------+--------------+
+    | ORDER_ITEMS          | 35,528,333 | 335,060 | 2.6GB    | Disabled    | No           |
+    | ORDERS               | 7,148,950  | 127,397 | 1000.0MB | Disabled    | No           |
+    | CUSTOMERS            | 5,000,112  | 96,797  | 760.0MB  | Disabled    | No           |
+    | ADDRESSES            | 7,500,000  | 84,557  | 672.0MB  | Disabled    | No           |
+    | CARD_DETAILS         | 7,500,000  | 60,077  | 472.0MB  | Disabled    | No           |
+    | LOGON                | 11,914,920 | 41,717  | 336.0MB  | Disabled    | No           |
+    | INVENTORIES          | 901,103    | 2,512   | 20.0MB   | Disabled    | No           |
+    | PRODUCT_DESCRIPTIONS | 1,000      | 35      | 320KB    | Disabled    | No           |
+    | PRODUCT_INFORMATION  | 1,000      | 28      | 256KB    | Disabled    | No           |
+    | WAREHOUSES           | 1,000      | 5       | 64KB     | Disabled    | No           |
+    | ORDERENTRY_METADATA  | 4          | 5       | 64KB     | Disabled    | No           |
+    +----------------------+------------+---------+----------+-------------+--------------+
+                                    Total Space     5.7GB
+    ```
+
+    
+
+5. 运行工作负载，其中`-rt 0:30.00`为运行30分钟
+
+    ```
+    $ ./charbench -c ../configs/SOE_Server_Side_V2.xml -cs ajdtest_low -cf ~/wallet_adb/Wallet_AJDtest.zip -u soe -p WelcomePTS_2022# -v users,tpm,tps -intermin 0 -intermax 0 -min 0 -max 0 -uc 128 -di SQ,WQ,WA -rt 0:30.00
+    Swingbench 
+    Author  :  	 Dominic Giles 
+    Version :  	 2.6.0.1170  
+    
+    Results will be written to results.xml 
+    Hit Return to Terminate Run... 
+    
+    Time     Users       TPM      TPS     
+    06:08:06 [0/128]     0        0       
+    06:08:08 [0/128]     0        0       
+    06:08:09 [0/128]     0        0       
+    06:08:10 [0/128]     0        0       
+    06:08:11 [0/128]     0        0       
+    06:08:12 [0/128]     0        0       
+    06:08:13 [0/128]     0        0       
+    06:08:14 [0/128]     0        0       
+    06:08:15 [11/128]    0        0       
+    06:08:16 [29/128]    0        0       
+    06:08:17 [33/128]    0        0       
+    06:08:18 [46/128]    0        0       
+    06:08:19 [104/128]   0        0       
+    06:08:20 [128/128]   14       14      
+    06:08:21 [128/128]   27       13      
+    06:08:22 [128/128]   44       17      
+    06:08:23 [128/128]   124      80      
+    06:08:24 [128/128]   540      416     
+    06:08:25 [128/128]   1304     764     
+    06:08:26 [128/128]   1848     544     
+    06:08:27 [128/128]   2385     537     
+    06:08:28 [128/128]   3057     672     
+    06:08:29 [128/128]   3999     942     
+    06:08:30 [128/128]   4883     884     
+    06:08:31 [128/128]   5504     621     
+    06:08:32 [128/128]   6154     650     
+    06:08:33 [128/128]   7055     901     
+    06:08:34 [128/128]   8056     1001    
+    06:08:35 [128/128]   8801     745     
+    06:08:36 [128/128]   9657     856     
+    06:08:37 [128/128]   10383    726     
+    06:08:38 [128/128]   11388    1005  
+    ```
+
+    
+
+6. 按Control+C退出charbench。
+
+7. 图形界面运行swingbench
+
+    ```
+    $ ./swingbench -c ../configs/SOE_Server_Side_V2.xml -u soe -p WelcomePTS_2022# -cs ajdtest_low -cf ~/wallet_adb/Wallet_AJDtest.zip -min 0 -max 10 -intermin 200 -intermax 500 -dim 1024,768 -pos 100,100
+    
+    ```
+
+    
+
+8. 可以在图形界面修改相应的参数，然后点击运行按钮。
+
+    ![image-20220718141314640](images/image-20220718141314640.png)
+
+9. 点击停止按钮，然后退出swingbench界面
+
+10. 
