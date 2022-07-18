@@ -45,7 +45,7 @@ Swingbench can be used to demonstrate and test technologies such as Real Applica
 
     
 
-4. 下载swingbench最新版。或者采用本文使用的版本[27052022]()
+4. 下载swingbench最新版。要连接ADB，必须采用合适的版本，如：本文使用的版本[27052022](https://github.com/minqiaowang/my-documents/raw/main/setup-swingbench-for-adb/swingbench27052022.zip)
 
     ```
     $ wget https://www.dominicgiles.com/site_downloads/swingbenchlatest.zip
