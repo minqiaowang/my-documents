@@ -45,20 +45,10 @@ Swingbench can be used to demonstrate and test technologies such as Real Applica
 
     
 
-4. 下载swingbench最新版。要连接ADB，必须采用合适的版本，如：本文使用的版本[27052022](https://github.com/minqiaowang/my-documents/raw/main/setup-swingbench-for-adb/swingbench27052022.zip)
+4. 下载swingbench最新版。可以从[官网下载](https://www.dominicgiles.com/site_downloads/swingbenchlatest.zip)。要连接ADB，必须采用合适的版本，如：本文使用的版本[build27052022](https://github.com/minqiaowang/my-documents/raw/main/setup-swingbench-for-adb/swingbench27052022.zip)。
 
     ```
-    $ wget https://www.dominicgiles.com/site_downloads/swingbenchlatest.zip
-    --2022-07-14 04:57:55--  https://www.dominicgiles.com/site_downloads/swingbenchlatest.zip
-    Resolving www.dominicgiles.com (www.dominicgiles.com)... 66.84.29.23
-    Connecting to www.dominicgiles.com (www.dominicgiles.com)|66.84.29.23|:443... connected.
-    HTTP request sent, awaiting response... 200 OK
-    Length: 41211958 (39M) [application/zip]
-    Saving to: 'swingbenchlatest.zip'
-    
-    100%[=============================================================>] 41,211,958  9.61MB/s   in 4.7s   
-    
-    2022-07-14 04:58:02 (8.35 MB/s) - 'swingbenchlatest.zip' saved [41211958/41211958]
+    $ wget https://github.com/minqiaowang/my-documents/raw/main/setup-swingbench-for-adb/swingbench27052022.zip
     ```
 
     
@@ -66,7 +56,7 @@ Swingbench can be used to demonstrate and test technologies such as Real Applica
 5. 解压
 
     ```
-    $ unzip swingbenchlatest.zip
+    $ unzip swingbench27052022.zip
     ```
 
     
