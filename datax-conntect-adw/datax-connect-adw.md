@@ -34,11 +34,17 @@
 
    
 
-3. 修改oracle driver, 在下面两个目录下，先备份ojdbc6-11.2.0.3.jar，再用ojdbc8.jar直接覆盖ojdbc6-11.2.0.3.jar
+3. 修改oracle driver, 在下面两个目录下，先删除ojdbc6-11.2.0.3.jar，再拷贝ojdbc8.jar到这个目录下。
 
    ```
    ./datax/plugin/reader/oraclereader/libs
    ./datax/plugin/writer/oraclewriter/libs
+   ```
+
+   如果是datax web，还需要覆盖以下目录的oracle driver
+
+   ```
+   ./datax-web-2.1.2/modules/datax-admin/lib
    ```
 
    
