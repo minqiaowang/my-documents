@@ -14,7 +14,7 @@
    create table test (a varchar2(20));
    ```
 
-3. 如果用mTLS，连接串如下：
+3. 如果用mTLS，连接串如下(还需要拷贝另外三个相关文件，详见datax-web配置文档)：
 
    ```
    jdbc:oracle:thin:@DBName_medium?TNS_ADMIN=<wallet解压目录全路径>
