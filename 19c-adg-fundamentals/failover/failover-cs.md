@@ -16,7 +16,7 @@ Estimated Lab Time: 15 Minutes
 
 Watch the video below for a quick walk through of the lab.
 
-[](youtube:9KUo95KhnVQ)
+##### [](youtube:9KUo95KhnVQ)
 
 ### Objectives
 - Verify the database roles in the database
@@ -52,7 +52,7 @@ Watch the video below for a quick walk through of the lab.
     ````
     <copy>Select name, db_unique_name, database_role from v$database;</copy>
     ````
-  ![](../switchover/images/new-primary.png)
+    ![](../switchover/images/new-primary.png)
 
 
 We can conclude from the previous outputs which database is PRIMARY and which is a PHYSICAL STANDBY.
@@ -120,13 +120,13 @@ A failover means that the old primary, in our case the DB ADGHOLAD2, will be dis
     ````
     <copy>Select name, db_unique_name, database_role from v$database;</copy>
     ````
-  ![](../connect-db/images/connect-primary.png)
+    ![](../connect-db/images/connect-primary.png)
 
 1. Do the same in the **second browser tab** :
     ````
     <copy>Select name, db_unique_name, database_role from v$database;</copy>
     ````
-  ![](../connect-db/images/connect-standby.png)
+    ![](../connect-db/images/connect-standby.png)
 
   We can conclude that the Database that was PRIMARY is now PHYSICAL STANDBY, and vice versa.
 
