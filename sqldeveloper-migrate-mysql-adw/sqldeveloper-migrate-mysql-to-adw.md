@@ -1,4 +1,4 @@
-# Using Sqldeveloper Offline Mode Migrate MySQL to ADW
+Using Sqldeveloper Offline Mode Migrate MySQL to ADW
 
 ## 先决条件
 
@@ -17,7 +17,9 @@
 
    ![image-20220829172352045](images/image-20220829172352045.png)
 
-3. 配置好SQLDevelper，连接ADW和MySQL
+4. 配置好SQLDeveloper，连接ADW和MySQL
+
+3. 如果SQLDeveloper，不能直接连到MySQL，可以参考附录，脱机捕获源数据库的元数据。
 
 ## 迁移步骤
 
