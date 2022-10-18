@@ -15,3 +15,6 @@ sudo lvextend -rl +100%FREE /dev/mapper/centosvolume-root
 
 Oracle Linux
 /usr/libexec/oci-growfs -y
+
+ssh through proxy
+ssh -i labkey -o "ProxyCommand=nc -X connect -x cn-proxy.jp.oracle.com:80 %h %p" opc@152.69.212.174
