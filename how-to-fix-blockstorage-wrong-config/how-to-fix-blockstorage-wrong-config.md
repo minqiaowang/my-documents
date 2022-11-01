@@ -28,8 +28,8 @@
     - ***/usr/sbin/load_policy -i***
     - ***/bin/mount -o remount, rw /***
     - ***sudo passwd opc***
-    - ***sudo reboot -f***
     - 添加pub key后就可以重启了。
+    - ***sudo reboot -f***
 2. 或者（optional）修改root密码并用root登录：[Reset-password-by-serial-console.pdf](https://github.com/minqiaowang/my-documents/blob/main/how-to-fix-blockstorage-wrong-config/Reset-password-by-serial-console.pdf)
 3. 修改/etc/fstab文件：
 
@@ -38,3 +38,13 @@
   ```
 
 4. 在Console重启VM
+
+
+
+**如果要修改为允许密码方式登录**
+
+在这个文件中/etc/ssh/sshd_config修改
+PasswordAuthentication yes
+ChallengeResponseAuthentication yes
+重启sshd
+sudo systemctl reload sshd
