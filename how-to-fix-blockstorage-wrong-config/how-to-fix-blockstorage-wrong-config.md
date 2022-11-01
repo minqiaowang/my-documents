@@ -24,10 +24,13 @@
 
 ## 如果已经发生虚机重启，不能SSH连接，如何修复
 
-1. 创建serial console 连接：可以参考[官方文档](https://docs.oracle.com/en-us/iaas/Content/Compute/References/serialconsole.htm#Instance_Console_Connections)，或者http://www.happymillfam.com/login-to-new-oci-linux-instance-via-console/，修改opc密码并用opc密码登录
-
+1. 创建serial console 连接：可以参考[官方文档](https://docs.oracle.com/en-us/iaas/Content/Compute/References/serialconsole.htm#Instance_Console_Connections)，或者http://www.happymillfam.com/login-to-new-oci-linux-instance-via-console/，修改opc密码并用opc密码登录。 运行下列命令
+    - ***/usr/sbin/load_policy -i***
+    - ***/bin/mount -o remount, rw /***
+    - ***sudo passwd opc***
+    - ***sudo reboot -f***
+    - 添加pub key后就可以重启了。
 2. 或者（optional）修改root密码并用root登录：[Reset-password-by-serial-console.pdf](https://github.com/minqiaowang/my-documents/blob/main/how-to-fix-blockstorage-wrong-config/Reset-password-by-serial-console.pdf)
-
 3. 修改/etc/fstab文件：
 
   ```
