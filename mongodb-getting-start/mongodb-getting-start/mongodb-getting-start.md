@@ -1,12 +1,13 @@
 ## MongoDB安装和简单使用
 
+## 简介
+MongoDB 是由C++语言编写的，是一个基于分布式文件存储的开源数据库系统。MongoDB 是一个面向文档存储的数据库，操作起来比较简单和容易。MongoDB 旨在为WEB应用提供可扩展的高性能数据存储解决方案。在本联系中你将学习如何安装MongoDB服务器和客户端，以及对MongoDB的简单操作。
 
-
-## 先决条件
+### 先决条件
 
 1. 在OCI上创建一个VM，Oracle Linux 7.9，1C16G
-2. [mongoDB安装文档](https://www.mongodb.com/docs/manual/administration/install-community/)
-2. [mongosh安装和使用文档](https://www.mongodb.com/docs/mongodb-shell/)
+2. 参考[mongoDB安装文档](https://www.mongodb.com/docs/manual/administration/install-community/)
+2. 参考[mongosh安装和使用文档](https://www.mongodb.com/docs/mongodb-shell/)
 
 
 
