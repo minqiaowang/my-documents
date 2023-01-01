@@ -1,0 +1,17 @@
+{
+    "workshoptitle": "MongoDB Getting Start",
+    "tutorials": [
+        {           
+            "title": "Lab 1: MongoDB基础",
+            "filename": "../../mongodb-getting-start/mongodb-getting-start.md"
+        },
+        {            
+            "title": "Lab 2: 配置MongoDB复制集",
+            "filename": "../../mongodb-replicate/mongodb-replicate.md"
+        },
+        {            
+            "title": "Lab 3: 配置MongoDB分片",
+            "filename": "../../mongodb-sharding/mongodb-sharding.md"
+        }
+    ]
+}

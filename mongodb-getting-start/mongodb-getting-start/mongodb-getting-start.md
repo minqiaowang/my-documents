@@ -94,8 +94,6 @@
 
 10. sadf
 
-11. sdaf
-
 ## 安装客户端工具-mongosh
 
 1. 编辑yum repository文件
@@ -382,8 +380,6 @@
     
 
 23. sdf
-
-24. sdaf
 
 
 
