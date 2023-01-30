@@ -53,7 +53,7 @@
     declare -x TF_VAR_private_key_path="/home/minqiao_wa/student01/labkey"
     declare -x TF_VAR_region="ap-singapore-1"
     declare -x TF_VAR_ssh_private_key="-----BEGIN RSA PRIVATE KEY-----
-    declare -x TF_VAR_ssh_public_key="ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEArn21PGy1SZ6AYFlztFUL1gv63EXMbSb4qo1SzPAwZgcQXjciU8YsettV81YIFzvIedEn4mhD8ebGKK1k8oYB7HYNsSywbXmqisI+75xY37EZT6ah+cxENmVxmzpOjOYH31wj792tf/WpUUpnN8MdIlTW8uAWNIa6Mz9YhAZ0sJILDOlSNr/rorrGYyYLBtJqbVAZlwEfUSgQTkMwBWK4L7aXOLMDFFAi2oEqsjmT3rWX55YzrwXIMvNXjslen6gXqrdoCeakKMbQ788fQqb1P9hgsmHhkERJfwhgFy+R1RUfPMHdZG7P2vNLUZDd54ROCmj2F852HkertpDMFNMWrQ== oracle@oraclelinux6.localdomain"
+    declare -x TF_VAR_ssh_public_key="ssh-rsa AAAAB3****88fQqb1P9hgsmHhkERJfwhgFy+R1RU***tpDMFNMWrQ== oracle@oraclelinux6.localdomain"
     declare -x TF_VAR_tenancy_ocid="ocid1.tenancy.oc1..aaaaaaaafj37mytx22oquorcznlfuh77cd45int7tt7fo27tuejsfqbybzrq"
     declare -x TF_VAR_user_ocid="ocid1.user.oc1..aaaaaaaau4a24oyl3bj2ings4uzmuhcv7a27jhw6mdu3nqb2aoqs7e4pjmpa"
     ```
