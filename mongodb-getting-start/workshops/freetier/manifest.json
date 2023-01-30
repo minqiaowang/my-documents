@@ -12,6 +12,10 @@
         {            
             "title": "Lab 3: 配置MongoDB分片",
             "filename": "../../mongodb-sharding/mongodb-sharding.md"
+        },
+        {            
+            "title": "Lab 4: 使用Prometheus和Grafana监控MongoDB",
+            "filename": "../../mongodb-monitor/mongodb-monitor.md"
         }
     ]
 }
