@@ -11,7 +11,7 @@
 
 ## Step 1: 环境准备
 
-以下步骤如没有特别说明，需要在所有节点都要进行操作，缺省是用root用户。
+以下步骤如没有特别说明，需要在**所有节点**都要进行操作，缺省是用**root**用户。
 
 1. 编辑主机名映射
 
@@ -92,7 +92,7 @@
 
     
 
-7. 将公钥的内容添加到另两台虚机的/root/.ssh/authorized_keys文件中
+7. 将公钥的内容添加到另两台node虚机的/root/.ssh/authorized_keys文件中
 
     ```
     [root@k8s-master ~]# cat .ssh/id_rsa.pub 
@@ -101,7 +101,7 @@
 
     
 
-8. 测试是否能连接另两台虚机。三台虚机两两测试。
+8. 测试是否能连接另两台虚机。三台虚机两两测试。（master到两个node连通就行）
 
     ```
     [root@k8s-master ~]# ssh root@k8s-node1
@@ -208,13 +208,17 @@
 
     
 
-16. 设置docker安装镜像仓库
+16. 设置docker安装镜像仓库，二选一（境外选第二个）
 
-    ```
-    yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
-    ```
+     ```
+     yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+     ```
 
-    
+     ```
+     yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+     ```
+
+     
 
 17. 安装docker engine
 
@@ -224,15 +228,21 @@
 
     
 
-18. 在Oracle Linux上某些依赖包需要没有安装，可以单独下载安装后才能执行上一步。(yum localinstall)
+18. 在Oracle Linux上某些依赖包需要没有安装，
 
-    ```
-    wget http://mirror.centos.org/centos/7/extras/x86_64/Packages/slirp4netns-0.4.3-4.el7_8.x86_64.rpm
-    wget http://mirror.centos.org/centos/7/extras/x86_64/Packages/fuse3-libs-3.6.1-4.el7.x86_64.rpm
-    wget http://mirror.centos.org/centos/7/extras/x86_64/Packages/fuse-overlayfs-0.7.2-6.el7_8.x86_64.rpm
-    ```
+     ```
+     yum install slirp4netns fuse3-libs fuse-overlayfs -y
+     ```
 
-    
+     或者可以单独下载安装后才能执行上一步。(yum localinstall)
+
+     ```
+     wget http://mirror.centos.org/centos/7/extras/x86_64/Packages/slirp4netns-0.4.3-4.el7_8.x86_64.rpm
+     wget http://mirror.centos.org/centos/7/extras/x86_64/Packages/fuse3-libs-3.6.1-4.el7.x86_64.rpm
+     wget http://mirror.centos.org/centos/7/extras/x86_64/Packages/fuse-overlayfs-0.7.2-6.el7_8.x86_64.rpm
+     ```
+
+     
 
 19. 配置containerd
 
@@ -249,7 +259,7 @@
 20. 配置docker守护程序，使用systemd来管理容器的cgroup
 
     ```
-    sudo mkdir -p /etc/docker
+    mkdir -p /etc/docker
     
     cat <<EOF | sudo tee /etc/docker/daemon.json
     {
@@ -285,7 +295,7 @@
 
 ## Step 2: 初始化kubernetes集群
 
-1. 只在master节点上做：
+1. 只在**master节点**上做：
 
     ```
     [root@k8s-master ~]# kubeadm init --pod-network-cidr=172.168.10.0/24

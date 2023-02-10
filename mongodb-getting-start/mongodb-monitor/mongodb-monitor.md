@@ -11,14 +11,11 @@
 - 打开相应端口
 
     ```
-    sudo firewall-cmd --zone=public --add-port=9100/tcp --permanent
-    sudo firewall-cmd --zone=public --add-port=9216/tcp --permanent
-    sudo firewall-cmd --zone=public --add-port=9090/tcp --permanent
-    sudo firewall-cmd --zone=public --add-port=3000/tcp --permanent
+    sudo firewall-cmd --zone=public --add-port={9100,9216,9090,3000}/tcp --permanent
     sudo firewall-cmd --reload
     sudo firewall-cmd --list-all
     ```
-
+    
     
 
 
