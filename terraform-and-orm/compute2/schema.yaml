@@ -24,7 +24,9 @@ variableGroups:
       - compartment_ocid
       - availability_domain_name
       - ssh_public_key
- 
+      - vcn_ocid
+      - subnet_ocid
+
 variables:
 
 ##  show_advanced:
@@ -63,4 +65,20 @@ variables:
     title: Compartment
     description: Compartment where you want to create the solution resources
 
-  
+  vcn_ocid:
+    type: oci:core:vcn:id
+    required: true
+    dependsOn: 
+      compartmentId: ${compartment_ocid}
+    visible: true
+
+  subnet_ocid:
+    type: oci:core:subnet:id
+    required: true
+    dependsOn:
+      vcnId: ${vcn_ocid}
+      compartmentId: ${compartment_ocid}
+    visible: true
+
+
+

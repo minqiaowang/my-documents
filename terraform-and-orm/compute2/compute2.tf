@@ -6,6 +6,8 @@ variable "tenancy_ocid" {}
 variable "compartment_ocid" {}
 variable "region" {}
 variable "ssh_public_key" {}
+variable "subnet_ocid" {}
+variable "vcn_ocid" {}
 
 ##
 # Image Variables
@@ -15,10 +17,12 @@ variable "instance_image_ocid" {
 
     default = {
         // See https://docs.cloud.oracle.com/images/
-        // Oracle-provided image "Oracle-Linux-7.9-2022.05.31-0"
-        ap-seoul-1 = "ocid1.image.oc1.ap-seoul-1.aaaaaaaaksje2yhvklu4f6oxo6idwk4ivi3xotxqcgfnsebcfsg6umcpn3sq"
-        ap-tokoyo-1 = "ocid1.image.oc1.ap-tokyo-1.aaaaaaaaztitxklauxgi7jjxk35fyiqebjzkrump35xxxpw2rfsqd3uwcecq"
-        ap-singapore-1 = "ocid1.image.oc1.ap-singapore-1.aaaaaaaa5qvjmcbewhllju6vicqj6yaywjqf73g76x2ve3dhjwzhgrn6cshq"
+        // Oracle-provided image "Oracle-Linux-7.9-2023.01.31-20"
+        ap-seoul-1 = "ocid1.image.oc1.ap-seoul-1.aaaaaaaava5bk4vkf64t2626unwycfnogcuidi2c4qi5nmws23rpfy37pnyq"
+        ap-tokoyo-1 = "ocid1.image.oc1.ap-tokyo-1.aaaaaaaalmhsab3ehscdgfqemjnn3fnb2hjrykhwsvr3ad3anqyxe4id5owq"
+        ap-singapore-1 = "ocid1.image.oc1.ap-singapore-1.aaaaaaaawjyub22iwtx7kxrggf2dd3wwlbldqq65xkkqbkkkg6am6wnh2yza"
+        us-phoenix-1 = "ocid1.image.oc1.phx.aaaaaaaalgvdp6hhnulo3tlxz3mtff625s7ix6ianpmv5l7chz5rcakrxbiq"
+
     }
 }
 
@@ -46,7 +50,7 @@ resource "oci_core_instance" "vminstance" {
   }
   
   create_vnic_details {
-    subnet_id        = "ocid1.subnet.oc1.ap-singapore-1.aaaaaaaawx3zavx3q5uily24iuwr3vcprdbiarmys7mg6gmml5qtudlpepaa"
+    subnet_id        = "${var.subnet_ocid}"
     display_name     = "myvnic01"
     assign_public_ip = true
     hostname_label   = "myhost01"
