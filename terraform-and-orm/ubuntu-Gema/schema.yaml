@@ -1,0 +1,79 @@
+## Copyright (c) 2022, Oracle and/or its affiliates. 
+## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
+
+title: "Terraform Schema Sample"
+stackDescription: "terraform schema sample to provision a compute instance"
+schemaVersion: 1.2.0
+version: "20201104"
+locale: "en"
+
+
+variableGroups:
+  - title: "General Configuration"
+    visible: false
+    variables:
+      - tenancy_ocid
+      - region
+      - ssh_authorized_keys_path
+      - ssh_private_key_path
+      - private_key_path
+      
+
+  - title: Required Variables
+    visible: true
+    variables:
+      - compartment_ocid
+      - availability_domain_name
+      - ssh_public_key
+      - vcn_ocid
+      - subnet_ocid
+      - num_instances
+      - instance_shape
+      - ocpus
+      - memory_in_gbs
+      - boot_volume_size
+      - instance_image_ocid
+ 
+variables:
+
+##  show_advanced:
+##    type: boolean
+##    title: "Show advanced options?"
+##    description: "Shows advanced options."
+##    visible: true
+##    default: false
+
+  ssh_public_key:
+    type: oci:core:ssh:publickey
+    title: "Public SSH Key"
+    description: "Choose public SSH Key to be uploaded into compute instances."
+
+  region:
+    type: oci:identity:region:name
+    visible: false
+    required: true
+    title: ${Messages.solutionsHub.genericVariables.region.title()}
+    description: ${Messages.solutionsHub.genericVariables.region.description()}
+
+  compartment_ocid:
+    type: oci:identity:compartment:id
+    required: true
+    title: Compartment
+    description: Compartment where you want to create the solution resources
+
+  vcn_ocid:
+    type: oci:core:vcn:id
+    required: true
+    dependsOn: 
+      compartmentId: ${compartment_ocid}
+    visible: true
+
+  subnet_ocid:
+    type: oci:core:subnet:id
+    required: true
+    dependsOn:
+      vcnId: ${vcn_ocid}
+      compartmentId: ${compartment_ocid}
+    visible: true
+
+  
