@@ -67,7 +67,8 @@ resource "oci_core_instance" "generated_oci_core_instance" {
 	availability_config {
 		recovery_action = "RESTORE_INSTANCE"
 	}
-	availability_domain = lookup(data.oci_identity_availability_domains.ADs.availability_domains[count.index%3], "name")
+	# availability_domain = lookup(data.oci_identity_availability_domains.ADs.availability_domains[count.index % 3], "name")
+	availability_domain = lookup(data.oci_identity_availability_domains.ADs.availability_domains[count.index % length(data.oci_identity_availability_domains.ADs.availability_domains)], "name")
 	compartment_id = "${var.compartment_ocid}"
 	create_vnic_details {
 		assign_private_dns_record = "true"
