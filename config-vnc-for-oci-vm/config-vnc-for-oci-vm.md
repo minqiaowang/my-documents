@@ -1,6 +1,6 @@
 # Config VNC for OCI VM
 
-1. OS: Oracle Linux 7.9
+1. OS: Oracle Linux 7.9([Oracle Linux 8链接](https://docs.oracle.com/en/learn/install-vnc-oracle-linux/#prerequisite))
 
 2. 安装 vnc-server
 	
