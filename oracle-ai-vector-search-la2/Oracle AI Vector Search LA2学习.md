@@ -210,7 +210,7 @@
      SELECT TO_VECTOR(VECTOR_EMBEDDING(doc_model USING 'hello' as data)) AS embedding;
      ```
 
-     
+     ![image-20240328134632811](images/image-20240328134632811.png)
 
 9.   删除模型（选项）
 
@@ -256,7 +256,7 @@
 
      
 
-3.   转换成向量embedding
+3.   转换成向量embedding插入report_vec中。
 
      ```
      update report_detail set report_vec=VECTOR_EMBEDDING(doc_model USING report_desc as data);
@@ -274,13 +274,13 @@
      FETCH EXACT FIRST 1 ROWS ONLY;
      ```
 
-     
+     ![image-20240328132936863](images/image-20240328132936863.png)
 
 5.   sdf
 
 
 
-## 文档转文字
+## 文档转文字、分段、转向量
 
 1.   创建表
 
@@ -313,7 +313,7 @@
      SELECT ct.* from doc_tab dt, dbms_vector_chain.utl_to_chunks(dbms_vector_chain.utl_to_text(dt.data), json('{"split":"NEWLINE", "max":"200", "overlap":"20", "normalize":"all", "language":"zhs"}')) ct;
      ```
 
-     
+     ![image-20240328133051895](images/image-20240328133051895.png)
 
 5.   分段后转向量
 
@@ -324,7 +324,7 @@
      json('{"provider":"database", "model":"doc_model"}')) et;
      ```
 
-     
+     ![image-20240328133402433](images/image-20240328133402433.png)
 
 6.   直接插入向量表
 
@@ -352,7 +352,7 @@
      select * from doc_chunks;
      ```
 
-     
+     ![image-20240328133533233](images/image-20240328133533233.png)
 
 8.   给vector用户授予TEXT权限
 
@@ -370,7 +370,7 @@
      select DBMS_VECTOR_CHAIN.UTL_TO_SUMMARY('Enterprises that use offerings from multiple vendors are having a hard time moving their workloads to the cloud,” said Holger Mueller, vice president and principal analyst, Constellation Research. “Effectively CxOs need to pick the better offering and then live with the integration cost and risk going forward. The Microsoft and Oracle partnership is an innovative departure from this challenge, by allowing enterprises to even deliver their Oracle services through Azure’s console. It is no surprise that Microsoft and Oracle are now doubling down on the customer momentum and expanding their partnership with more locations. This will give more enterprises the chance to move their mission-critical workloads to the cloud.', json('{"provider":"Database","glevel":"sentence","numParagraphs":"1","language":"english"}')) summary_result from dual; 
      ```
 
-     
+     ![image-20240328133927598](images/image-20240328133927598.png)
 
 10.   生成中文汇总信息(好像没啥用)
 
@@ -411,7 +411,7 @@
 
      
 
-3.   向量查询，查看是否使用向量索引，注意`vector_distance`的算法要与向量索引一致，才能使用索引，比如都是`COSINE`。
+3.   向量查询，查看是否使用向量索引，注意`vector_distance`的算法要与向量索引一致，才能使用索引，比如都是`COSINE`。(注意：使用了`APPROXIMATE`关键字)
 
      ```
      SQL> EXPLAIN PLAN FOR SELECT embed_data
@@ -507,7 +507,7 @@
      FETCH APPROXIMATE FIRST 3 ROWS ONLY WITH TARGET ACCURACY 90;
      ```
 
-     
+     ![image-20240328134530552](images/image-20240328134530552.png)
 
 6.   查询向量索引的搜索精度报告，如：返回结果是比目标要求的精度`90%`高`10%`。
 
