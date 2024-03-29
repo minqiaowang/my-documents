@@ -212,13 +212,21 @@
 
      ![image-20240328134632811](images/image-20240328134632811.png)
 
-9.   删除模型（选项）
+9.   返回向量维度
 
      ```
-     execute dbms_data_mining.drop_model(model_name => 'doc_model', force => true);
+     SELECT VECTOR_DIMENSION_COUNT(VECTOR_EMBEDDING(doc_model USING 'hello' as data)) AS embedding;
      ```
 
-     
+     ![image-20240329093324511](images/image-20240329093324511.png)
+
+10.   删除模型（选项）
+
+      ```
+      execute dbms_data_mining.drop_model(model_name => 'doc_model', force => true);
+      ```
+
+      
 
 
 
@@ -276,7 +284,18 @@
 
      ![image-20240328132936863](images/image-20240328132936863.png)
 
-5.   sdf
+5.   查看输入的信息跟表中的记录的向量距离
+
+     ```
+     SELECT id, report_desc, 
+     VECTOR_DISTANCE( report_vec, VECTOR_EMBEDDING(doc_model USING '列出总收入排名前5的电影，按演员分组' as data), EUCLIDEAN ) vec
+     FROM report_detail
+     ORDER BY vec;
+     ```
+
+     ![image-20240329084409303](images/image-20240329084409303.png)
+
+6.   sdf
 
 
 
