@@ -101,7 +101,7 @@
 
      ![image-20240424154345088](images/image-20240424154345088.png)
 
-6.   加载新增加的文件
+6.   加载新增加的文件（如果是增量添加字典，不用```-n```选项）
 
      ```
      ctxlc -zht -ics UTF8 -n -i new_test_dict.txt
