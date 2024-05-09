@@ -163,6 +163,16 @@
 
       
 
-12.   sdaf
+12.   分词后全文检索可以改造为（可以用存储过程自动化过程）
+
+      ```
+      SQL> select * from doc_chunks C where contains(c.embed_data, 'RITUXIMAB or BIOSIMILAR or 利妥昔单抗生物仿制药 or 有限公司') > 0;
+      ```
+
+      
+
+13.   dsaf
+
+14.   
 
       
