@@ -61,7 +61,7 @@
 
 8.   在[huggingface](https://huggingface.co/)网站上找到想要的模型，有两种方式生成onnx格式。
 
-     -   如果网站上有配置好的模型，如：`intfloat/e5-small-v2`
+     -   如果有配置好的模型，如：`intfloat/e5-small-v2`
 
          ```
          from omlutils import EmbeddingModel, EmbeddingModelConfig
@@ -71,7 +71,7 @@
 
          
 
-     -   如果网站上只有模型的template，如：GanymedeNil/text2vec-base-chinese
+     -   如果只有模型的template，如：GanymedeNil/text2vec-base-chinese
 
          ```
          from omlutils import EmbeddingModel, EmbeddingModelConfig
@@ -555,7 +555,233 @@
 
 7.   sadf
 
-8.   
+
+
+## DB23ai Free GA 调用外部embedding服务
+
+1.   连接到DBA用户，授权。
+
+     ```
+     grant create credential to vector;
+     ```
+
+     
+
+2.   打开数据库对外访问限制，```*```代表所有外网，也可以指定网址。
+
+     ```
+     BEGIN
+       DBMS_NETWORK_ACL_ADMIN.APPEND_HOST_ACE(
+         host => '*',
+         ace => xs$ace_type(privilege_list => xs$name_list('connect'),
+                            principal_name => 'vector',
+                            principal_type => xs_acl.ptype_db));
+     END;
+     /
+     ```
+
+     
+
+3.   连接到vector用户，创建credential。
+
+     ```
+     declare
+       jo json_object_t;
+     begin
+       jo := json_object_t();
+       jo.put('user_ocid','ocid1.user.oc1..aaaaaaaau4a24oyl3bj2ings4uzmuhcv7a27jhw6mdu3nqb2aoqs7e4pjmpa');
+       jo.put('tenancy_ocid','ocid1.tenancy.oc1..aaaaaaaafj37mytx22oquorcznlfuh77cd45int7tt7fo27tuejsfqbybzrq');
+       jo.put('compartment_ocid','ocid1.compartment.oc1..aaaaaaaahnn5lmnbuqbbyddbtpd5ixrvi5kuibzbeksokn2nm6ar6zcc5d7q');
+       jo.put('private_key','MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDMB3HVmz07uHTysKiW0C2d6beTNk0pABvBLgCBeIXKswMJUhv6QH+xe7GIp07yTjDOIOqfdAk+y/ilCrAIdGXabEog64v6BCEKOBpGwfCUkqiB7j1BrBTsN1zGU5JwpAn7+sidhFoPzj/tmMYEhESW81kA99h+qPW09KyFF3T0dBi6zLp7PcRqbfpsuornVl93g62ZqpAWaA6SSgHHQMbCxmweehjp4HL5rQw48V+GS5ogfce2Qi8Zl3FAGMN0o5i0EiAofGiFTWwGyUSN0G/grKu16lWVCJoTIOQs1Y4UImmrizFsj7EwbFa2KtsxsTcGSkGbxh3I+2f3VdqkeSMXAgMBAAECggEAEo+S0YXf2jD7oqBjleS2YalDZAcKmfJClB5lOWIHedszKYPou6lmdHT2P6JI0k4+rmHcNklOFgJkSk9gmEROh8JWNAx5nXMGtnFIIqu+ASYeYkOUGwdWl+6pZ/luVwT1S5ES8xF5R/rRYgIF8Z8+xiS5MhdaAJvKTn37u9fYcex8GIhxbzxcNn7ztrqFPfatuy2ay7L2BT2UnKgYdgtiVd87z/53OLNOsdk8JLviOhtwyuGbvVZqz1tR/nxoe34bxzJic3jueofbkBVuI02HEucMTN5vpRV8SQWdk1IO6SVvqr8mkRitXc4n0r5tnW8m5iJZxeH9g7w15TD3idFN8QKBgQD6wy1OdSAlpEl7IB2PP3fr0ARJ+NsC9xJ1qoObMeadCinPFYj7h/krPMch8ozm7W8oQ6A6unJA/6PxnsvNHMxp08rS1vQESLK6bOzyscxCnF+y+7NfgBXIFrmBDouzXmF8DluenzkjueWUadBfaL1urZVpUEQ59Mz47yh92oxIEwKBgQDQSmKfTm7iPJplzrUHqGM7Jzm+bidUb02d9kIEE4MyK0a/7yqvqspdlkGh4b5B5Mp1Mrm2l+4nDDSJFbudztdM4Id3qX9gZTWyuE3tAhMEdObl1oXGRNHI3HY34cLCcN19iVAmgBTAMhpP3wVdIflZrnGxYe528sP2OnbXjzwhbQKBgQDgq8qGBw68awujE00osTbiwsd091BSwcd6QUIU5Iq4nQiEj8jhhBxNDvFjiwuPQ6BaNOz0cWQ4tFLRAvOaXHkRQD7y1MBgrjnkKf/KGl7mN3DOzhESOZJKaYHfDYdBOAiju8F+xy3Mwpvdc0jMku1WopPBfbcDLkAPsUdYK12QnQKBgBsoZ71/u4NyBWuazQ3HjdCrp6LFuAkRThx3fFoNtUB4Vgw2gelPqn0TV1FlHqp2y1MGnyJIovuiYsMw+zpzOq1CZUdb6UjHSX4Y+8gYSiR9nZGALAcS+Atpe1yD6iHyF18D5VhvwMTig33AhXGEOX/Q9+/55d7KfnR/YPlwKpXtAoGAbYwMq1rF0qtnAosaZ3XvB+9OVkP5tPKh9ZDEAE2+MT4B8PIPfddjgTa/V1gnL19GaWtjDpdSZQ4KVC/Pfulkge5nWw3bEMHKymwZs2/SCVDBBk9oOoGA/LBMbP7auuomCPakT3bBZk4K+1IBxiAA+0sM6h0OOk2nT9BwBztHkkw=');
+       jo.put('fingerprint','a0:9a:ce:b6:a8:c0:5b:86:f0:77:ed:7d:cd:d8:c3:18');
+       dbms_output.put_line(jo.to_string);
+       dbms_vector.create_credential(
+         credential_name   => 'OCI_CRED',
+         params            => json(jo.to_string));
+     end;
+     /
+     ```
+
+     
+
+4.   调用外部embedding服务。
+
+     ```
+     set serveroutput on;
+     declare
+       input clob;
+       params clob;
+       v vector;
+     begin
+       input := 'hello';
+     
+       params := '
+     {
+       "provider": "ocigenai",
+       "credential_name": "OCI_CRED",
+       "url": "https://inference.generativeai.us-chicago-1.oci.oraclecloud.com/20231130/actions/embedText",
+       "model": "cohere.embed-multilingual-v3.0"
+     }';
+     
+       v := dbms_vector.utl_to_embedding(input, json(params));
+       dbms_output.put_line(vector_serialize(v));
+     exception
+       when OTHERS THEN
+         DBMS_OUTPUT.PUT_LINE (SQLERRM);
+         DBMS_OUTPUT.PUT_LINE (SQLCODE);
+     end;
+     /
+     ```
+
+     ![image-20240514135543321](images/image-20240514135543321.png)
+
+5.   sdaf
 
 
 
+## DB23ai Free GA安装OML4PY
+
+1.   opc用户
+
+     ```
+     wget https://www.python.org/ftp/python/3.12.3/Python-3.12.3.tgz
+     ```
+
+     
+
+2.   sdaf
+
+     ```
+     tar xzf Python-3.12.3.tgz
+     cd Python-3.12.3
+     ./configure --enable-optimizations
+     ```
+
+     
+
+3.   sdaf
+
+     ```
+     make -j `nproc`
+     sudo make altinstall
+     ```
+
+     
+
+4.   切换到Oracle用户，创建虚拟环境并激活
+
+     ```
+     python3.12 -m venv newenv
+     source newenv/bin/activate
+     ```
+
+     
+
+5.   安装所需模块
+
+     ```
+     pip install --upgrade pip setuptools
+     pip install --upgrade "numpy>=1.26.4"
+     pip install --upgrade "pandas>=2.1.1"
+     pip install --upgrade "matplotlib>=3.7.2"
+     pip install --upgrade "oracledb>=2.0.1"
+     pip install --upgrade "scikit_learn>=1.2.1"
+     pip install transformers
+     pip install torch
+     pip install onnx
+     pip install onnxruntime
+     pip install onnxruntime_extensions
+     pip install sentencepiece==0.2.0
+     ```
+
+     
+
+6.   下载[OML4Py 2.0 client zip](https://www.oracle.com/database/technologies/oml4py-downloads.html) ，上传到虚机并unzip
+
+     ```
+     unzip oml4py-client-linux-x86_64-2.0.zip
+     ```
+
+     
+
+7.   安装OML4PY客户端
+
+     ```
+     perl -Iclient client/client.pl
+     ```
+
+     
+
+8.   测试一下（注意，23ai GA版在加载onnx模型到数据库时可能会出现```ORA-04036: PGA memory used by the instance or PDB exceeds PGA_AGGREGATE_LIMIT.``` 加大```PGA_AGGREGATE_LIMIT```如3G即可。）
+
+     ```
+     (newenv) -bash-4.4$ python
+     Python 3.12.3 (main, May 10 2024, 04:34:21) [GCC 8.5.0 20210514 (Red Hat 8.5.0-18.0.6)] on linux
+     Type "help", "copyright", "credits" or "license" for more information.
+     >>> from oml.utils import EmbeddingModel, EmbeddingModelConfig
+     >>> em = EmbeddingModel(model_name='sentence-transformers/all-MiniLM-L6-v2',settings={'ignore_checksum_error':True})
+     >>> em.export2file("minillm",output_dir=".")
+     >>> exit()
+     (newenv) -bash-4.4$
+     ```
+
+     
+
+9.   查看事先配置好的模型
+
+     ```
+     >>> EmbeddingModelConfig.show_preconfigured()
+     ['sentence-transformers/all-mpnet-base-v2', 'sentence-transformers/all-MiniLM-L6-v2', 'sentence-transformers/multi-qa-MiniLM-L6-cos-v1', 'ProsusAI/finbert', 'medicalai/ClinicalBERT', 'sentence-transformers/distiluse-base-multilingual-cased-v2', 'sentence-transformers/all-MiniLM-L12-v2', 'BAAI/bge-small-en-v1.5', 'BAAI/bge-base-en-v1.5', 'taylorAI/bge-micro-v2', 'intfloat/e5-small-v2', 'intfloat/e5-base-v2', 'prajjwal1/bert-tiny', 'thenlper/gte-base', 'thenlper/gte-small', 'TaylorAI/gte-tiny', 'infgrad/stella-base-en-v2', 'sentence-transformers/paraphrase-multilingual-mpnet-base-v2', 'intfloat/multilingual-e5-base', 'intfloat/multilingual-e5-small', 'sentence-transformers/stsb-xlm-r-multilingual']
+     ```
+
+     
+
+10.   查看可用的template，当前只支持文本。
+
+      ```
+      >>> EmbeddingModelConfig.show_templates()
+      ['text']
+      ```
+
+      
+
+11.   方法一，生成onnx文件
+
+      ```
+      #generate from preconfigureded model "sentence-transformers/all-MiniLM-L6-v2"
+      em = EmbeddingModel(model_name="sentence-transformers/all-MiniLM-L6-v2")
+      em.export2file("your_preconfig_file_name",output_dir=".")
+      ```
+
+      
+
+12.   方法二，生成数据库中的模型(如何先配置好数据库的连接？)
+
+      ```
+      #generate from preconfigureded model "sentence-transformers/all-MiniLM-L6-v2"
+      em = EmbeddingModel(model_name="sentence-transformers/all-MiniLM-L6-v2")
+      em.export2db("your_preconfig_model_name")
+      ```
+
+      
+
+13.   方法三，从文本模版中生成onnx文件
+
+      ```
+      #generate using the "text" template
+      config = EmbeddingModelConfig.from_template("text",max_seq_length=512)
+      em = EmbeddingModel(model_name="intfloat/e5-small-v2",config=config)
+      em.export2file("your_template_file_name",output_dir=".")
+      ```
+
+      
+
+14.   deactivate虚拟环境
+
+      ```
+      $ deactivate
+      ```
+
+      
+
+15.   sdaf
