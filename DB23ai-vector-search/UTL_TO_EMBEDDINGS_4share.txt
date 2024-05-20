@@ -1,0 +1,376 @@
+Function Description
+UTL_TO_TEXT() Converts a binary document (for example, MS Word, HTML, or PDF) to plain text
+UTL_TO_GENERATE_TEXT() Converts a prompt (or input string) to plain text
+UTL_TO_CHUNKS() Converts plain text to chunks
+UTL_TO_EMBEDDING() Converts plain text to a single embedding (VECTOR)
+UTL_TO_EMBEDDINGS() Converts an array of chunks (VECTOR_ARRAY_T) to an array of embeddings (VECTOR_ARRAY_T)
+UTL_TO_SUMMARY() Converts plain text to a summary
+
+SET ECHO ON
+SET FEEDBACK 1
+SET NUMWIDTH 10
+SET LINESIZE 80
+SET TRIMSPOOL ON
+SET TAB OFF
+SET PAGESIZE 10000
+SET LONG 10000
+
+
+DBMS_VECTOR_CHAIN.UTL_TO_EMBEDDINGS (
+   DATA IN VECTOR_ARRAY_T,
+   PARAMS IN JSON default NULL
+) return VECTOR_ARRAY_T;
+
+DATA
+UTL_TO_EMBEDDING converts text (CLOB) to a single embedding (VECTOR).
+UTL_TO_EMBEDDINGS convert an array of chunks (VECTOR_ARRAY_T) to an array of
+embeddings (VECTOR_ARRAY_T).
+The embedding output includes:
+{
+"embed_id":NUMBER,
+"embed_data":"VARCHAR2(4000)",
+"embed_vector":"CLOB"
+}
+
+PARAMS
+Specify the following input parameters in JSON format:
+{
+"provider":"Database (default) | User | OCIGenAI | HuggingFace"
+"credential_name":"credential name",
+"url":"url value",
+"model":"model name"
+}
+
+1、授权
+BEGIN
+ DBMS_NETWORK_ACL_ADMIN.APPEND_HOST_ACE(
+ host => '*',
+ ace => xs$ace_type(privilege_list => xs$name_list('connect'),
+ principal_name => 'vli',
+  principal_type => xs_acl.ptype_db));
+END;
+/
+
+
+2、创建API访问
+declare
+  jo json_object_t;
+begin
+  jo := json_object_t();
+  jo.put('access_token', 'your_cohere_key');
+  dbms_vector_chain.create_credential(credential_name => 'COHERE_CRED',params => json(jo.to_string));
+end;
+
+declare
+  jo json_object_t;
+begin
+  jo := json_object_t();
+  jo.put('access_token', 'your_openai_key');
+  dbms_vector_chain.create_credential(credential_name => 'OPENAI_CRED',params => json(jo.to_string));
+end;
+
+
+---drop credential
+declare
+  jo json_object_t;
+begin
+  jo := json_object_t();
+  jo.put('access_token', 'your_openai_key');
+  dbms_vector_chain.drop_credential(credential_name => 'OPENAI_CRED',params => json(jo.to_string));
+end;
+
+
+Cohere 模型列表
+endpoint: https://docs.cohere.com/reference/embed
+embed-english-v3.0 1024
+embed-multilingual-v3.0 1024
+embed-english-light-v3.0 384
+embed-multilingual-light-v3.0 384
+embed-english-v2.0 4096 (default)
+embed-english-light-v2.0 1024
+embed-multilingual-v2.0 768
+
+Cohere 模型列表 - 文档总结
+endpoint: https://docs.cohere.com/reference/summarize-2
+
+OpenAI模型列表：
+https://platform.openai.com/docs/guides/embeddings/embedding-models
+endpoint: https://api.openai.com/v1/embeddings
+text-embedding-3-small	62,500	62.3%	8191
+text-embedding-3-large	9,615	64.6%	8191
+text-embedding-ada-002	12,500	61.0%	8191
+
+
+3、指定模型使用sqlplus生成embedding
+var embed_params clob;
+exec :embed_params := '{"provider": "cohere", "credential_name":"COHERE_CRED", "url": "https://api.cohere.ai/v1/embed", "model": "embed-english-v2.0"}';
+SELECT et.* from documentation_tab dt,dbms_vector_chain.utl_to_embeddings(dbms_vector_chain.utl_to_chunks(dbms_vector_chain.utl_to_text(dt.data)),json(:embed_params)) et;
+
+4、利用在线模型cohere生成Embedding(存入vector table)
+create table documentation_tab_embed as
+(select dt.id doc_id, et.embed_id, et.embed_data, to_vector(et.embed_vector) embed_vector
+ from
+    test_book dt,
+    dbms_vector_chain.utl_to_embeddings(
+       dbms_vector_chain.utl_to_chunks(dbms_vector_chain.utl_to_text(dt.data), json('{"normalize":"all"}')),
+       json('{"provider": "cohere", "credential_name":"COHERE_CRED", "url": "https://api.cohere.ai/v1/embed", "model": "embed-english-v2.0"}')) t,
+       JSON_TABLE(t.column_value, '$[*]' COLUMNS (embed_id NUMBER PATH '$.embed_id', embed_data VARCHAR2(4000) PATH '$.embed_data', embed_vector CLOB PATH '$.embed_vector')
+    ) et
+);
+
+5、利用在线模型OpenAI生成Embedding(存入vector table)
+create table documentation_tab_openai_embed as
+(select dt.id doc_id, et.embed_id, et.embed_data, to_vector(et.embed_vector) embed_vector
+ from
+    documentation_tab dt,
+    dbms_vector_chain.utl_to_embeddings(
+       dbms_vector_chain.utl_to_chunks(dbms_vector_chain.utl_to_text(dt.data), json('{"normalize":"all"}')),
+       json('{"provider": "OpenAi", "credential_name":"OPENAI_CRED", "url": "https://api.openai.com/v1/embeddings", "model": "text-embedding-3-small"}')) t,
+       JSON_TABLE(t.column_value, '$[*]' COLUMNS (embed_id NUMBER PATH '$.embed_id', embed_data VARCHAR2(4000) PATH '$.embed_data', embed_vector CLOB PATH '$.embed_vector')
+    ) et
+);
+
+6、OpenAI利用参数max减少chunk数
+
+drop table doc_tab_openai_embed_chunk1 purge;
+drop table doc_tab_openai_embed_chunk5 purge;
+
+delete from test_book where id=2;
+commit;
+set timing on
+create table doc_tab_openai_embed_chunk1 as
+(select dt.id doc_id, et.embed_id, et.embed_data, to_vector(et.embed_vector) embed_vector
+ from
+    test_book dt,
+    dbms_vector_chain.utl_to_embeddings(
+       dbms_vector_chain.utl_to_chunks(dbms_vector_chain.utl_to_text(dt.data), json('{"by":"words","max":"1000","overlap":"0","split":"recursively","language":"american","normalize":"all"}')),
+       json('{"provider": "OpenAi", "credential_name":"OPENAI_CRED", "url": "https://api.openai.com/v1/embeddings", "model": "text-embedding-3-large"}')) t,
+       JSON_TABLE(t.column_value, '$[*]' COLUMNS (embed_id NUMBER PATH '$.embed_id', embed_data VARCHAR2(4000) PATH '$.embed_data', embed_vector CLOB PATH '$.embed_vector')
+    ) et
+);
+---------------------
+Elapsed: 00:00:43.13
+
+create table doc_tab_openai_embed_chunk5 as
+(select dt.id doc_id, et.embed_id, et.embed_data, to_vector(et.embed_vector) embed_vector
+ from
+    test_book dt,
+    dbms_vector_chain.utl_to_embeddings(
+       dbms_vector_chain.utl_to_chunks(dbms_vector_chain.utl_to_text(dt.data), json('{"by":"words","max":"500","overlap":"0","split":"recursively","language":"american","normalize":"all"}')),
+       json('{"provider": "OpenAi", "credential_name":"OPENAI_CRED", "url": "https://api.openai.com/v1/embeddings", "model": "text-embedding-3-large"}')) t,
+       JSON_TABLE(t.column_value, '$[*]' COLUMNS (embed_id NUMBER PATH '$.embed_id', embed_data VARCHAR2(4000) PATH '$.embed_data', embed_vector CLOB PATH '$.embed_vector')
+    ) et
+);
+--------------------
+Elapsed: 00:01:03.61
+
+SQL> select count(*) from doc_tab_openai_embed_chunk1
+  2  ;
+
+  COUNT(*)
+----------
+   1397760
+
+1 row selected.
+SQL> select count(*) from doc_tab_openai_embed_chunk5;
+
+  COUNT(*)
+----------
+   2466816
+1 row selected.
+
+7、Cohere利用参数max减少chunk数
+create table doc_tab_openai_embed_chunk1 as
+(select dt.id doc_id, et.embed_id, et.embed_data, to_vector(et.embed_vector) embed_vector
+ from
+    test_book dt,
+    dbms_vector_chain.utl_to_embeddings(
+       dbms_vector_chain.utl_to_chunks(dbms_vector_chain.utl_to_text(dt.data), json('{"by":"words","max":"1000","overlap":"0","split":"recursively","language":"american","normalize":"all"}')),
+       json('{"provider": "cohere", "credential_name":"COHERE_CRED", "url": "https://api.cohere.ai/v1/embed", "model": "embed-english-v2.0"}')) t,
+       JSON_TABLE(t.column_value, '$[*]' COLUMNS (embed_id NUMBER PATH '$.embed_id', embed_data VARCHAR2(4000) PATH '$.embed_data', embed_vector CLOB PATH '$.embed_vector')
+    ) et
+);   
+--------------------
+Elapsed: 00:00:28.95
+
+create table doc_tab_openai_embed_chunk5 as
+(select dt.id doc_id, et.embed_id, et.embed_data, to_vector(et.embed_vector) embed_vector
+ from
+    test_book dt,
+    dbms_vector_chain.utl_to_embeddings(
+       dbms_vector_chain.utl_to_chunks(dbms_vector_chain.utl_to_text(dt.data), json('{"by":"words","max":"500","overlap":"0","split":"recursively","language":"american","normalize":"all"}')),
+       json('{"provider": "cohere", "credential_name":"COHERE_CRED", "url": "https://api.cohere.ai/v1/embed", "model": "embed-english-v2.0"}')) t,
+       JSON_TABLE(t.column_value, '$[*]' COLUMNS (embed_id NUMBER PATH '$.embed_id', embed_data VARCHAR2(4000) PATH '$.embed_data', embed_vector CLOB PATH '$.embed_vector')
+    ) et
+);  
+-------------------
+Elapsed: 00:00:44.79
+
+SQL> select count(*) from doc_tab_openai_embed_chunk1000
+  2  ;
+
+  COUNT(*)
+----------
+   1863680
+
+1 row selected.
+
+SQL> select count(*) from doc_tab_openai_embed_chunk500;
+
+  COUNT(*)
+----------
+   3289088
+
+8、使用本地.onnx模型进行embedding
+
+8.1 Convert Pretrained Models to ONNX Format (本步可以不需要在数据库服务器上完成)
+   限制：
+   1、Transformer Model Type： Supported only for text transformers.
+   2、Model size: Model size should be less than 1GB.
+   3、Tokenizers: Must be either BERT, GPT2, SENTENCEPIECE, or ROBERTA.
+   前年条件:
+   To use the Python utility, ensure that you have the following:
+   • OML4Py Client running on Linux X64 for On-Premises Databases
+   • Python 3.12 (the earlier versions are not compatible)
+
+  提前需要将依赖包安装，否则后面安装会报错
+  sudo yum install  sqlite-devel  gdbm-devel perl-Env libffi-devel openssl openssl-devel tk-devel xz-devel zlib-devel bzip2-devel readline-devel libuuid-devel ncurses-devel
+  sudo dnf install gcc gcc-c++
+
+   Python 3.12安装（不要使用root安装)
+   wget https://www.python.org/ftp/python/3.12.2/Python-3.12.2.tgz Python-3.12.2.tgz
+   tar -xf Python-3.12.2.tgz
+   cd Python-3.12.2
+  ./configure --enable-shared --prefix=/home/opc/python
+   make clean; make 
+   make altinstall
+
+   export PYTHONHOME=/home/opc/python
+   export PATH=$PYTHONHOME/bin:$PATH
+   export LD_LIBRARY_PATH=$PYTHONHOME/lib:$LD_LIBRARY_PATH
+  
+   python3.12 -m pip install --upgrade pip 
+
+   
+   pip3.12 install pandas==2.1.1
+   pip3.12 install setuptools==68.0.0 
+   pip3.12 install scipy==1.11.3
+   pip3.12 install matplotlib==3.7.2
+   pip3.12 install oracledb==1.4.0
+   pip3.12 install joblib==1.2.0
+   pip3.12 install scikit-learn==1.2.1 <--failed AttributeError: module 'pkgutil' has no attribute 'ImpImporter'.
+   pip3.12 install numpy==1.26.0
+   pip3.12 install onnxruntime==1.17.0 
+   pip3.12 install onnxruntime-extensions=0.10.1 
+   pip3.12 install onnx==1.16.0 
+   pip3.12 install --extra-index-url "https://download.pytorch.org/whl/cpu" torch==2.2.0+cpu 
+   pip3.12 install transformers==4.38.1
+   pip3.12 install sentencepiece==0.2.0
+
+   或者
+   /* omlutils.zip */
+   unzip omlutils.zip
+   cd /home/opc/omlutils-0-2
+   pip3.12 install -r requirements.txt
+   pip3.12 install omlutils-0.13.0-cp312-cp312-linux_x86_64.whl
+   
+   from omlutils import EmbeddingModel, EmbeddingModelConfig
+
+   [opc@23ai bin]$ python3.12
+   Python 3.12.2 (main, May 16 2024, 11:01:45) [GCC 8.5.0 20210514 (Red Hat 8.5.0-20.0.3)] on linux
+   Type "help", "copyright", "credits" or "license" for more information.
+   >>> from omlutils import EmbeddingModel, EmbeddingModelConfig
+   >>> EmbeddingModelConfig.show_preconfigured()
+   ['sentence-transformers/all-mpnet-base-v2', 'sentence-transformers/all-MiniLM-L6-v2', 'sentence-transformers/multi-qa-MiniLM-L6-cos-v1', 'ProsusAI/finbert', 'medicalai/ClinicalBERT', 'sentence-transformers/distiluse-base-multilingual-cased-v2', 'sentence-transformers/all-MiniLM-L12-v2', 'BAAI/bge-small-en-v1.5', 'BAAI/bge-base-en-v1.5', 'taylorAI/bge-micro-v2', 'intfloat/e5-small-v2', 'intfloat/e5-base-v2', 'prajjwal1/bert-tiny', 'thenlper/gte-base', 'thenlper/gte-small', 'TaylorAI/gte-tiny', 'infgrad/stella-base-en-v2']
+   >>>   
+   >>> EmbeddingModelConfig.show_templates()
+   ['image', 'text']
+   >>>  
+   #生成onnx格式的模型：generate from preconfigureded model "sentence-transformers/all-MiniLM-L6-v2"
+   em = EmbeddingModel(model_name="sentence-transformers/all-MiniLM-L6-v2")
+   em.export2file("all-MiniLM-L6-v2.onnx",output_dir=".")
+
+   >>> em = EmbeddingModel(model_name="sentence-transformers/all-MiniLM-L6-v2")
+   >>> em.export2file("all-MiniLM-L6-v2",output_dir=".")
+   tokenizer_config.json: 100%|âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ| 350/350 [00:00<00:00, 2.32MB/s]
+   vocab.txt: 100%|âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ| 232k/232k [00:00<00:00, 48.4MB/s]
+   special_tokens_map.json: 100%|ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ| 112/112 [00:00<00:00, 914kB/s]
+   tokenizer.json: 100%|ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ| 466k/466k [00:00<00:00, 18.1MB/s]
+   model.safetensors: 100%|ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ| 90.9M/90.9M [00:00<00:00, 185MB/s]
+   >>> l.safetensors:  46%|âââââââââââââââââââââââââââââââââââââââââââââââââââââââ      
+
+   -rw-rw-r--. 1 opc opc 90627961 May 16 11:20 all-MiniLM-L6-v2.onnx
+
+8.2 import local onnx model and embedding
+exec dbms_vector.drop_onnx_model(model_name => 'doc_model', force => true);
+exec dbms_vector.load_onnx_model('VEC_DUMP', 'all-MiniLM-L6-v2.onnx', 'doc_model', JSON('{"function" : "embedding", "embeddingOutput" : "embedding" , "input": {"input": ["DATA"]}}'));
+
+drop table if exists doc_chunks purge;
+
+create table doc_chunks as
+(select dt.id doc_id, et.embed_id, et.embed_data, to_vector(et.embed_vector) embed_vector
+ from
+    test_book dt,
+    dbms_vector_chain.utl_to_embeddings(
+       dbms_vector_chain.utl_to_chunks(dbms_vector_chain.utl_to_text(dt.data), json('{"normalize":"all"}')),
+       json('{"provider":"database", "model":"doc_model"}')) t,
+       JSON_TABLE(t.column_value, '$[*]' COLUMNS (embed_id NUMBER PATH '$.embed_id', embed_data VARCHAR2(4000) PATH '$.embed_data', embed_vector CLOB PATH '$.embed_vector')
+    ) et
+);
+
+create vector index docs_hnsw_idx on doc_chunks(embed_vector)
+organization inmemory neighbor graph
+distance COSINE
+with target accuracy 95;
+
+select JSON_SERIALIZE(IDX_PARAMS returning varchar2 PRETTY)
+from VECSYS.VECTOR$INDEX
+where IDX_NAME = 'DOCS_HNSW_IDX';
+
+JSON_SERIALIZE(IDX_PARAMSRETURNINGVARCHAR2PRETTY)
+----------------------------------------------------------
+{
+  "type" : "HNSW",
+  "num_neighbors" : 32,
+  "efConstruction" : 300,
+  "upcast_dtype" : 1,
+  "distance" : "COSINE",
+  "accuracy" : 95,
+  "vector_type" : "FLOAT32",
+  "vector_dimension" : 384,
+  "degree_of_parallelism" : 1,
+  "indexed_col" : "EMBED_VECTOR"
+}
+
+select doc_id, embed_id
+from doc_chunks
+order by vector_distance(embed_vector , (select embedding from test_doc WHERE query = 'Changing the Database Server Passwords'), COSINE)
+FETCH EXACT FIRST 4 ROWS ONLY;
+
+9、创建vector索引
+  create vector index dtoec_vidx on doc_tab_openai_embed_chunk1 (EMBED_VECTOR) organization neighbor
+  partitions with target accuracy 95 distance EUCLIDEAN parameters (type IVF,neighbor partitions 2);
+
+SQL>   create vector index dtoec_vidx on doc_tab_openai_embed_chunk1 (EMBED_VECTOR) organization neighbor
+  2    partitions with target accuracy 95 distance EUCLIDEAN parameters (type IVF,neighbor partitions 2);
+
+Index created.
+
+Elapsed: 00:00:00.23
+
+10、向量检索（查询’Adding Memory Expansion Kit to Database Servers'）
+如果是使用本地.onnx模型：
+select EMBED_ID, vector_distance(EMBED_VECTOR, vector_embedding(doc_model using 'Adding Memory Expansion Kit to Database Servers' as data), EUCLIDEAN) results
+FROM doc_tab_openai_embed_chunk1 order by results FETCH EXACT FIRST 4 ROWS ONLY;
+select id, vector_distance(vector,vector_embedding(doc_model using 'Computing networks' as data),MANHATTAN) results
+FROM doc_chunks order by results;
+
+如果是在线模型：(Cohere)
+select EMBED_ID, vector_distance(EMBED_VECTOR, dbms_vector.utl_to_embedding('Adding Memory Expansion Kit to Database Servers',JSON('{"provider": "cohere", "credential_name":"COHERE_CRED", "url": "https://api.cohere.ai/v1/embed", "model": "embed-english-v2.0"}')), EUCLIDEAN) results
+FROM doc_tab_openai_embed_chunk1 order by results FETCH EXACT FIRST 4 ROWS ONLY;
+
+如果是在线模型：(OpenAI):
+select EMBED_ID, vector_distance(EMBED_VECTOR, dbms_vector.utl_to_embedding('Adding Memory Expansion Kit to Database Servers',JSON('{"provider": "OpenAi", "credential_name":"OPENAI_CRED", "url": "https://api.openai.com/v1/embeddings", "model": "text-embedding-3-large"}')), EUCLIDEAN) results
+FROM doc_tab_openai_embed_chunk1 order by results FETCH EXACT FIRST 4 ROWS ONLY;
+
+

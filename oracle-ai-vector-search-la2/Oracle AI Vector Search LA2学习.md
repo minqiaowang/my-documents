@@ -4,7 +4,7 @@
 
 
 
-## 生成onnx embedding模型
+## 生成onnx embedding模型（见后面GA版的步骤，与LA2版有不同）
 
 1.   在URL：`https://repo.anaconda.com/archive/index.html`下载最新版Anaconda
 
@@ -635,7 +635,88 @@
 
      ![image-20240514135543321](images/image-20240514135543321.png)
 
-5.   sdaf
+5.   直接调用：
+
+     ```
+     select dbms_vector_chain.utl_to_embedding('hello world', 
+     json('{"provider":"ocigenai", "credential_name": "OCI_CRED", "url": "https://inference.generativeai.us-chicago-1.oci.oraclecloud.com/20231130/actions/embedText", "model":"cohere.embed-multilingual-v3.0"}'));
+     ```
+
+     ![image-20240519152741688](images/image-20240519152741688.png)
+
+6.   使用AI向量搜索实现生成式AI流水线（目前有bug，不能返回```embed_id```, ```embed_data```等字段)
+
+     ```
+     SELECT et.* from doc_tab dt,
+     dbms_vector_chain.utl_to_embeddings(dbms_vector_chain.utl_to_chunks(dbms_vector_chain.utl_to_text(dt.data), 
+     json('{"split":"NEWLINE", "max":"200", "overlap":"20", "normalize":"all", "language":"zhs"}')),
+     json('{"provider":"ocigenai", "credential_name": "OCI_CRED", "url": "https://inference.generativeai.us-chicago-1.oci.oraclecloud.com/20231130/actions/embedText", "model":"cohere.embed-multilingual-v3.0"}')) et;
+     ```
+
+     ![image-20240519152212534](images/image-20240519152212534.png)
+
+7.   在数据库中实现RAG。为了避免返回的中文字符乱码，可以设置```utl_http.set_body_charset('UTF-8');```
+
+     ```
+     SET SERVEROUTPUT ON;
+     declare
+       prompt CLOB;
+       user_question CLOB;
+       context CLOB;
+       input CLOB;
+       params CLOB;
+       output CLOB;
+     
+     BEGIN
+       utl_http.set_body_charset('UTF-8');
+       -- initialize the concatenated string
+       :context := '';
+     
+       -- read this question from the user
+       :user_question := 'Oracle AI向量搜索有什么特点?';
+     
+       -- cursor to fetch chunks relevant to the user's query
+       FOR rec IN (SELECT EMBED_DATA
+                   FROM doc_chunks
+                  -- WHERE DOC_ID = 'Vector User Guide'
+                   ORDER BY vector_distance(embed_vector, vector_embedding(
+                       doc_model using :user_question as DATA), COSINE)
+                   FETCH EXACT FIRST 5 ROWS ONLY)
+       LOOP
+         -- concatenate each value to the string
+         :context := :context || rec.embed_data;
+       END LOOP;
+     
+       -- concatenate strings and format it as an enhanced prompt to the LLM
+       :prompt := '请用中文回答以下问题，并使用提供的Context，假设您是该领域的专家。问题：'
+                     || :user_question || ' Context: ' || :context;
+     
+       DBMS_OUTPUT.PUT_LINE('Generated prompt: ' || :prompt);
+     
+       input := :prompt;
+       params := '{
+         "provider" : "ocigenai",
+         "credential_name" : "OCI_CRED",
+         "url" : "https://inference.generativeai.us-chicago-1.oci.oraclecloud.com/20231130/actions/generateText",
+         "model" : "cohere.command"
+       }';
+     
+       output := DBMS_VECTOR_CHAIN.UTL_TO_GENERATE_TEXT(input, json(params));
+       DBMS_OUTPUT.PUT_LINE(output);
+       IF output IS NOT NULL THEN
+         DBMS_LOB.FREETEMPORARY(output);
+       END IF;
+     EXCEPTION
+       WHEN OTHERS THEN
+         DBMS_OUTPUT.PUT_LINE(SQLERRM);
+         DBMS_OUTPUT.PUT_LINE(SQLCODE);
+     END;
+     /
+     ```
+
+     
+
+8.   asdf
 
 
 
