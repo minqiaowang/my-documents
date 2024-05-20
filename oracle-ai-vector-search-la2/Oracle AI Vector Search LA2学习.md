@@ -716,7 +716,7 @@
 
      
 
-8.   如果用cohere模型
+8.   如果用cohere的```command-r-plus```模型
 
      ```
      declare
