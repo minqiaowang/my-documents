@@ -716,7 +716,80 @@
 
      
 
-8.   asdf
+8.   如果用cohere模型
+
+     ```
+     declare
+       jo json_object_t;
+     begin
+       jo := json_object_t();
+       jo.put('access_token', 'gFRJhbySGRcUBTQphYPXar9iGZLbtT1E78yFnExZ');
+       dbms_vector.create_credential(
+         credential_name   => 'COHERE_CRED',
+         params            => json(jo.to_string));
+     end;
+     /
+     
+     SET SERVEROUTPUT ON;
+     declare
+       prompt CLOB;
+       user_question CLOB;
+       context CLOB;
+       input CLOB;
+       params CLOB;
+       output CLOB;
+     
+     BEGIN
+       -- initialize the concatenated string
+       utl_http.set_body_charset('UTF-8');
+       
+       :context := '';
+     
+       -- read this question from the user
+       :user_question := 'Oracle AI向量搜索有什么特点?';
+     
+       -- cursor to fetch chunks relevant to the user's query
+       FOR rec IN (SELECT EMBED_DATA
+                   FROM doc_chunks
+                  -- WHERE DOC_ID = 'Vector User Guide'
+                   ORDER BY vector_distance(embed_vector, vector_embedding(
+                       doc_model using :user_question as DATA), COSINE)
+                   FETCH EXACT FIRST 5 ROWS ONLY)
+       LOOP
+         -- concatenate each value to the string
+         :context := :context || rec.embed_data;
+       END LOOP;
+     
+       -- concatenate strings and format it as an enhanced prompt to the LLM
+       :prompt := '请用中文回答以下问题，并使用提供的Context，假设您是该领域的专家。问题：'
+                     || :user_question || ' Context: ' || :context;
+     
+       -- DBMS_OUTPUT.PUT_LINE('Generated prompt: ' || :prompt);
+       
+       input := :prompt;
+       params := '{
+         "provider" : "cohere",
+         "credential_name" : "COHERE_CRED",
+         "url" : "https://api.cohere.ai/v1/generate",
+         "model" : "command-r-plus"
+       }';
+     
+       output := DBMS_VECTOR_CHAIN.UTL_TO_GENERATE_TEXT(input, json(params));
+       DBMS_OUTPUT.PUT_LINE(output);
+       IF output IS NOT NULL THEN
+         DBMS_LOB.FREETEMPORARY(output);
+       END IF;
+     EXCEPTION
+       WHEN OTHERS THEN
+         DBMS_OUTPUT.PUT_LINE(SQLERRM);
+         DBMS_OUTPUT.PUT_LINE(SQLCODE);
+     END;
+     /
+     ```
+
+     
+
+9.   sdfsdf
 
 
 
