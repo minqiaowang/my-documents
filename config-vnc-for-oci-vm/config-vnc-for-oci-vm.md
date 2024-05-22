@@ -82,7 +82,7 @@ sudo firewall-cmd --list-all
 2.   oracle用户下设置vnc密码
 
      ```
-     vncpassword
+     vncpasswd
      ```
 
      
@@ -92,7 +92,7 @@ sudo firewall-cmd --list-all
      ```
      sudo vi /etc/systemd/system/vncserver@.service
      
-     Unit]
+     [Unit]
      Description=Remote Desktop VNC Service
      After=syslog.target network.target
      [Service]
