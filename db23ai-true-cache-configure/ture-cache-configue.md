@@ -162,6 +162,12 @@ sudo firewall-cmd --list-all
 
 ## True Cache一致性配置
 
+1.   一致性配置如下
+
+     ![image-20240523151416157](images/image-20240523151416157.png)
+     
+     
+     
 1.   在主服务器上创建一个SALES服务
 
      ```
@@ -196,7 +202,7 @@ sudo firewall-cmd --list-all
 
      
 
-4.   tc2上因为上一步已经创建了```sales_tc```，我们只需要将remote listener关联并手工启动即可
+4.   添加节点tc2。因为上一步已经创建了```sales_tc```，我们只需要将tc2上的remote listener关联并手工启动即可
 
      ```
      sqlplus / as sysdba
@@ -214,7 +220,7 @@ sudo firewall-cmd --list-all
 
      
 
-6.   启动```orclpdb_tc```服务
+6.   启动```sales_tc```服务
 
      ```
      EXEC DBMS_SERVICE.START_SERVICE('SALES_TC');
@@ -280,9 +286,10 @@ sudo firewall-cmd --list-all
 
 ## 安装测试环境
 
-1.   本实验以主服务器为应用测试机。下载并安装jdk17，缺省JAVA_HOME为：```/usr/lib/jvm/jdk-17-oracle-x64```
+1.   在另一台虚机上安装应用测试机。下载并安装jdk17，缺省JAVA_HOME为：```/usr/lib/jvm/jdk-17-oracle-x64```
 
      ```
+     wget https://download.oracle.com/java/17/archive/jdk-17.0.10_linux-x64_bin.rpm
      sudo rpm -ivh jdk-17.0.10_linux-x64_bin.rpm
      ```
 
@@ -313,7 +320,7 @@ sudo firewall-cmd --list-all
 
      
 
-5.   添加opc用户的环境变量：
+5.   添加opc用户的环境变量（alias可以不用配置，但后面命令要写全）。
 
      ```
      export JAVA_HOME=/usr/lib/jvm/jdk-17-oracle-x64
@@ -401,7 +408,15 @@ sudo firewall-cmd --list-all
 
      
 
-10.   配置YCSB测试，在这里配置了TrueCache的属性和 readOnly 值
+10.   配置YCSB测试，修改数据库连接信息
+
+      ```
+      vi /home/opc/YCSB/ycsb-ora/truecache/db.properties
+      ```
+
+      
+
+11.   在这里配置了TrueCache的属性和 readOnly 值（第232，355行）
 
       ```
       vi /home/opc/YCSB/ycsb-ora/truecache/src/main/java/com/yahoo/ycsb/db/JdbcDBClient.java
@@ -409,18 +424,20 @@ sudo firewall-cmd --list-all
 
       
 
-11.   在这里修改数据库的连接URL
+12.   修改后需要重新编译
 
       ```
-      /home/opc/YCSB/ycsb-ora/truecache/db.properties
+      cd /home/opc/YCSB/ycsb-ora
+      mvn clean package
+      mvn install dependency:copy-dependencies
       ```
 
       
 
-12.   创建测试表
+13.   在主服务器上创建测试表
 
       ```
-      sqlplus salesuser/oracle@localhost:1521/sales;
+      sqlplus salesuser/oracle@localhost:1521/sales
       -- 或者指定连接的instance：sqlplus salesuser/oracle@localhost:1521/orclpdb/orcl
       
       CREATE TABLE USERTABLE (  
@@ -440,15 +457,15 @@ sudo firewall-cmd --list-all
 
       
 
-13.   转到目录
+14.   回到appserver转到目录
 
       ```
-      /home/opc/YCSB/ycsb-ora
+      cd /home/opc/YCSB/ycsb-ora
       ```
 
       
 
-14.   加载数据，缺省1,000,000条数据
+15.   加载数据，缺省1,000,000条数据
 
       ```
       ./bin/load_truecache.sh
@@ -459,13 +476,248 @@ sudo firewall-cmd --list-all
 14.   运行
 
       ```
-      ./bin/run_truecache.sh
+      ./bin/run_trucache.sh
       ```
 
       
       
-14.   sadf
+14.   运行日志放在这个目录下
 
-14.   asdf
+      ```
+      /home/opc/YCSB/ycsb-ora/logs/main/result_lookup_${i}.log
+      ```
 
       
+      
+14.   测试结果，QPS比较。可以看出在并发数加大时，True Cahe可以有效减少app的延迟，提高QPS。
+
+      | 并发数 | 无True Cache | 有True Cache |
+      | ------ | ------------ | ------------ |
+      | 1      | 4576         | 4269         |
+      | 2      | 7859         | 6627         |
+      | 4      | 12195        | 11886        |
+      | 8      | 14717        | 20057        |
+      | 16     | 14655        | 27699        |
+      | 32     | 13805        | 28634        |
+      | 64     | 12672        | 26819        |
+      
+      
+      
+14.   平均延迟(ms)比较
+
+      | 并发数 | 无True Cache | 有True Cache |
+      | ------ | ------------ | ------------ |
+      | 1      | 216          | 232          |
+      | 2      | 252          | 299          |
+      | 4      | 325          | 334          |
+      | 8      | 540          | 396          |
+      | 16     | 1087         | 574          |
+      | 32     | 2308         | 1110         |
+      | 64     | 5023         | 2369         |
+      
+      
+      
+20.   asdf
+
+
+
+## 检查True Cahe状态
+
+1.   分别连接到主服务和true cache实例：
+
+     ```
+     sqlplus / as sysdba
+     SQL> SELECT * FROM v$true_cache;
+     
+     MY_DG_ID REMOTE_DG_ID    DEST_ID TRUE_CACHE_NAME		  PRIMARY_NAME
+     ---------- ------------ ---------- ------------------------------ ------------------------------
+     STATUS
+     --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+     REMOTE_VERSION	       CON_ID
+     ------------------ ----------
+      846467676    237082307 	 0 orcltc1			  orcl
+     HEALTHY
+     23.0.0.0.0
+     ```
+
+     
+
+2.   在true cache端查看状态
+
+     ```
+     SELECT database_role, open_mode FROM v$database;
+     ```
+
+     output：
+
+     ```
+     DATABASE_ROLE	 OPEN_MODE
+     ---------------- --------------------
+     TRUE CACHE	 READ ONLY WITH APPLY
+     ```
+
+     
+
+3.   查看当前数据库SCN
+
+     ```
+     SELECT current_scn FROM v$database;
+     ```
+
+     输出如下：
+
+     ```
+     CURRENT_SCN
+     -----------
+         5092543
+     ```
+
+     
+
+4.   查看每个日志文件的大小
+
+     ```
+     SELECT THREAD#, SEQUENCE#, BYTES FROM v$standby_log;
+     ```
+
+     输出如下：
+
+     ```
+        THREAD#  SEQUENCE#	   BYTES
+     ---------- ---------- ----------
+     	 1	   23  209715200
+     	 1	    4  209715200
+     	 1	    0  209715200
+     	 1	    0  209715200
+     ```
+
+     
+
+5.   sdaf
+
+
+
+## 配置colocation tag方式
+
+1.   Colocation Tag方式架构如下：
+
+     ![image-20240523151510118](images/image-20240523151510118.png)
+
+     
+
+2.   服务端不用做任何改动，只需修改客户端的连接，比如修改如下文件的连接
+
+     ```
+     vi /home/opc/YCSB/ycsb-ora/truecache/db.properties
+     ```
+
+     
+
+3.   数据库连接修改为（例如：创建两个应用，一个的TAG为TCA，另一个的TAG为TCB）
+
+     ```
+     db.url=jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=db23ai-ee.sub10310211320.vcnseoul.oraclevcn.com)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=sales)(COLOCATION_TAG=TCA)))
+     ```
+
+     
+
+4.   sadf
+
+
+
+## 多服务方式配置
+
+1.   多服务的配置架构如下：
+
+     ![image-20240523151941488](images/image-20240523151941488.png)
+
+     
+
+2.   现在服务器上创建一个新的服务HR
+
+     ```
+     sqlplus / as sysdba
+     alter session set container=orclpdb;
+     BEGIN
+        DBMS_SERVICE.CREATE_SERVICE('HR', 'HR');
+        DBMS_SERVICE.START_SERVICE('HR');
+     END;
+     /
+     ```
+
+     
+
+3.   在tc2上停止之前配置的SALES_TC服务
+
+     ```
+     sqlplus / as sysdba
+     alter session set container=orclpdb;
+     exec DBMS_SERVICE.STOP_SERVICE('SALES_TC');
+     ```
+
+     
+
+4.   在主服务器上配置HR的true cache服务到tc2
+
+     ```
+     dbca -configureDatabase -configureTrueCacheInstanceService -sourceDB orcl -trueCacheConnectString tc2.sub10310211320.vcnseoul.oraclevcn.com:1521/orcltc2 -trueCacheServiceName hr_tc -serviceName hr -pdbName orclpdb -silent
+     ```
+
+     
+
+5.   查看当前服务，可以在主服务器端和tc2端分别查看
+
+     ```
+     $ lsnrctl status
+     
+     LSNRCTL for Linux: Version 23.0.0.0.0 - Production on 23-MAY-2024 07:32:55
+     
+     Copyright (c) 1991, 2024, Oracle.  All rights reserved.
+     
+     Connecting to (DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=db23ai-ee.sub10310211320.vcnseoul.oraclevcn.com)(PORT=1521)))
+     STATUS of the LISTENER
+     ------------------------
+     Alias                     LISTENER
+     Version                   TNSLSNR for Linux: Version 23.0.0.0.0 - Production
+     Start Date                22-MAY-2024 05:18:17
+     Uptime                    1 days 2 hr. 14 min. 38 sec
+     Trace Level               off
+     Security                  ON: Local OS Authentication
+     SNMP                      OFF
+     Listener Parameter File   /u01/app/oracle/product/23.0.0/dbhome_1/network/admin/listener.ora
+     Listener Log File         /u01/app/oracle/diag/tnslsnr/db23ai-ee/listener/alert/log.xml
+     Listening Endpoints Summary...
+       (DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)(HOST=db23ai-ee.sub10310211320.vcnseoul.oraclevcn.com)(PORT=1521)))
+       (DESCRIPTION=(ADDRESS=(PROTOCOL=ipc)(KEY=EXTPROC1521)))
+     Services Summary...
+     Service "18ad2f0fabf87ecbe063d3df5e64d669" has 1 instance(s).
+       Instance "orcl", status READY, has 1 handler(s) for this service...
+     Service "190315bb1e73fa87e063c600000a4ddb" has 1 instance(s).
+       Instance "orcl", status READY, has 1 handler(s) for this service...
+     Service "HR" has 1 instance(s).
+       Instance "orcl", status READY, has 1 handler(s) for this service...
+     Service "SALES" has 1 instance(s).
+       Instance "orcl", status READY, has 1 handler(s) for this service...
+     Service "hr_tc" has 1 instance(s).
+       Instance "orcltc2", status READY, has 1 handler(s) for this service...
+     Service "orcl" has 2 instance(s).
+       Instance "orcl", status UNKNOWN, has 1 handler(s) for this service...
+       Instance "orcl", status READY, has 1 handler(s) for this service...
+     Service "orclXDB" has 1 instance(s).
+       Instance "orcl", status READY, has 1 handler(s) for this service...
+     Service "orclpdb" has 3 instance(s).
+       Instance "orcl", status READY, has 1 handler(s) for this service...
+       Instance "orcltc1", status READY, has 1 handler(s) for this service...
+       Instance "orcltc2", status READY, has 1 handler(s) for this service...
+     Service "orcltc1" has 1 instance(s).
+       Instance "orcltc1", status READY, has 1 handler(s) for this service...
+     Service "orcltc2" has 1 instance(s).
+       Instance "orcltc2", status READY, has 1 handler(s) for this service...
+     Service "sales_tc" has 1 instance(s).
+       Instance "orcltc1", status READY, has 1 handler(s) for this service...
+     The command completed successfully
+     ```
+
+     
+
+6.   Pdf
