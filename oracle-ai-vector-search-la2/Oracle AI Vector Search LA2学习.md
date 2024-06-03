@@ -4,7 +4,7 @@
 
 
 
-## 生成onnx embedding模型（见后面GA版的步骤，与LA2版有不同）
+## Task 1: 生成onnx embedding模型（见后面Task 7 GA版的步骤，与LA2版有不同）
 
 1.   在URL：`https://repo.anaconda.com/archive/index.html`下载最新版Anaconda
 
@@ -111,7 +111,7 @@
 
 
 
-## 加载onnx模型到数据库中
+## Task2: 加载onnx模型到数据库中
 
 1.   以sysdba方式连接到Oracle数据库
 
@@ -230,7 +230,7 @@
 
 
 
-## 使用embedding模型
+## Task3: 使用embedding模型
 
 1.   创建测试表
 
@@ -299,7 +299,7 @@
 
 
 
-## 文档转文字、分段、转向量
+## Task 4: 文档转文字、分段、转向量
 
 1.   创建表
 
@@ -405,7 +405,7 @@
 
 
 
-## 使用向量索引
+## Task 5: 使用向量索引
 
 1.   检查事先设置好的向量内存空间，在CDB级设置需要重启数据库，之后在PDB级可以联机修改。
 
@@ -557,7 +557,7 @@
 
 
 
-## DB23ai Free GA 调用外部embedding服务
+## Task 6: DB23ai Free GA 调用外部embedding服务
 
 1.   连接到DBA用户，授权。
 
@@ -793,7 +793,7 @@
 
 
 
-## DB23ai Free GA安装OML4PY
+## Task 7: DB23ai Free GA安装OML4PY
 
 1.   opc用户
 

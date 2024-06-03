@@ -950,3 +950,104 @@ Failover后，损坏的源数据库PDB需要重新实例化后，才能做为新
 
 步骤跟TASK 4: 配置PDB的DG保护一样，不用再创建Standby Redo Log，注意修改PDB名和节点名
 
+
+
+## Task 9：删除DG PDB配置
+
+1.   删除standby pdb
+
+     ```
+     dgmgrl /@beijing
+     
+     DGMGRL> SHOW ALL PLUGGABLE DATABASE AT shanghai; 
+     
+     PDB Name         PDB ID   Data Guard Role    Data Guard Partner
+     
+     SH_FIN              3     Primary            BJ_FIN (con_id 4) at beijing
+     SH_SALES            4     Physical Standby   BJ_SALES (con_id 3) at beijing
+     ```
+
+     
+
+2.   停止pdb
+
+     ```
+     DGMGRL> EDIT PLUGGABLE DATABASE sh_sales AT shanghai SET STATE='APPLY-OFF';
+     
+     -- 连接到shanghai数据库
+     SQL> alter pluggable database sh_sales close;
+     ```
+
+     
+
+3.   删除PDB
+
+     ```
+     DGMGRL> REMOVE PLUGGABLE DATABASE sh_sales AT shanghai REMOVE DATAFILES; 
+     Pluggable Database 'sh_sales' removed. 
+     
+     DGMGRL> SHOW ALL PLUGGABLE DATABASE AT shanghai; 
+     
+     PDB Name         PDB ID   Data Guard Role    Data Guard Partner
+     
+     SH_FIN              3     Primary            BJ_FIN (con_id 4) at beijing
+     ```
+
+     
+
+4.   删除beijing PDB配置
+
+     ```
+     DGMGRL> EDIT PLUGGABLE DATABASE bj_fin AT beijing SET STATE='APPLY-OFF';
+     
+     -- 连接到beijing数据库
+     SQL> alter pluggable database bj_fin close;
+     
+     DGMGRL> REMOVE PLUGGABLE DATABASE bj_fin AT beijing REMOVE DATAFILES; 
+     Pluggable Database 'bj_fin' removed. 
+     
+     DGMGRL> SHOW ALL PLUGGABLE DATABASE AT beijing;
+     
+     PDB Name         PDB ID   Data Guard Role    Data Guard Partner
+     
+     BJ_SALES            3     None               None
+     ```
+
+     
+
+5.   查看当前配置
+
+     ```
+     DGMGRL> SHOW CONFIGURATION
+     ```
+
+     
+
+6.   删除配置
+
+     ```
+     DGMGRL> REMOVE CONFIGURATION shanghai;
+     DGMGRL> REMOVE CONFIGURATION beijing;
+     ```
+
+     
+
+7.   也可以直接删除所有配置（option）
+
+     ```
+     DGMGRL> REMOVE CONFIGURATION;
+     ```
+
+     
+
+8.   asdf
+
+9.   asdf
+
+10.   asdf
+
+11.   asdf
+
+12.   sadf
+
+13.   
