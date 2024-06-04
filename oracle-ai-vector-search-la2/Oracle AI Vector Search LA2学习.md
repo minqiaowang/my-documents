@@ -795,6 +795,14 @@
 
 ## Task 7: DB23ai Free GA安装OML4PY
 
+1.   opc用户, 安装所需模块
+
+     ```
+     sudo yum install perl-Env libffi-devel openssl openssl-devel tk-devel xz-devel zlib-devel bzip2-devel readline-devel libuuid-devel ncurses-devel
+     ```
+
+     
+
 1.   opc用户
 
      ```
@@ -803,7 +811,7 @@
 
      
 
-2.   sdaf
+2.   解压，配置
 
      ```
      tar xzf Python-3.12.3.tgz
@@ -813,7 +821,7 @@
 
      
 
-3.   sdaf
+3.   安装
 
      ```
      make -j `nproc`
@@ -850,7 +858,7 @@
 
      
 
-6.   下载[OML4Py 2.0 client zip](https://www.oracle.com/database/technologies/oml4py-downloads.html) ，上传到虚机并unzip
+6.   下载[OML4Py 2.0 client zip](https://www.oracle.com/database/technologies/oml4py-downloads.html) ，上传到虚机并在oracle用户下unzip
 
      ```
      unzip oml4py-client-linux-x86_64-2.0.zip
@@ -858,7 +866,7 @@
 
      
 
-7.   安装OML4PY客户端
+7.   Oracle用户安装OML4PY客户端（注意事先激活newenv虚拟环境）
 
      ```
      perl -Iclient client/client.pl
@@ -874,7 +882,7 @@
      Type "help", "copyright", "credits" or "license" for more information.
      >>> from oml.utils import EmbeddingModel, EmbeddingModelConfig
      >>> em = EmbeddingModel(model_name='sentence-transformers/all-MiniLM-L6-v2',settings={'ignore_checksum_error':True})
-     >>> em.export2file("minillm",output_dir=".")
+     >>> em.export2file("all-MiniLM-L6-v2",output_dir=".")
      >>> exit()
      (newenv) -bash-4.4$
      ```
