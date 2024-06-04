@@ -635,7 +635,7 @@
 
      ![image-20240514135543321](images/image-20240514135543321.png)
 
-5.   直接调用：
+5.   另一种写法，直接调用：
 
      ```
      select dbms_vector_chain.utl_to_embedding('hello world', 
