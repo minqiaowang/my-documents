@@ -582,7 +582,7 @@
 
      
 
-3.   连接到vector用户，创建credential。
+3.   连接到vector用户，创建oci genAI的credential。
 
      ```
      declare
