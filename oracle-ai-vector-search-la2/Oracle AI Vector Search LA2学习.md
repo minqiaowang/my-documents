@@ -655,14 +655,16 @@
 
      ![image-20240519152212534](images/image-20240519152212534.png)
 
+     
+
 7.   在数据库中实现RAG。为了避免返回的中文字符乱码，可以设置```utl_http.set_body_charset('UTF-8');```
 
      ```
      SET SERVEROUTPUT ON;
      declare
-       prompt CLOB;
+       user_prompt CLOB;
        user_question CLOB;
-       context CLOB;
+       user_context CLOB;
        input CLOB;
        params CLOB;
        output CLOB;
@@ -670,10 +672,10 @@
      BEGIN
        utl_http.set_body_charset('UTF-8');
        -- initialize the concatenated string
-       :context := '';
+       user_context := '';
      
        -- read this question from the user
-       :user_question := 'Oracle AI向量搜索有什么特点?';
+       user_question := 'Oracle AI向量搜索有什么特点?';
      
        -- cursor to fetch chunks relevant to the user's query
        FOR rec IN (SELECT EMBED_DATA
@@ -684,14 +686,14 @@
                    FETCH EXACT FIRST 5 ROWS ONLY)
        LOOP
          -- concatenate each value to the string
-         :context := :context || rec.embed_data;
+         user_context := user_context || rec.embed_data;
        END LOOP;
      
        -- concatenate strings and format it as an enhanced prompt to the LLM
-       :prompt := '请用中文回答以下问题，并使用提供的Context，假设您是该领域的专家。问题：'
-                     || :user_question || ' Context: ' || :context;
+       user_prompt := '请用中文回答以下问题，并使用提供的Context，假设您是该领域的专家。问题：'
+                     || user_question || ' Context: ' || user_context;
      
-       DBMS_OUTPUT.PUT_LINE('Generated prompt: ' || :prompt);
+       DBMS_OUTPUT.PUT_LINE('Generated prompt: ' || user_prompt);
      
        input := :prompt;
        params := '{
@@ -732,9 +734,9 @@
      
      SET SERVEROUTPUT ON;
      declare
-       prompt CLOB;
+       user_prompt CLOB;
        user_question CLOB;
-       context CLOB;
+       user_context CLOB;
        input CLOB;
        params CLOB;
        output CLOB;
@@ -743,30 +745,30 @@
        -- initialize the concatenated string
        utl_http.set_body_charset('UTF-8');
        
-       :context := '';
+       user_context := '';
      
        -- read this question from the user
-       :user_question := 'Oracle AI向量搜索有什么特点?';
+       user_question := 'Oracle AI向量搜索有什么特点?';
      
        -- cursor to fetch chunks relevant to the user's query
        FOR rec IN (SELECT EMBED_DATA
                    FROM doc_chunks
                   -- WHERE DOC_ID = 'Vector User Guide'
                    ORDER BY vector_distance(embed_vector, vector_embedding(
-                       doc_model using :user_question as DATA), COSINE)
+                       doc_model using user_question as DATA), COSINE)
                    FETCH EXACT FIRST 5 ROWS ONLY)
        LOOP
          -- concatenate each value to the string
-         :context := :context || rec.embed_data;
+         user_context := user_context || rec.embed_data;
        END LOOP;
      
        -- concatenate strings and format it as an enhanced prompt to the LLM
-       :prompt := '请用中文回答以下问题，并使用提供的Context，假设您是该领域的专家。问题：'
-                     || :user_question || ' Context: ' || :context;
+       user_prompt := '请用中文回答以下问题，并使用提供的Context，假设您是该领域的专家。问题：'
+                     || user_question || ' Context: ' || user_context;
      
-       -- DBMS_OUTPUT.PUT_LINE('Generated prompt: ' || :prompt);
+       -- DBMS_OUTPUT.PUT_LINE('Generated prompt: ' || user_prompt);
        
-       input := :prompt;
+       input := user_prompt;
        params := '{
          "provider" : "cohere",
          "credential_name" : "COHERE_CRED",
