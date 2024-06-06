@@ -8,6 +8,12 @@
 
 1.   在URL：`https://repo.anaconda.com/archive/index.html`下载最新版Anaconda
 
+     ```
+     wget https://repo.anaconda.com/archive/Anaconda3-2024.02-1-Linux-x86_64.sh
+     ```
+
+     
+
 2.   安装
 
      ```
@@ -767,6 +773,69 @@
                      || user_question || ' Context: ' || user_context;
      
        -- DBMS_OUTPUT.PUT_LINE('Generated prompt: ' || user_prompt);
+       
+       input := user_prompt;
+       params := '{
+         "provider" : "cohere",
+         "credential_name" : "COHERE_CRED",
+         "url" : "https://api.cohere.ai/v1/generate",
+         "model" : "command-r-plus"
+       }';
+     
+       output := DBMS_VECTOR_CHAIN.UTL_TO_GENERATE_TEXT(input, json(params));
+       DBMS_OUTPUT.PUT_LINE(output);
+       IF output IS NOT NULL THEN
+         DBMS_LOB.FREETEMPORARY(output);
+       END IF;
+     EXCEPTION
+       WHEN OTHERS THEN
+         DBMS_OUTPUT.PUT_LINE(SQLERRM);
+         DBMS_OUTPUT.PUT_LINE(SQLCODE);
+     END;
+     /
+     ```
+
+     
+
+9.   另一个例子：
+
+     ```
+     SET SERVEROUTPUT ON;
+     
+     DECLARE
+       user_prompt CLOB;
+       user_question CLOB;
+       user_context CLOB;
+       input CLOB;
+       params CLOB;
+       output CLOB;
+     
+     BEGIN
+       -- initialize the concatenated string
+       utl_http.set_body_charset('UTF-8');
+       
+       user_context := '';
+     
+       -- read this question from the user
+       user_question := '口腔经常痛有什么癌症的表现吗?';
+     
+       -- cursor to fetch chunks relevant to the user's query
+       FOR rec IN (SELECT 'ask: '||ask||'answer: '||answer as query_data
+                   FROM medical_data
+                  -- WHERE DOC_ID = 'Vector User Guide'
+                   ORDER BY vector_distance(ask_vector, vector_embedding(
+                       doc_model using user_question as DATA), COSINE)
+                   FETCH EXACT FIRST 5 ROWS ONLY)
+       LOOP
+         -- concatenate each value to the string
+         user_context := user_context || rec.query_data;
+       END LOOP;
+     
+       -- concatenate strings and format it as an enhanced prompt to the LLM
+       user_prompt := '请用中文回答以下问题，以布告栏方式显示，并使用提供的Context，假设您是该领域的专家。问题：'
+                     || user_question || ' Context: ' || user_context;
+     
+       -- DBMS_OUTPUT.PUT_LINE('Generated prompt: ' || :prompt);
        
        input := user_prompt;
        params := '{

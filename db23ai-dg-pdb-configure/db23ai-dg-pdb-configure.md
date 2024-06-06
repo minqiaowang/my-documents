@@ -8,23 +8,36 @@
 4.   参见[db_bj.rsp](./db_bj.rsp)和[db_sh.rsp](./db_sh.rsp)
 
 ```
-opc: sudo dnf -y install oracle-database-preinstall-23ai
+-- opc: 
+sudo dnf -y install oracle-database-preinstall-23ai
 sudo mkdir /u01
 sudo chmod 777 /u01
-oracle: mkdir -p /u01/app/oracle/product/23.0.0/dbhome_1
+
+-- oracle: 
+mkdir -p /u01/app/oracle/product/23.0.0/dbhome_1
 wget --no-proxy https://objectstorage.us-phoenix-1.oraclecloud.com/p/_hT8jShYHcYXJXgyjliRe5XmdTKYsQxfWQkoWhYKn4xS3mbu6kC4r1s7grror_CN/n/oracassandra/b/minqiao.wang/o/20377/db23502405.zip
 unzip db23502405.zip -d /u01/app/oracle/product/23.0.0/dbhome_1
 -- 编辑rsp文件
 cd /u01/app/oracle/product/23.0.0/dbhome_1
 ./runInstaller -silent -ignorePrereqFailure -responseFile /home/oracle/db_bj.rsp
 
-root: /u01/app/oraInventory/orainstRoot.sh
+-- root: 
+    /u01/app/oraInventory/orainstRoot.sh
 	/u01/app/oracle/product/23.0.0/dbhome_1/root.sh
+	
+-- oracle:
 /u01/app/oracle/product/23.0.0/dbhome_1/runInstaller -executeConfigTools -responseFile /home/oracle/db_bj.rsp -silent
 
+-- opc:
 sudo firewall-cmd --zone=public --add-port=1521/tcp --permanent
 sudo firewall-cmd --reload
 sudo firewall-cmd --list-all
+
+-- oracle: 编辑.bash_profile
+export ORACLE_HOME=/u01/app/oracle/product/23.0.0/dbhome_1
+export LD_LIBRARY_PATH=$ORACLE_HOME/lib;
+export ORACLE_SID=beijing
+export PATH=$ORACLE_HOME/bin:$PATH
 ```
 
 ##### DG PDB Configuration Restrictions
@@ -49,9 +62,7 @@ A DG PDB configuration does not support the following:
 
 -   Backups to ZDLRA
 
--   Application containers
-
-    Only individual PDBs are supported for Oracle Data Guard.
+-   Application containers：Only individual PDBs are supported for Oracle Data Guard.
 
     
 
