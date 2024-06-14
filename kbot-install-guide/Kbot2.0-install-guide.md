@@ -524,12 +524,12 @@ export PATH=$ORACLE_HOME/bin:$PATH
      ```
      $ vi llm_keys.py
      
-     -- 如：cohere_api_key='gFRJhbySGRcUBTQ*****LbtT1E78yFnExZ'
+     -- 如：cohere_api_key='gFRJh*****8yFnExZ'
      
      ######  讯飞星火模型key配置开始 ######
      xinghuo_appid="33***bf"
-     xinghuo_api_secret='NjY1ODdh********jMxNTBmNjFk'
-     xinghuo_api_key='f799fd66acf*****e14027577d21'
+     xinghuo_api_secret='NjY1********BmNjFk'
+     xinghuo_api_key='f799*****27577d21'
      #用于配置大模型版本，默认“general/generalv2”
      xinghuo_domain = "generalv3.5"
      #云端环境的服务地址
