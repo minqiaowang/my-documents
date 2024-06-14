@@ -361,7 +361,8 @@ export PATH=$ORACLE_HOME/bin:$PATH
       可以先kill掉ords进程，执行下列命令增加连接数，再重启ords。
 
       ```
-      ords config set jdbc.MaxLimit 30
+      ords config set jdbc.MaxLimit 90
+      ords config set jdbc.InitialLimit 90
       ```
 
       
