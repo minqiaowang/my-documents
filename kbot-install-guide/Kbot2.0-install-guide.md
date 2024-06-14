@@ -490,6 +490,12 @@ export PATH=$ORACLE_HOME/bin:$PATH
      $ pip install -r requirements.txt
      ```
 
+     如果用清华镜像库：
+
+     ```
+     pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+     ```
+
      
 
 7.   修改配置文件
@@ -513,7 +519,17 @@ export PATH=$ORACLE_HOME/bin:$PATH
 
      
 
-8.   打开端口
+8.   添加你所拥有的大模型的认证key
+
+     ```
+     $ vi llm_keys.py
+     
+     -- 如：cohere_api_key='gFRJhbySGRcUBTQphYPXar9iGZLbtT1E78yFnExZ'
+     ```
+
+     
+
+9.   打开端口
 
      ```
      sudo firewall-cmd --zone=public --add-port=8899/tcp --permanent
@@ -523,15 +539,21 @@ export PATH=$ORACLE_HOME/bin:$PATH
 
      
 
-9.   启动kbot
+10.   启动kbot
 
-     ```
-     nohup python main.py  --port 8899 &
-     ```
+      ```
+      nohup python main.py  --port 8899 &
+      ```
 
-     
+      第一次运行要下载hugging face上的模型，如果不能访问外网，需要用镜像库。启动kbot之前，设置镜像库环境：
 
-10.    启动以后，不报错，且如果正常可以打开接口swagger测试页：
+      ```
+      export HF_ENDPOINT=https://hf-mirror.com 
+      ```
+
+      
+
+11.    启动以后，不报错，且如果正常可以打开接口swagger测试页：
        ```http://132.226.171.40:8899/docs```
 
        或者用curl调接口测试下是否能正常返回：
@@ -544,9 +566,9 @@ export PATH=$ORACLE_HOME/bin:$PATH
 
       
 
-11.   sdaf
+12.   sdaf
 
-12.   sadf
+13.   sadf
 
 ## Task 4: 导入APEX应用程序
 
