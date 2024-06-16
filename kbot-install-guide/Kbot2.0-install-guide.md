@@ -475,7 +475,7 @@ export PATH=$ORACLE_HOME/bin:$PATH
 
      
 
-5.   上传kbot安装文件，解压
+5.   上传kbot安装文件，解压。[kbot.zip下载链接](./kbot.zip)
 
      ```
      unzip kbot.zip 
@@ -595,7 +595,7 @@ export PATH=$ORACLE_HOME/bin:$PATH
 
      ![image-20240606141338737](images/image-20240606141338737.png)
 
-3.   选择要导入的应用程序文件，点击**Next**
+3.   选择要导入的应用程序文件，点击**Next**。[APEX应用程序下载链接](./kbot_apex_源码_f119_20240604.sql)
 
      ![image-20240606141607608](images/image-20240606141607608.png)
 
