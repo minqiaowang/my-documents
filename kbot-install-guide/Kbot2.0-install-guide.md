@@ -499,7 +499,7 @@ export PATH=$ORACLE_HOME/bin:$PATH
 
      
 
-7.   修改配置文件
+7.   修改配置文件，如果不用连OCI提供的大模型，用[config.py.nooci](./config.py.nooci)替换掉config.py后，再进行修改。
 
      ```
      $ vi config.py
