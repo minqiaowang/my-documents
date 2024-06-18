@@ -40,7 +40,7 @@ sudo firewall-cmd --list-all
 
 -- oracle: 编辑.bash_profile
 export ORACLE_HOME=/u01/app/oracle/product/23.0.0/dbhome_1
-export LD_LIBRARY_PATH=$ORACLE_HOME/lib;
+export LD_LIBRARY_PATH=$ORACLE_HOME/lib
 export ORACLE_SID=beijing
 export PATH=$ORACLE_HOME/bin:$PATH
 ```
@@ -98,7 +98,16 @@ export PATH=$ORACLE_HOME/bin:$PATH
 
      
 
-5.   连接到oracle数据库，进入相应的pdb
+5.   创建静态目录，ords中需配置该静态资源目录
+
+     ```
+     $ mkdir apex_images
+     $ cp -r /home/oracle/apex/images/* /home/oracle/apex_images
+     ```
+
+     
+
+6.   连接到oracle数据库，进入相应的pdb
 
      ```
      $ sqlplus / as sysdba
@@ -120,7 +129,7 @@ export PATH=$ORACLE_HOME/bin:$PATH
 
      
 
-6.   开始安装
+7.   开始安装
 
      ```
      SQL> @apexins.sql SYSAUX SYSAUX TEMP /i/
@@ -153,7 +162,7 @@ export PATH=$ORACLE_HOME/bin:$PATH
 
      
 
-7.   修改APEX相关客户的密码(如：WelcomePTS_2023#)
+8.   修改APEX相关客户的密码(如：WelcomePTS_2023#)
 
      ```
      $ sqlplus / as sysdba
@@ -174,7 +183,7 @@ export PATH=$ORACLE_HOME/bin:$PATH
 
      
 
-8.   修改其它用户的密码(如：WelcomePTS_2023#)
+9.   修改其它用户的密码(如：WelcomePTS_2023#)
 
      ```
      SQL> @apex_rest_config.sql
@@ -189,18 +198,29 @@ export PATH=$ORACLE_HOME/bin:$PATH
 
      
 
-9.   解锁用户
+10.   禁用数据库内置的PL/SQL网关
 
-     ```
-     ALTER USER APEX_LISTENER  ACCOUNT UNLOCK identified by WelcomePTS_2023#;
-     ALTER USER APEX_PUBLIC_USER ACCOUNT UNLOCK identified by WelcomePTS_2023#;
-     ALTER USER APEX_REST_PUBLIC_USER ACCOUNT UNLOCK identified by WelcomePTS_2023#;
-     ALTER USER APEX_230200 ACCOUNT UNLOCK identified by WelcomePTS_2023#;
-     ```
+      ```
+      SQL> exec dbms_xdb.sethttpport(0);
+      SQL> exec dbms_xdb.setftpport(0);
+      ```
 
-     
+      
 
-10.   安装中文包。
+11.   解锁用户
+
+      ```
+      ALTER USER APEX_LISTENER  ACCOUNT UNLOCK identified by WelcomePTS_2023#;
+      ALTER USER APEX_PUBLIC_USER ACCOUNT UNLOCK identified by WelcomePTS_2023#;
+      ALTER USER APEX_REST_PUBLIC_USER ACCOUNT UNLOCK identified by WelcomePTS_2023#;
+      ALTER USER APEX_230200 ACCOUNT UNLOCK identified by WelcomePTS_2023#;
+      CREATE PROFILE password_unlimited LIMIT PASSWORD_LIFE_TIME UNLIMITED;
+      ALTER USER apex_public_user PROFILE password_unlimited;
+      ```
+
+      
+
+12.   安装中文包。
 
       ```
       @builder/zh-cn/load_zh-cn.sql
@@ -208,7 +228,7 @@ export PATH=$ORACLE_HOME/bin:$PATH
 
       
 
-11.   开放用户外网访问权限
+13.   开放用户外网访问权限
 
       ```
       SQL> BEGIN
@@ -225,19 +245,42 @@ export PATH=$ORACLE_HOME/bin:$PATH
 
       
 
-12.   解压ords
+14.   解压ords
 
       ```
       $ cd /home/oracle
-      $ unzip ords-latest.zip
+      $ mkdir ords
+      $ unzip ords-latest.zip -d /home/oracle/ords
       ```
 
       
 
-13.   安装ords，安装完成后，ords缺省就是启动的，可以按```ctrl+c```退出
+15.   创建ords config目录
 
       ```
-      $ java -jar ords.war install
+      mkdir ords_config
+      ```
+
+      
+
+16.   配置环境变量
+
+      ```
+      $ vi .bash_profile
+      
+      -- 增加下面两个环境变量
+      export PATH=$PATH:/home/oracle/ords/bin
+      export ORDS_CONFIG=/home/oracle/ords_config
+      
+      $ source .bash_profile
+      ```
+
+      
+
+17.   安装ords，选择S，自定义数据库连接(输入主机名、端口、服务名），安装完成后，ords缺省就是启动的，可以按```ctrl+c```退出
+
+      ```
+      $ ords install
       Warning: Support for executing: java -jar ords.war has been deprecated.
       Please add ords to your PATH and use the ords command instead.
       Run the following command to add ords to your PATH:
@@ -265,7 +308,7 @@ export PATH=$ORACLE_HOME/bin:$PATH
           [4] SHANGHAI     SERVICE_NAME=shanghai                                       
           [5] SH_FIN       SERVICE_NAME=sh_fin                                         
           [S] Specify the database connection
-        Choose [1]: 
+        Choose [1]: S
         Provide database user name with administrator privileges.
           Enter the administrator username: sys
         Enter the database password for SYS AS SYSDBA: 
@@ -326,7 +369,19 @@ export PATH=$ORACLE_HOME/bin:$PATH
 
       
 
-14.   opc用户，打开防火墙
+18.   配置 apex静态内容,请先终止ords服务，终止后再进行配置。
+
+      ```
+      $ ords config set --global standalone.static.context.path /i
+      #/home/oracle/apex_images为Apex的静态资源目录
+      $ ords config set --global standalone.static.path /home/oracle/apex_images
+      $ ords config set jdbc.MaxLimit 90
+      $ ords config set jdbc.InitialLimit 90
+      ```
+
+      
+
+19.   opc用户，打开防火墙
 
       ```
       sudo firewall-cmd --zone=public --add-port=8080/tcp --permanent
@@ -336,15 +391,15 @@ export PATH=$ORACLE_HOME/bin:$PATH
 
       
 
-15.   在后台运行ords
+20.   在后台运行ords
 
       ```
-      nohup java -jar ords.war serve &
+      nohup ords serve &
       ```
 
       
 
-16.   浏览器访问ords主页
+21.   浏览器访问ords主页
 
       ```
       http://132.226.171.40:8080/ords
@@ -354,70 +409,59 @@ export PATH=$ORACLE_HOME/bin:$PATH
 
       
 
-17.   如果遇到下列503错误
-
-      ![image-20240606134120351](images/image-20240606134120351.png)
-
-      可以先kill掉ords进程，执行下列命令增加连接数，再重启ords。
-
-      ```
-      ords config set jdbc.MaxLimit 90
-      ords config set jdbc.InitialLimit 90
-      ```
-
       
 
-18.   在APEX部分，输入要设置的PDB，点击开始
+22.   在APEX部分，输入要设置的PDB，点击**开始**（如果ords是安装在PDB中的，则可以直接点击**开始**）
 
       ![image-20240605130638203](images/image-20240605130638203.png)
 
-19.   输入相应的项目：```internal/admin/WelcomePTS_2023#```，点击**Sign in**
+23.   输入相应的项目：```internal/admin/WelcomePTS_2023#```，点击**Sign in**
 
       ![image-20240605130737691](images/image-20240605130737691.png)
 
-20.   点击**Create Workspace**
+24.   点击**Create Workspace**
 
       ![image-20240605130855304](images/image-20240605130855304.png)
 
-21.   输入workspace name，点击**Next**
+25.   输入workspace name，点击**Next**
 
       ![image-20240606134551434](images/image-20240606134551434.png)
 
-22.   输入新建schema的名字、密码及Quota（如：KBOT-UI/WelcomePTS_2023#/2000)，点击**Next**：
+26.   输入新建schema的名字、密码及Quota（如：KBOT-UI/WelcomePTS_2023#/2000)，点击**Next**：
 
       ![image-20240606134706291](images/image-20240606134706291.png)
 
-23.   输入管理员的信息（admin/WelcomePTS_2023#/admin@null.com)
+27.   输入管理员的信息（admin/WelcomePTS_2023#/admin@null.com)
 
       ![image-20240605131546744](images/image-20240605131546744.png)
 
       
 
-24.   确认输入的信息，点击**Create Workspace**
+28.   确认输入的信息，点击**Create Workspace**
 
       ![image-20240606134819028](images/image-20240606134819028.png)
 
-25.   创建成功，点击**Done**
+29.   创建成功，点击**Done**
 
       ![image-20240606134912781](images/image-20240606134912781.png)
 
-26.   从管理员用户退出
+30.   从管理员用户退出
 
       ![image-20240605131953483](images/image-20240605131953483.png)
 
-27.   登录到新的Workspace
+31.   登录到新的Workspace
 
       ![image-20240606135009805](images/image-20240606135009805.png)
 
-28.   第一次登录需要修改用户密码，可以依然设置为原来的密码
+32.   第一次登录需要修改用户密码，可以依然设置为原来的密码
 
       ![image-20240606135100267](images/image-20240606135100267.png)
 
-29.   登录成功
+33.   登录成功
 
       ![image-20240605132235308](images/image-20240605132235308.png)
 
-30.   sadf
+34.   sadf
 
 
 
