@@ -490,7 +490,7 @@ export PATH=$ORACLE_HOME/bin:$PATH
      [no] >>> yes
      ```
 
-     最后一步如果选择no，要使用conda环境前，需要运行
+     最后一步如果选择no，要使用conda环境前，需要运行。（选yes的话也需要激活环境变量```$ source .bashrc```）
 
      ```
      eval "$(/home/opc/anaconda3/bin/conda shell.bash hook)" 
@@ -523,12 +523,12 @@ export PATH=$ORACLE_HOME/bin:$PATH
 
      
 
-6.   安装kbot
+6.   安装kbot，注意要先激活kbot虚拟环境
 
      ```
-     $ cd kbot
-     $ conda install -c conda-forge cxx-compiler
-     $ pip install -r requirements.txt
+     (kbot) [opc@bj ~]$ cd kbot
+     (kbot) [opc@bj ~]$ conda install -c conda-forge cxx-compiler
+     (kbot) [opc@bj ~]$ pip install -r requirements.txt
      ```
 
      如果用清华镜像库：
