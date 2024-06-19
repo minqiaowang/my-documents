@@ -277,7 +277,7 @@ export PATH=$ORACLE_HOME/bin:$PATH
 
       
 
-17.   安装ords，选择S，自定义数据库连接(输入主机名、端口、服务名），安装完成后，ords缺省就是启动的，可以按```ctrl+c```退出
+17.   安装ords，选择S，自定义数据库连接到PDB(输入主机名、端口、服务名），安装完成后，ords缺省就是启动的，可以按```ctrl+c```退出
 
       ```
       $ ords install
@@ -313,12 +313,8 @@ export PATH=$ORACLE_HOME/bin:$PATH
           Enter the administrator username: sys
         Enter the database password for SYS AS SYSDBA: 
       
-      Retrieving information...
-      Your database connection is to a CDB.  ORDS common user ORDS_PUBLIC_USER will be created in the CDB.  ORDS schema will be installed in the PDBs.
-      Root CDB$ROOT - create ORDS common user 
-      PDB PDB$SEED - install ORDS 24.1.1.r1201228 (mode is READ ONLY, open for READ/WRITE)
-      PDB BJ_SALES - install ORDS 24.1.1.r1201228 
-      PDB BJ_SALES - configure PL/SQL gateway user APEX_PUBLIC_USER in ORDS version 24.1.1.r1201228 
+      ......
+      ......
       
         Install ORDS in the database
           [1] Yes
@@ -706,7 +702,11 @@ export PATH=$ORACLE_HOME/bin:$PATH
 19.   之后要直接进入程序可以输入下列url
 
       ```
+      -- ORDS安装在CDB
       http://132.226.171.40:8080/ords/bj_sales/r/kbot-ui/km-chat109
+      
+      --或者ORDS安装在PDB
+      http://192.168.106.204:8080/ords/r/kbot-ui/km-chat109
       ```
 
       
