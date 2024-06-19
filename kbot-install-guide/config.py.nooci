@@ -12,11 +12,11 @@ import llm_keys
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 #######  DEV #################
-http_prefix = 'http://172.1.201.213:8899/'
-ORACLE_AI_VECTOR_CONNECTION_STRING="zxtg/Welcome#123@localhost/FREEPDB1"
+http_prefix = 'http://ip_address:8899/'
+ORACLE_AI_VECTOR_CONNECTION_STRING="vector/vector@localhost:1521/FREEPDB1"
 #######  PRD #################
 #http_prefix = 'https://prd.oracle.k8scloud.site/'
-#ORACLE_AI_VECTOR_CONNECTION_STRING="vector/vector@129.159.40.144:1521/orclpdb1"
+#ORACLE_AI_VECTOR_CONNECTION_STRING="vector/vector@ip_address:1521/orclpdb1"
 
 #######  the knowledge base root directory    #####################
 KB_ROOT_PATH = '/home/opc/kbroot'
