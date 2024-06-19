@@ -537,9 +537,19 @@ export PATH=$ORACLE_HOME/bin:$PATH
      pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
      ```
 
-     
+     如果你用的VirtualBox虚拟机，在pip安装时可能会出以下错误：
 
-7.   修改配置文件，如果不用连OCI提供的大模型，用[config.py.nooci](./config.py.nooci)替换掉config.py后，再进行修改。
+     ```
+     Failed to build llama-cpp-python
+     
+     ERROR: Could not build wheels for llama-cpp-python, which is required to install pyproject.toml-based projects
+     ```
+
+     这时，需要将PAE/NX，Nested VT-x以及硬件加速页面的Nested Paging关闭，再重新运行pip安装。如下图：
+
+     ![image-20240619135728399](images/image-20240619135728399.png)
+
+7.   修改配置文件，如果不使用OCI GenAI提供的大模型，用[config.py.nooci](./config.py.nooci)替换掉config.py后，再进行修改。
 
      ```
      $ vi config.py
