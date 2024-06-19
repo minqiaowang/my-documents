@@ -606,7 +606,7 @@ export PATH=$ORACLE_HOME/bin:$PATH
       nohup python main.py  --port 8899 &
       ```
 
-      第一次运行要下载hugging face上的模型，如果不能访问外网，需要用镜像库。启动kbot之前，设置镜像库环境：
+      ```tail -f nohup.out```可以查看运行输出。第一次运行要下载hugging face上的模型，如果不能访问外网，需要用镜像库。启动kbot之前，设置镜像库环境：
 
       ```
       export HF_ENDPOINT=https://hf-mirror.com 
