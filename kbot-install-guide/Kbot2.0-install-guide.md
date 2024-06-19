@@ -600,13 +600,13 @@ export PATH=$ORACLE_HOME/bin:$PATH
 
      
 
-10.   启动kbot
+10.   启动kbot，第一次运行可以在前台直接运行，不用nohup在后台运行。
 
       ```
       nohup python main.py  --port 8899 &
       ```
 
-      ```tail -f nohup.out```可以查看运行输出。第一次运行要下载hugging face上的模型，如果不能访问外网，需要用镜像库。启动kbot之前，设置镜像库环境：
+      第一次运行要下载hugging face上的模型，如果你的虚机在国内，不能访问国外网站，需要用镜像库。启动kbot之前，设置镜像库环境：
 
       ```
       export HF_ENDPOINT=https://hf-mirror.com 
