@@ -545,7 +545,7 @@ export PATH=$ORACLE_HOME/bin:$PATH
      ERROR: Could not build wheels for llama-cpp-python, which is required to install pyproject.toml-based projects
      ```
 
-     这时，需要将PAE/NX，Nested VT-x以及硬件加速页面的Nested Paging关闭，再重新运行pip安装。如下图：
+     这时，需要将PAE/NX，Nested VT-x以及硬件加速页面的Nested Paging关闭，再重新运行pip安装。安装完成后再启用。如下图：
 
      ![image-20240619135728399](images/image-20240619135728399.png)
 
