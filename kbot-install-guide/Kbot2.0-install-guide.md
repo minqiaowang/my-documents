@@ -4,11 +4,11 @@
 
 ## 先决条件
 
-获取最新版本的kbot安装程序和APEX应用安装程序
+获取最新版本的kbot安装程序和APEX应用安装程序。
 
 ## Task 1: 安装Oracle DB23ai数据库
 
-1.   创建数据库环境：oracle linux8
+1.   创建数据库环境：oracle linux8.10
 2.   数据库名为beijing，包含1个PDB：bj_sales
 3.   参见[db_bj.rsp](./db_bj.rsp)
 
