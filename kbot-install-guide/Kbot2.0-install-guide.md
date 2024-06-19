@@ -277,7 +277,7 @@ export PATH=$ORACLE_HOME/bin:$PATH
 
       
 
-17.   安装ords，选择S，自定义数据库连接到PDB(输入主机名、端口、服务名），安装完成后，ords缺省就是启动的，可以按```ctrl+c```退出
+17.   安装ords，选择S，自定义数据库连接到PDB(输入主机名、端口、服务名），安装完成后，ords缺省就是启动的。
 
       ```
       $ ords install
@@ -302,41 +302,23 @@ export PATH=$ORACLE_HOME/bin:$PATH
       Oracle REST Data Services - Interactive Install
       
         Enter a number to select the TNS net service name to use from /u01/app/oracle/product/23.0.0/dbhome_1/network/admin/tnsnames.ora or specify the database connection
-          [1] BEIJING      SERVICE_NAME=beijing                                        
-          [2] BJ_ACCT      SERVICE_NAME=bj_acct                                        
-          [3] BJ_SALES     SERVICE_NAME=bj_sales                                       
-          [4] SHANGHAI     SERVICE_NAME=shanghai                                       
-          [5] SH_FIN       SERVICE_NAME=sh_fin                                         
-          [S] Specify the database connection
+          [1] BEIJING      SERVICE_NAME=beijing                                                 [S] Specify the database connection
         Choose [1]: S
+        Enter a number to select the database connection type to use
+          [1] Basic (host name, port, service name)
+          [2] TNS (TNS alias, TNS directory)
+          [3] Custom database URL
+        Choose [1]: 1
+        Enter the database host name [localhost]: 
+        Enter the database listen port [1521]: 
+        Enter the database service name [beijing]: bj_sales  
         Provide database user name with administrator privileges.
           Enter the administrator username: sys
         Enter the database password for SYS AS SYSDBA: 
       
-      ......
-      ......
-      
-        Install ORDS in the database
-          [1] Yes
-          [2] No
-        Choose [1]: 
+      Retrieving information.
       ORDS is not installed in the database. ORDS installation is required.
       
-        Enter a number to update the value or select option A to Accept and Continue
-          [1] Connection Type: TNS
-          [2] TNS Connection: TNS_NAME=BEIJING TNS_FOLDER=/u01/app/oracle/product/23.0.0/dbhome_1/network/admin
-                 Administrator User: SYS AS SYSDBA
-          [3] Database password for ORDS runtime user (ORDS_PUBLIC_USER): <generate>
-          [4] ORDS runtime user and schema tablespaces:  Default: SYSAUX Temporary TEMP
-          [5] Additional Feature: Database Actions
-          [6] Configure and start ORDS in Standalone Mode: Yes
-          [7]    Protocol: HTTP
-          [8]       HTTP Port: 8080
-          [9]   APEX static resources location: 
-          [A] Accept and Continue - Create configuration and Install ORDS in the database
-          [Q] Quit - Do not proceed. No changes
-        Choose [A]: 9
-        Enter the APEX static resources location: /home/oracle/apex/images
         Enter a number to update the value or select option A to Accept and Continue
           [1] Connection Type: TNS
           [2] TNS Connection: TNS_NAME=BEIJING TNS_FOLDER=/u01/app/oracle/product/23.0.0/dbhome_1/network/admin
@@ -365,7 +347,7 @@ export PATH=$ORACLE_HOME/bin:$PATH
 
       
 
-18.   配置 apex静态内容,请先终止ords服务，终止后再进行配置。
+18.   ```Ctrl+C```退出ORDS服务运行状态，配置 apex静态内容，终止后再进行配置。
 
       ```
       $ ords config set --global standalone.static.context.path /i
