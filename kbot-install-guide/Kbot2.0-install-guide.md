@@ -386,7 +386,7 @@ export PATH=$ORACLE_HOME/bin:$PATH
 21.   浏览器访问ords主页
 
       ```
-      http://132.226.171.40:8080/ords
+      http://<ip_address>:8080/ords
       ```
 
       ![image-20240605115344467](images/image-20240605115344467.png)
@@ -603,7 +603,7 @@ export PATH=$ORACLE_HOME/bin:$PATH
       
 
 11.    启动以后，不报错，且如果正常可以打开接口swagger测试页：
-       ```http://132.226.171.40:8899/docs```
+       ```http://<ip_address>:8899/docs```
 
        或者用curl调接口测试下是否能正常返回：
 
@@ -624,7 +624,7 @@ export PATH=$ORACLE_HOME/bin:$PATH
 1.   在浏览器中输入下列地址，进入APEX页面
 
      ```
-     http://132.226.171.40:8080/ords/r/apex/workspace-sign-in/oracle-apex-sign-in
+     http://<ip_address>:8080/ords/r/apex/workspace-sign-in/oracle-apex-sign-in
      ```
 
      ![image-20240606135009805](images/image-20240606135009805.png)
@@ -701,12 +701,66 @@ export PATH=$ORACLE_HOME/bin:$PATH
 
       ```
       -- ORDS安装在CDB
-      http://132.226.171.40:8080/ords/bj_sales/r/kbot-ui/km-chat109
+      http://<ip_address>:8080/ords/bj_sales/r/kbot-ui/km-chat109
       
       --或者ORDS安装在PDB
-      http://192.168.106.204:8080/ords/r/kbot-ui/km-chat109
+      http://<ip_address>:8080/ords/r/kbot-ui/km-chat109
       ```
 
       
 
 20.   sdf
+
+
+
+## Task 5: 使用知识库
+
+1.   首先，我们选择主菜单->知识库管理，点击创建知识库。
+
+     ![image-20240620125652319](images/image-20240620125652319.png)
+
+2.   输入知识库名称、知识库描述，嵌入模型和向量数据库类型可以用缺省值。点击创建知识库。
+
+     ![image-20240620125830007](images/image-20240620125830007.png)
+
+3.   在知识库页面选择修改图标
+
+     ![image-20240620130024262](images/image-20240620130024262.png)
+
+4.   点击上传文件
+
+     ![image-20240620130142422](images/image-20240620130142422.png)
+
+5.   可以一次选择一个或多个文件，点击保存。
+
+     ![image-20240620130326245](images/image-20240620130326245.png)
+
+6.   应用会自动上传文件，并将文件分片和向量化。点击已存在的文件。
+
+     ![image-20240620130505380](images/image-20240620130505380.png)
+
+7.   可以查看已成功上传处理的文件数量，打开是否发布开关
+
+     ![image-20240620130649264](images/image-20240620130649264.png)
+
+8.   点击保存
+
+     ![image-20240620130827213](images/image-20240620130827213.png)
+
+9.   点击主菜单里的主页
+
+     ![image-20240620130944060](images/image-20240620130944060.png)
+
+10.   点击刚创建好的知识库图标
+
+      ![image-20240620131045253](images/image-20240620131045253.png)
+
+11.   选择大模型，在更多参数里先将重排分模型disable
+
+      ![image-20240620131204383](images/image-20240620131204383.png)
+
+12.   现在就可以使用知识库问答了
+
+      ![image-20240620131657841](images/image-20240620131657841.png)
+
+13.   sdf
