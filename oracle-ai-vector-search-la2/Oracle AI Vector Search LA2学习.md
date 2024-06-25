@@ -988,7 +988,7 @@
 
       
 
-12.   方法二，生成数据库中的模型(如何先配置好数据库的连接？)
+12.   方法二，生成数据库中的模型(如何先配置好数据库的连接？ 参见[blog](https://blogs.oracle.com/machinelearning/post/oml4py-leveraging-onnx-and-hugging-face-for-advanced-ai-vector-search)，需要安装instant client，建立数据库连接。
 
       ```
       #generate from preconfigureded model "sentence-transformers/all-MiniLM-L6-v2"
