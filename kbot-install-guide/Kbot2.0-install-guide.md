@@ -95,20 +95,20 @@ export PATH=$ORACLE_HOME/bin:$PATH
 
      
 
-4.   解压APEX，进入apex目录
+4.   解压APEX
 
      ```
      $ unzip apex_23.2.zip
-     $ cd apex
      ```
 
      
 
-5.   创建静态目录，ords中需配置该静态资源目录
+5.   创建静态目录，ords中需配置该静态资源目录，进入apex目录
 
      ```
      $ mkdir apex_images
      $ cp -r /home/oracle/apex/images/* /home/oracle/apex_images
+     $ cd apex
      ```
 
      
