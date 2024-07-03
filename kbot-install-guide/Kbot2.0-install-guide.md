@@ -368,7 +368,7 @@ export PATH=$ORACLE_HOME/bin:$PATH
 
       
 
-20.   在后台运行ords
+20.   oracle用户，在后台运行ords
 
       ```
       nohup ords serve &
@@ -400,7 +400,7 @@ export PATH=$ORACLE_HOME/bin:$PATH
 
       ![image-20240605130855304](images/image-20240605130855304.png)
 
-25.   输入workspace name，点击**Next**
+25.   输入workspace name(如：kbot-ui)，点击**Next**
 
       ![image-20240606134551434](images/image-20240606134551434.png)
 
