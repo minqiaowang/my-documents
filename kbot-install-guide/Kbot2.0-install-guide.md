@@ -287,28 +287,21 @@ export PATH=$ORACLE_HOME/bin:$PATH
 
       ```
       $ ords install
-      Warning: Support for executing: java -jar ords.war has been deprecated.
-      Please add ords to your PATH and use the ords command instead.
-      Run the following command to add ords to your PATH:
       
-      echo -e 'export PATH="$PATH:/home/oracle/bin"' >> ~/.bash_profile
-      
-      Start a new shell to pick up this change.
-      2024-06-05T03:25:15.297Z INFO        Your configuration folder /home/oracle is located in ORDS product folder.  Oracle recommends to use a different configuration folder.
-      
-      ORDS: Release 24.1 Production on Wed Jun 05 03:25:15 2024
+      ORDS: Release 24.2 Production on Wed Jul 03 03:10:37 2024
       
       Copyright (c) 2010, 2024, Oracle.
       
       Configuration:
-        /home/oracle
+        /home/oracle/ords_config
       
-      The configuration folder /home/oracle does not contain any configuration files.
+      The configuration folder /home/oracle/ords_config does not contain any configuration files.
       
       Oracle REST Data Services - Interactive Install
       
         Enter a number to select the TNS net service name to use from /u01/app/oracle/product/23.0.0/dbhome_1/network/admin/tnsnames.ora or specify the database connection
-          [1] BEIJING      SERVICE_NAME=beijing                                                 [S] Specify the database connection
+          [1] BEIJING      SERVICE_NAME=beijing                                        
+          [S] Specify the database connection
         Choose [1]: S
         Enter a number to select the database connection type to use
           [1] Basic (host name, port, service name)
@@ -338,7 +331,7 @@ export PATH=$ORACLE_HOME/bin:$PATH
           [9]   APEX static resources location: /home/oracle/apex/images
           [A] Accept and Continue - Create configuration and Install ORDS in the database
           [Q] Quit - Do not proceed. No changes
-        Choose [A]: 
+        Choose [A]: A
         ......
         ......
         Mapped local pools from /home/oracle/databases:
