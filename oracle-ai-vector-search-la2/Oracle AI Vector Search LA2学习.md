@@ -595,10 +595,10 @@
        jo json_object_t;
      begin
        jo := json_object_t();
-       jo.put('user_ocid','ocid1.user.oc1..aaaaaaaau4a24oyl3bj2ings4uzmuhcv7a27jhw6mdu3nqb2aoqs7e4pjmpa');
-       jo.put('tenancy_ocid','ocid1.tenancy.oc1..aaaaaaaafj37mytx22oquorcznlfuh77cd45int7tt7fo27tuejsfqbybzrq');
-       jo.put('compartment_ocid','ocid1.compartment.oc1..aaaaaaaahnn5lmnbuqbbyddbtpd5ixrvi5kuibzbeksokn2nm6ar6zcc5d7q');
-       jo.put('private_key','MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDMB3HVmz07uHTysKiW0C2d6beTNk0pABvBLgCBeIXKswMJUhv6QH+xe7GIp07yTjDOIOqfdAk+y/ilCrAIdGXabEog64v6BCEKOBpGwfCUkqiB7j1BrBTsN1zGU5JwpAn7+sidhFoPzj/tmMYEhESW81kA99h+qPW09KyFF3T0dBi6zLp7PcRqbfpsuornVl93g62ZqpAWaA6SSgHHQMbCxmweehjp4HL5rQw48V+GS5ogfce2Qi8Zl3FAGMN0o5i0EiAofGiFTWwGyUSN0G/grKu16lWVCJoTIOQs1Y4UImmrizFsj7EwbFa2KtsxsTcGSkGbxh3I+2f3VdqkeSMXAgMBAAECggEAEo+S0YXf2jD7oqBjleS2YalDZAcKmfJClB5lOWIHedszKYPou6lmdHT2P6JI0k4+rmHcNklOFgJkSk9gmEROh8JWNAx5nXMGtnFIIqu+ASYeYkOUGwdWl+6pZ/luVwT1S5ES8xF5R/rRYgIF8Z8+xiS5MhdaAJvKTn37u9fYcex8GIhxbzxcNn7ztrqFPfatuy2ay7L2BT2UnKgYdgtiVd87z/53OLNOsdk8JLviOhtwyuGbvVZqz1tR/nxoe34bxzJic3jueofbkBVuI02HEucMTN5vpRV8SQWdk1IO6SVvqr8mkRitXc4n0r5tnW8m5iJZxeH9g7w15TD3idFN8QKBgQD6wy1OdSAlpEl7IB2PP3fr0ARJ+NsC9xJ1qoObMeadCinPFYj7h/krPMch8ozm7W8oQ6A6unJA/6PxnsvNHMxp08rS1vQESLK6bOzyscxCnF+y+7NfgBXIFrmBDouzXmF8DluenzkjueWUadBfaL1urZVpUEQ59Mz47yh92oxIEwKBgQDQSmKfTm7iPJplzrUHqGM7Jzm+bidUb02d9kIEE4MyK0a/7yqvqspdlkGh4b5B5Mp1Mrm2l+4nDDSJFbudztdM4Id3qX9gZTWyuE3tAhMEdObl1oXGRNHI3HY34cLCcN19iVAmgBTAMhpP3wVdIflZrnGxYe528sP2OnbXjzwhbQKBgQDgq8qGBw68awujE00osTbiwsd091BSwcd6QUIU5Iq4nQiEj8jhhBxNDvFjiwuPQ6BaNOz0cWQ4tFLRAvOaXHkRQD7y1MBgrjnkKf/KGl7mN3DOzhESOZJKaYHfDYdBOAiju8F+xy3Mwpvdc0jMku1WopPBfbcDLkAPsUdYK12QnQKBgBsoZ71/u4NyBWuazQ3HjdCrp6LFuAkRThx3fFoNtUB4Vgw2gelPqn0TV1FlHqp2y1MGnyJIovuiYsMw+zpzOq1CZUdb6UjHSX4Y+8gYSiR9nZGALAcS+Atpe1yD6iHyF18D5VhvwMTig33AhXGEOX/Q9+/55d7KfnR/YPlwKpXtAoGAbYwMq1rF0qtnAosaZ3XvB+9OVkP5tPKh9ZDEAE2+MT4B8PIPfddjgTa/V1gnL19GaWtjDpdSZQ4KVC/Pfulkge5nWw3bEMHKymwZs2/SCVDBBk9oOoGA/LBMbP7auuomCPakT3bBZk4K+1IBxiAA+0sM6h0OOk2nT9BwBztHkkw=');
+       jo.put('user_ocid','ocid1.user.oc1..aaaaaaaau4a......3nqb2aoqs7e4pjmpa');
+       jo.put('tenancy_ocid','ocid1.tenancy.oc1..aaaaaaaaf......bybzrq');
+       jo.put('compartment_ocid','ocid1.compartment.oc1..aaaaaaaa......cc5d7q');
+       jo.put('private_key','MIIEvQIBADANB......Bk9oOoGA/LBMb......Ok2nT9BwBztHkkw=');
        jo.put('fingerprint','a0:9a:ce:b6:a8:c0:5b:86:f0:77:ed:7d:cd:d8:c3:18');
        dbms_output.put_line(jo.to_string);
        dbms_vector.create_credential(
