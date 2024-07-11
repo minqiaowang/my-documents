@@ -26,7 +26,7 @@ sudo chmod 777 /u01
 
 -- oracle: 
 mkdir -p /u01/app/oracle/product/23.0.0/dbhome_1
-wget --no-proxy https://objectstorage.us-phoenix-1.oraclecloud.com/p/_hT8jShYHcYXJXgyjliRe5XmdTKYsQxfWQkoWhYKn4xS3mbu6kC4r1s7grror_CN/n/oracassandra/b/minqiao.wang/o/20377/db23502405.zip
+wget --no-proxy https://objectstorage.us-phoenix-1.oraclecloud.com/p/_hT8jShYHcYXJX......7grror_CN/n/oracassandra/b/minqiao.wang/o/20377/db23502405.zip
 unzip db23502405.zip -d /u01/app/oracle/product/23.0.0/dbhome_1
 -- 编辑rsp文件
 cd /u01/app/oracle/product/23.0.0/dbhome_1
