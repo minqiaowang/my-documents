@@ -1,4 +1,4 @@
-# 安装SAP for XD补丁
+# 安装SAP Bundle Patch for Exadata
 
 参见文档：```README19P_2408-70004543.HTM```
 
