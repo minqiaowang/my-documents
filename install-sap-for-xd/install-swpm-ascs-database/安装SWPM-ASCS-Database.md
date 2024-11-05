@@ -474,7 +474,7 @@
 
 34.   为了防止后面的Task遇到的问题，需要做以下设置
 
-35.   在两个节点上，修改```/etc/security/limits.conf```，增加下面几行，重进root用户，检查limit是否已经修改。SAP安装时会自动创建两个用户：```<sapid>adm```和```ora<sapid>```。(暂不确定是否在这一步之前这两个用户已经创建了)。
+35.   在两个节点上，修改```/etc/security/limits.conf```，增加下面几行，重进root用户，检查limit是否已经修改。SAP安装时会自动创建两个用户：```<sapid>adm```和```ora<sapid>```。(暂不确定是否在这一步之前这两个用户已经创建了。同时需要检查这两个用户的ORACLE环境变量是否设置正确)。
 
       ```
       root soft memlock unlimited
