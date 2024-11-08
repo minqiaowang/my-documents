@@ -324,7 +324,7 @@
 
      
 
-3.   转文本
+3.   转文本(如果显示中文字符有问题，检查：```export NLS_LANG=American_America.AL32UTF8```)
 
      ```
      select DBMS_VECTOR_CHAIN.utl_to_text(t.DATA) FROM DOC_TAB t;
@@ -392,14 +392,20 @@
 9.   测试生成汇总信息：
 
      ```
+     # 在SQLPlus命令行执行时避免输出被截断
+     set long 10000
+     
      select DBMS_VECTOR_CHAIN.UTL_TO_SUMMARY('Enterprises that use offerings from multiple vendors are having a hard time moving their workloads to the cloud,” said Holger Mueller, vice president and principal analyst, Constellation Research. “Effectively CxOs need to pick the better offering and then live with the integration cost and risk going forward. The Microsoft and Oracle partnership is an innovative departure from this challenge, by allowing enterprises to even deliver their Oracle services through Azure’s console. It is no surprise that Microsoft and Oracle are now doubling down on the customer momentum and expanding their partnership with more locations. This will give more enterprises the chance to move their mission-critical workloads to the cloud.', json('{"provider":"Database","glevel":"sentence","numParagraphs":"1","language":"english"}')) summary_result from dual; 
      ```
 
      ![image-20240328133927598](images/image-20240328133927598.png)
 
-10.   生成中文汇总信息(好像没啥用)
+10.   生成中文汇总信息
 
       ```
+      # 在SQLPlus命令行执行时避免输出被截断
+      set long 10000
+      
       select DBMS_VECTOR_CHAIN.UTL_TO_SUMMARY(DBMS_VECTOR_CHAIN.utl_to_text(t.DATA), json('{"provider":"Database","glevel":"sentence","numParagraphs":"1","language":"zhs"}')) summary_result FROM DOC_TAB t;
       ```
 
@@ -960,7 +966,7 @@
 
      
 
-9.   查看事先配置好的模型
+9.   查看事先配置好的模型(需要在python环境，先加载embedding model)
 
      ```
      >>> EmbeddingModelConfig.show_preconfigured()
