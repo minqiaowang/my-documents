@@ -58,7 +58,7 @@ bge_large_zh_v15 = HuggingFaceEmbeddings(model_name="BAAI/bge-large-zh-v1.5", mo
 #    auth_type='INSTANCE_PRINCIPAL'
 #)
 
-cohereEmbedding = CohereEmbeddings(model="embed-multilingual-v3.0", cohere_api_key=llm_keys.cohere_api_key)
+#cohereEmbedding = CohereEmbeddings(model="embed-multilingual-v3.0", cohere_api_key=llm_keys.cohere_api_key)
 
 ## no need for a certain model, comment it
 EMBEDDING_DICT = {
@@ -67,7 +67,7 @@ EMBEDDING_DICT = {
     'bge_large_zh_v15': bge_large_zh_v15,
     #'oci_genai_embed': genaiEmbedding,
     'e5_large_v2': e5_large_v2,
-    'cohere_embed':cohereEmbedding
+    #'cohere_embed':cohereEmbedding
 }
 
 #######  llm model setting          #######################################
