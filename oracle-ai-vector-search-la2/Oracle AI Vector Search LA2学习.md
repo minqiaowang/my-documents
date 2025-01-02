@@ -827,9 +827,9 @@
      
        -- cursor to fetch chunks relevant to the user's query
        FOR rec IN (SELECT 'ask: '||ask||'answer: '||answer as query_data
-                   FROM medical_data
+                   FROM medical_ped
                   -- WHERE DOC_ID = 'Vector User Guide'
-                   ORDER BY vector_distance(ask_vector, vector_embedding(
+                   ORDER BY vector_distance(ask_vec, vector_embedding(
                        doc_model using user_question as DATA), COSINE)
                    FETCH EXACT FIRST 5 ROWS ONLY)
        LOOP
@@ -838,7 +838,7 @@
        END LOOP;
      
        -- concatenate strings and format it as an enhanced prompt to the LLM
-       user_prompt := '请用中文回答以下问题，以布告栏方式显示，并使用提供的Context，假设您是该领域的专家。问题：'
+       user_prompt := '请用中文回答以下问题，并使用提供的Context，假设您是该领域的专家。问题：'
                      || user_question || ' Context: ' || user_context;
      
        -- DBMS_OUTPUT.PUT_LINE('Generated prompt: ' || :prompt);
