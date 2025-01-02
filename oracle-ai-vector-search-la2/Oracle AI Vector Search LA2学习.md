@@ -335,7 +335,7 @@
 4.   分段，缺省是每个字段大小是100，重复是0。`split`参数表示如何找到分段的位置。`normalize`参数表示是否将中文标点符号转为英文。
 
      ```
-     SELECT ct.* from doc_tab dt, dbms_vector_chain.utl_to_chunks(dbms_vector_chain.utl_to_text(dt.data), json('{"split":"NEWLINE", "max":"200", "overlap":"20", "normalize":"all", "language":"zhs"}')) ct;
+     SELECT ct.* from doc_tab dt, dbms_vector_chain.utl_to_chunks(dbms_vector_chain.utl_to_text(dt.data), json('{"split":"NEWLINE", "max":"500", "overlap":"50", "normalize":"all", "language":"zhs"}')) ct;
      ```
 
      ![image-20240328133051895](images/image-20240328133051895.png)
@@ -345,7 +345,7 @@
      ```
      SELECT et.* from doc_tab dt,
      dbms_vector_chain.utl_to_embeddings(dbms_vector_chain.utl_to_chunks(dbms_vector_chain.utl_to_text(dt.data), 
-     json('{"split":"NEWLINE", "max":"200", "overlap":"20", "normalize":"all", "language":"zhs"}')),
+     json('{"split":"NEWLINE", "max":"500", "overlap":"50", "normalize":"all", "language":"zhs"}')),
      json('{"provider":"database", "model":"doc_model"}')) et;
      ```
 
@@ -361,7 +361,7 @@
      doc_tab dt,
      dbms_vector_chain.utl_to_embeddings(
      dbms_vector_chain.utl_to_chunks(dbms_vector_chain.utl_to_text(dt.data),
-     json('{"split":"NEWLINE", "max":"200", "overlap":"20", "normalize":"all", "language":"zhs"}')),
+     json('{"split":"NEWLINE", "max":"500", "overlap":"50", "normalize":"all", "language":"zhs"}')),
      json('{"provider":"database", "model":"doc_model"}')) t,
      JSON_TABLE(t.column_value, '$[*]' COLUMNS (embed_id NUMBER PATH
      '$.embed_id', embed_data VARCHAR2(4000) PATH '$.embed_data', embed_vector
@@ -784,7 +784,7 @@
        params := '{
          "provider" : "cohere",
          "credential_name" : "COHERE_CRED",
-         "url" : "https://api.cohere.ai/v1/generate",
+         "url" : "https://api.cohere.com/v1/chat",
          "model" : "command-r-plus"
        }';
      
