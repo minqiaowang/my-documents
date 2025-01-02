@@ -847,7 +847,7 @@
        params := '{
          "provider" : "cohere",
          "credential_name" : "COHERE_CRED",
-         "url" : "https://api.cohere.ai/v1/generate",
+         "url" : "https://api.cohere.com/v1/chat",
          "model" : "command-r-plus"
        }';
      
