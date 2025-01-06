@@ -2,7 +2,7 @@
 
 ## Task 1. 加载嵌入模型到数据库中
 
-1.   加载onnx文件到数据库中
+1.   加载onnx文件到数据库中(已经加载了，不用再做)
 
      ```
      EXECUTE DBMS_VECTOR.LOAD_ONNX_MODEL('DM_DUMP','text2vec-base-chinese.onnx','doc_model',JSON('{"function" : "embedding", "embeddingOutput" : "embedding", "input": {"input": ["DATA"]}}'));
@@ -262,66 +262,26 @@
 
      
 
-9.   另一个例子
+9.   调用本地部署的embedding模型。
 
      ```
-     select * from medical_ped;
+     select * from report_detail;
      
-     SET SERVEROUTPUT ON;
-     DECLARE
-       user_prompt CLOB;
-       user_question CLOB;
-       user_context CLOB;
-       input CLOB;
-       params CLOB;
-       output CLOB;
+     declare
+     embed_ollama_params clob;
+     begin
+     embed_ollama_params := '{
+          "provider": "ollama",
+          "host"    : "local",
+          "url"     : "http://localhost:11434/api/embeddings", 
+          "model"   : "bge-m3"
+     }';
      
-     BEGIN
-       -- initialize the concatenated string
-       utl_http.set_body_charset('UTF-8');
-       
-       user_context := '';
-     
-       -- read this question from the user
-       user_question := '口腔经常痛有什么癌症的表现吗?';
-     
-       -- cursor to fetch chunks relevant to the user's query
-       FOR rec IN (SELECT 'ask: '||ask||'answer: '||answer as query_data
-                   FROM medical_ped
-                  -- WHERE DOC_ID = 'Vector User Guide'
-                   ORDER BY vector_distance(ask_vec, vector_embedding(
-                       doc_model using user_question as DATA), COSINE)
-                   FETCH EXACT FIRST 5 ROWS ONLY)
-       LOOP
-         -- concatenate each value to the string
-         user_context := user_context || rec.query_data;
-       END LOOP;
-     
-       -- concatenate strings and format it as an enhanced prompt to the LLM
-       user_prompt := '请用中文回答以下问题，并使用提供的Context，假设您是该领域的专家。问题：'
-                     || user_question || ' Context: ' || user_context;
-     
-       -- DBMS_OUTPUT.PUT_LINE('Generated prompt: ' || :prompt);
-       
-       input := user_prompt;
-       params := '{
-         "provider" : "cohere",
-         "credential_name" : "COHERE_CRED",
-         "url" : "https://api.cohere.com/v1/chat",
-         "model" : "command-r-plus"
-       }';
-     
-       output := DBMS_VECTOR_CHAIN.UTL_TO_GENERATE_TEXT(input, json(params));
-       DBMS_OUTPUT.PUT_LINE(output);
-       IF output IS NOT NULL THEN
-         DBMS_LOB.FREETEMPORARY(output);
-       END IF;
-     EXCEPTION
-       WHEN OTHERS THEN
-         DBMS_OUTPUT.PUT_LINE(SQLERRM);
-         DBMS_OUTPUT.PUT_LINE(SQLCODE);
-     END;
+     update report_detail set report_vec=dbms_vector.utl_to_embedding(report_desc, json(embed_ollama_params));
+     end;
      /
+     
+     rollback;
      ```
 
      
