@@ -43,7 +43,7 @@
 
 5.   
 
-## Task 2. RAG with dbms_vector_chain
+## Task 2. 创建知识库，并实现RAG
 
 1.   创建存储文档的表
 
@@ -262,7 +262,7 @@
 
      
 
-9.   通过REST API调用本地部署的embedding模型
+9.   （option）通过REST API调用本地部署的embedding模型
 
      ```
      SET SERVEROUTPUT ON;
@@ -307,7 +307,7 @@
 
      
 
-10.   DB23.6可以直接通过数据库函数调用本地部署的embedding模型。
+10.   （option）DB23.6可以直接通过数据库函数调用本地部署的embedding模型。
 
       ```
       select * from report_detail;
@@ -337,7 +337,7 @@
 
 ## Task 3: 混合索引
 
-1.   创建混合索引
+1.   直接对文档列创建混合索引
 
      ```
      exec ctx_ddl.drop_stoplist('my_stoplist');
