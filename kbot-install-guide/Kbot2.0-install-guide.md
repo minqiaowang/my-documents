@@ -89,7 +89,7 @@ export PATH=$ORACLE_HOME/bin:$PATH
 3.   oracle用户，下载apex和ords安装文件，下载地址分别为[APEX](https://www.oracle.com/tools/downloads/apex-downloads/)和[ORDS](https://www.oracle.com/database/sqldeveloper/technologies/db-actions/download/)
 
      ```
-     wget https://download.oracle.com/otn_software/apex/apex_23.2.zip
+     wget https://download.oracle.com/otn_software/apex/apex_24.1.zip
      wget https://download.oracle.com/otn_software/java/ords/ords-latest.zip
      ```
 
@@ -98,7 +98,7 @@ export PATH=$ORACLE_HOME/bin:$PATH
 4.   解压APEX
 
      ```
-     $ unzip apex_23.2.zip
+     $ unzip apex_24.1.zip
      ```
 
      
@@ -143,9 +143,9 @@ export PATH=$ORACLE_HOME/bin:$PATH
      ......
      ......
      
-     Thank you for installing Oracle APEX 23.2.0
+     Thank you for installing Oracle APEX 24.1.0
      
-     Oracle APEX is installed in the APEX_230200 schema.
+     Oracle APEX is installed in the APEX_240100 schema.
      
      The structure of the link to the Oracle APEX administration services is as follows:
      http://host:port/ords/apex_admin
@@ -219,7 +219,7 @@ export PATH=$ORACLE_HOME/bin:$PATH
       ALTER USER APEX_LISTENER  ACCOUNT UNLOCK identified by WelcomePTS_2023#;
       ALTER USER APEX_PUBLIC_USER ACCOUNT UNLOCK identified by WelcomePTS_2023#;
       ALTER USER APEX_REST_PUBLIC_USER ACCOUNT UNLOCK identified by WelcomePTS_2023#;
-      ALTER USER APEX_230200 ACCOUNT UNLOCK identified by WelcomePTS_2023#;
+      ALTER USER APEX_240100 ACCOUNT UNLOCK identified by WelcomePTS_2023#;
       CREATE PROFILE password_unlimited LIMIT PASSWORD_LIFE_TIME UNLIMITED;
       ALTER USER apex_public_user PROFILE password_unlimited;
       ```
@@ -241,7 +241,7 @@ export PATH=$ORACLE_HOME/bin:$PATH
         DBMS_NETWORK_ACL_ADMIN.APPEND_HOST_ACE(
         host => '*',
         ace => xs$ace_type(privilege_list => xs$name_list('connect'),
-        principal_name => 'APEX_230200',
+        principal_name => 'APEX_240100',
         principal_type => xs_acl.ptype_db));
       END;
       /

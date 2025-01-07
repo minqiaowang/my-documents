@@ -262,31 +262,76 @@
 
      
 
-9.   调用本地部署的embedding模型。
+9.   通过REST API调用本地部署的embedding模型
 
      ```
-     select * from report_detail;
-     
+     SET SERVEROUTPUT ON;
      declare
-     embed_ollama_params clob;
-     begin
-     embed_ollama_params := '{
-          "provider": "ollama",
-          "host"    : "local",
-          "url"     : "http://localhost:11434/api/embeddings", 
-          "model"   : "bge-m3"
-     }';
+       user_question CLOB;
+       l_request_text CLOB;
+       l_response CLOB;
+       jo json_object_t;
      
-     update report_detail set report_vec=dbms_vector.utl_to_embedding(report_desc, json(embed_ollama_params));
+     BEGIN
+     
+     
+       -- read this question from the user
+       user_question := 'Oracle AI向量搜索有什么特点?';
+       
+       apex_web_service.g_request_headers.delete(); 
+       apex_web_service.g_request_headers(1).name := 'Content-Type';
+       apex_web_service.g_request_headers(1).value := 'application/json';
+       apex_web_service.g_request_headers(2).name := 'Authorization';
+       apex_web_service.g_request_headers(2).value := 'Bearer gFRJhbySGRcUBTQphYPXar9iGZLbtT1E78yFnExZ';
+       
+     -- 创建主 JSON 对象
+             jo := json_object_t();
+             jo.put('model', 'bge-m3');
+             jo.put('prompt', user_question);
+     
+             -- 输出最终的 JSON 对象
+             l_request_text:=jo.to_clob();
+             
+       -- dbms_output.put_line(l_request_text);
+     
+       l_response := apex_web_service.make_rest_request(p_url => 'http://146.56.147.77:11434/api/embeddings', p_http_method => 'POST', p_body => l_request_text);
+       -- Do something with the response here
+       
+       dbms_output.put_line(l_response);
+     
+       dbms_output.put_line(JSON_VALUE(l_response, '$.embedding'));
+     
      end;
      /
-     
-     rollback;
      ```
 
      
 
-10.   sdf
+10.   DB23.6可以直接通过数据库函数调用本地部署的embedding模型。
+
+      ```
+      select * from report_detail;
+      
+      declare
+      embed_ollama_params clob;
+      begin
+      embed_ollama_params := '{
+           "provider": "ollama",
+           "host"    : "local",
+           "url"     : "http://localhost:11434/api/embeddings", 
+           "model"   : "bge-m3"
+      }';
+      
+      update report_detail set report_vec=dbms_vector.utl_to_embedding(report_desc, json(embed_ollama_params));
+      end;
+      /
+      
+      rollback;
+      ```
+
+      
+
+11.   sdf
 
 
 
