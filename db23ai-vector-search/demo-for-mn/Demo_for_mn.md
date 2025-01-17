@@ -297,9 +297,9 @@
        l_response := apex_web_service.make_rest_request(p_url => 'http://146.56.147.77:11434/api/embeddings', p_http_method => 'POST', p_body => l_request_text);
        -- Do something with the response here
        
-       dbms_output.put_line(l_response);
+       -- dbms_output.put_line(l_response);
      
-       dbms_output.put_line(JSON_VALUE(l_response, '$.embedding'));
+       dbms_output.put_line(JSON_QUERY(l_response, '$.embedding'));
      
      end;
      /
