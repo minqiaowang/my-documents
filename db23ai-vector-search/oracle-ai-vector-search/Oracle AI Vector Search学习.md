@@ -1,121 +1,163 @@
-# Oracle AI Vector Search LA2学习
+# Oracle AI Vector Search 学习
 
 
 
 
 
-## Task 1: 生成onnx embedding模型（见后面Task 7 GA版的步骤，与LA2版有不同）
+## Task 1: DB23ai 安装OML4PY, 加载onnx模型
 
-1.   在URL：`https://repo.anaconda.com/archive/index.html`下载最新版Anaconda
-
-     ```
-     wget https://repo.anaconda.com/archive/Anaconda3-2024.02-1-Linux-x86_64.sh
-     ```
-
-     
-
-2.   安装
+1.   opc用户, 安装所需模块
 
      ```
-     chmod +x Anaconda3-2024.02-1-Linux-x86_64.sh
-     ./Anaconda3-2024.02-1-Linux-x86_64.sh
+     sudo yum install perl-Env libffi-devel openssl openssl-devel tk-devel xz-devel zlib-devel bzip2-devel readline-devel libuuid-devel ncurses-devel
      ```
 
      
 
-3.   创建并激活一个conda环境，如：`omlutil`
+2.   opc用户
 
      ```
-     conda create -n omlutil python=3.12
-     conda activate omlutil
-     ```
-
-     
-
-4.   找到安装软件带的`omlutil-0.zip`文件，解压
-
-     ```
-     unzip omlutil-0.zip
-     cd omlutil-0
+     wget https://www.python.org/ftp/python/3.12.3/Python-3.12.3.tgz
      ```
 
      
 
-5.   安装依赖包
+3.   解压，配置
 
      ```
-     python -m pip install -r requirements.txt
-     ```
-
-     
-
-6.   再安装omlutil包
-
-     ```
-     python -m pip install omlutils-0.12.0-cp312-cp312-linux_x86_64.whl
+     tar xzf Python-3.12.3.tgz
+     cd Python-3.12.3
+     ./configure --enable-optimizations
      ```
 
      
 
-7.   启动python
+4.   安装
 
      ```
-     python
-     ```
-
-     
-
-8.   在[huggingface](https://huggingface.co/)网站上找到想要的模型，有两种方式生成onnx格式。
-
-     -   如果有配置好的模型，如：`intfloat/e5-small-v2`
-
-         ```
-         from omlutils import EmbeddingModel, EmbeddingModelConfig
-         em = EmbeddingModel(model_name="intfloat/e5-small-v2")
-         em.export2file("e5-small-v2",output_dir=".")
-         ```
-
-         
-
-     -   如果只有模型的template，如：GanymedeNil/text2vec-base-chinese
-
-         ```
-         from omlutils import EmbeddingModel, EmbeddingModelConfig
-         config = EmbeddingModelConfig.from_template("text",max_seq_length=512)
-         em = EmbeddingModel(model_name="GanymedeNil/text2vec-base-chinese",config=config)
-         em.export2file("text2vec-base-chinese",output_dir=".")
-         ```
-
-         
-
-9.   退出python。在本地目录下会看到相应的onnx文件。注意，生成的onnx文件如果大于1G，则无法加载到Oracle数据库中
-
-     ```
-     exit()
+     make -j `nproc`
+     sudo make altinstall
      ```
 
      
 
-10.   退出虚拟环境
+5.   切换到Oracle用户，创建虚拟环境并激活
+
+     ```
+     python3.12 -m venv newenv
+     source newenv/bin/activate
+     ```
+
+     
+
+6.   安装所需模块
+
+     ```
+     pip install --upgrade pip setuptools
+     pip install --upgrade "numpy>=1.26.4"
+     pip install --upgrade "pandas>=2.1.1"
+     pip install --upgrade "matplotlib>=3.7.2"
+     pip install --upgrade "oracledb>=2.0.1"
+     pip install --upgrade "scikit_learn>=1.2.1"
+     pip install transformers
+     pip install torch
+     pip install onnx
+     pip install onnxruntime
+     pip install onnxruntime_extensions
+     pip install sentencepiece==0.2.0
+     ```
+
+     
+
+7.   下载[OML4Py 2.0 client zip](https://www.oracle.com/database/technologies/oml4py-downloads.html) ，上传到虚机并在oracle用户下unzip
+
+     ```
+     unzip oml4py-client-linux-x86_64-2.0.zip
+     ```
+
+     
+
+8.   Oracle用户安装OML4PY客户端（注意事先激活newenv虚拟环境）
+
+     ```
+     perl -Iclient client/client.pl
+     ```
+
+     
+
+9.   测试一下（注意，23ai GA版在加载onnx模型到数据库时可能会出现```ORA-04036: PGA memory used by the instance or PDB exceeds PGA_AGGREGATE_LIMIT.``` 加大```PGA_AGGREGATE_LIMIT```如3G即可。）
+
+     ```
+     (newenv) -bash-4.4$ python
+     Python 3.12.3 (main, May 10 2024, 04:34:21) [GCC 8.5.0 20210514 (Red Hat 8.5.0-18.0.6)] on linux
+     Type "help", "copyright", "credits" or "license" for more information.
+     >>> from oml.utils import EmbeddingModel, EmbeddingModelConfig
+     >>> em = EmbeddingModel(model_name='sentence-transformers/all-MiniLM-L6-v2',settings={'ignore_checksum_error':True})
+     >>> em.export2file("all-MiniLM-L6-v2",output_dir=".")
+     >>> exit()
+     (newenv) -bash-4.4$
+     ```
+
+     
+
+10.   查看事先配置好的模型(需要在python环境，先加载embedding model)
 
       ```
-      conda activate
-      ```
-
-      
-
-11.   删除虚拟环境（选项）
-
-      ```
-      conda info --envs
-      conda remove -n omlutil --all
+      >>> EmbeddingModelConfig.show_preconfigured()
+      ['sentence-transformers/all-mpnet-base-v2', 'sentence-transformers/all-MiniLM-L6-v2', 'sentence-transformers/multi-qa-MiniLM-L6-cos-v1', 'ProsusAI/finbert', 'medicalai/ClinicalBERT', 'sentence-transformers/distiluse-base-multilingual-cased-v2', 'sentence-transformers/all-MiniLM-L12-v2', 'BAAI/bge-small-en-v1.5', 'BAAI/bge-base-en-v1.5', 'taylorAI/bge-micro-v2', 'intfloat/e5-small-v2', 'intfloat/e5-base-v2', 'prajjwal1/bert-tiny', 'thenlper/gte-base', 'thenlper/gte-small', 'TaylorAI/gte-tiny', 'infgrad/stella-base-en-v2', 'sentence-transformers/paraphrase-multilingual-mpnet-base-v2', 'intfloat/multilingual-e5-base', 'intfloat/multilingual-e5-small', 'sentence-transformers/stsb-xlm-r-multilingual']
       ```
 
       
 
-12.   dsf
+11.   查看可用的template，当前只支持文本。
 
+      ```
+      >>> EmbeddingModelConfig.show_templates()
+      ['text']
+      ```
 
+      
+
+12.   方法一，生成onnx文件
+
+      ```
+      #generate from preconfigureded model "sentence-transformers/all-MiniLM-L6-v2"
+      em = EmbeddingModel(model_name="sentence-transformers/all-MiniLM-L6-v2")
+      em.export2file("your_preconfig_file_name",output_dir=".")
+      ```
+
+      
+
+13.   方法二，生成数据库中的模型(如何先配置好数据库的连接？ 参见[blog](https://blogs.oracle.com/machinelearning/post/oml4py-leveraging-onnx-and-hugging-face-for-advanced-ai-vector-search)，需要安装instant client，建立数据库连接。
+
+      ```
+      #generate from preconfigureded model "sentence-transformers/all-MiniLM-L6-v2"
+      em = EmbeddingModel(model_name="sentence-transformers/all-MiniLM-L6-v2")
+      em.export2db("your_preconfig_model_name")
+      ```
+
+      
+
+14.   方法三，从文本模版中生成onnx文件
+
+      ```
+      #generate using the "text" template
+      config = EmbeddingModelConfig.from_template("text",max_seq_length=512)
+      em = EmbeddingModel(model_name="intfloat/e5-small-v2",config=config)
+      em.export2file("your_template_file_name",output_dir=".")
+      ```
+
+      
+
+15.   deactivate虚拟环境
+
+      ```
+      $ deactivate
+      ```
+
+      
+
+16.   sdaf
 
 ## Task2: 加载onnx模型到数据库中
 
@@ -656,7 +698,7 @@
 
      ![image-20240519152741688](images/image-20240519152741688.png)
 
-6.   使用AI向量搜索实现生成式AI流水线（目前有bug，不能返回```embed_id```, ```embed_data```等字段)
+6.   使用AI向量搜索实现生成式AI流水线
 
      ```
      SELECT et.* from doc_tab dt,
@@ -867,160 +909,3 @@
      
 
 9.   sdfsdf
-
-
-
-## Task 7: DB23ai Free GA安装OML4PY
-
-1.   opc用户, 安装所需模块
-
-     ```
-     sudo yum install perl-Env libffi-devel openssl openssl-devel tk-devel xz-devel zlib-devel bzip2-devel readline-devel libuuid-devel ncurses-devel
-     ```
-
-     
-
-1.   opc用户
-
-     ```
-     wget https://www.python.org/ftp/python/3.12.3/Python-3.12.3.tgz
-     ```
-
-     
-
-2.   解压，配置
-
-     ```
-     tar xzf Python-3.12.3.tgz
-     cd Python-3.12.3
-     ./configure --enable-optimizations
-     ```
-
-     
-
-3.   安装
-
-     ```
-     make -j `nproc`
-     sudo make altinstall
-     ```
-
-     
-
-4.   切换到Oracle用户，创建虚拟环境并激活
-
-     ```
-     python3.12 -m venv newenv
-     source newenv/bin/activate
-     ```
-
-     
-
-5.   安装所需模块
-
-     ```
-     pip install --upgrade pip setuptools
-     pip install --upgrade "numpy>=1.26.4"
-     pip install --upgrade "pandas>=2.1.1"
-     pip install --upgrade "matplotlib>=3.7.2"
-     pip install --upgrade "oracledb>=2.0.1"
-     pip install --upgrade "scikit_learn>=1.2.1"
-     pip install transformers
-     pip install torch
-     pip install onnx
-     pip install onnxruntime
-     pip install onnxruntime_extensions
-     pip install sentencepiece==0.2.0
-     ```
-
-     
-
-6.   下载[OML4Py 2.0 client zip](https://www.oracle.com/database/technologies/oml4py-downloads.html) ，上传到虚机并在oracle用户下unzip
-
-     ```
-     unzip oml4py-client-linux-x86_64-2.0.zip
-     ```
-
-     
-
-7.   Oracle用户安装OML4PY客户端（注意事先激活newenv虚拟环境）
-
-     ```
-     perl -Iclient client/client.pl
-     ```
-
-     
-
-8.   测试一下（注意，23ai GA版在加载onnx模型到数据库时可能会出现```ORA-04036: PGA memory used by the instance or PDB exceeds PGA_AGGREGATE_LIMIT.``` 加大```PGA_AGGREGATE_LIMIT```如3G即可。）
-
-     ```
-     (newenv) -bash-4.4$ python
-     Python 3.12.3 (main, May 10 2024, 04:34:21) [GCC 8.5.0 20210514 (Red Hat 8.5.0-18.0.6)] on linux
-     Type "help", "copyright", "credits" or "license" for more information.
-     >>> from oml.utils import EmbeddingModel, EmbeddingModelConfig
-     >>> em = EmbeddingModel(model_name='sentence-transformers/all-MiniLM-L6-v2',settings={'ignore_checksum_error':True})
-     >>> em.export2file("all-MiniLM-L6-v2",output_dir=".")
-     >>> exit()
-     (newenv) -bash-4.4$
-     ```
-
-     
-
-9.   查看事先配置好的模型(需要在python环境，先加载embedding model)
-
-     ```
-     >>> EmbeddingModelConfig.show_preconfigured()
-     ['sentence-transformers/all-mpnet-base-v2', 'sentence-transformers/all-MiniLM-L6-v2', 'sentence-transformers/multi-qa-MiniLM-L6-cos-v1', 'ProsusAI/finbert', 'medicalai/ClinicalBERT', 'sentence-transformers/distiluse-base-multilingual-cased-v2', 'sentence-transformers/all-MiniLM-L12-v2', 'BAAI/bge-small-en-v1.5', 'BAAI/bge-base-en-v1.5', 'taylorAI/bge-micro-v2', 'intfloat/e5-small-v2', 'intfloat/e5-base-v2', 'prajjwal1/bert-tiny', 'thenlper/gte-base', 'thenlper/gte-small', 'TaylorAI/gte-tiny', 'infgrad/stella-base-en-v2', 'sentence-transformers/paraphrase-multilingual-mpnet-base-v2', 'intfloat/multilingual-e5-base', 'intfloat/multilingual-e5-small', 'sentence-transformers/stsb-xlm-r-multilingual']
-     ```
-
-     
-
-10.   查看可用的template，当前只支持文本。
-
-      ```
-      >>> EmbeddingModelConfig.show_templates()
-      ['text']
-      ```
-
-      
-
-11.   方法一，生成onnx文件
-
-      ```
-      #generate from preconfigureded model "sentence-transformers/all-MiniLM-L6-v2"
-      em = EmbeddingModel(model_name="sentence-transformers/all-MiniLM-L6-v2")
-      em.export2file("your_preconfig_file_name",output_dir=".")
-      ```
-
-      
-
-12.   方法二，生成数据库中的模型(如何先配置好数据库的连接？ 参见[blog](https://blogs.oracle.com/machinelearning/post/oml4py-leveraging-onnx-and-hugging-face-for-advanced-ai-vector-search)，需要安装instant client，建立数据库连接。
-
-      ```
-      #generate from preconfigureded model "sentence-transformers/all-MiniLM-L6-v2"
-      em = EmbeddingModel(model_name="sentence-transformers/all-MiniLM-L6-v2")
-      em.export2db("your_preconfig_model_name")
-      ```
-
-      
-
-13.   方法三，从文本模版中生成onnx文件
-
-      ```
-      #generate using the "text" template
-      config = EmbeddingModelConfig.from_template("text",max_seq_length=512)
-      em = EmbeddingModel(model_name="intfloat/e5-small-v2",config=config)
-      em.export2file("your_template_file_name",output_dir=".")
-      ```
-
-      
-
-14.   deactivate虚拟环境
-
-      ```
-      $ deactivate
-      ```
-
-      
-
-15.   sdaf
