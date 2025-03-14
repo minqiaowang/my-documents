@@ -187,6 +187,19 @@
 
      
 
+8.   上述过程也可以调用ollama本地部署的大模型，参数如下：
+
+     ```
+       params := '{
+         "provider" : "ollama",
+         "host" : "local",
+         "url" : "http://130.162.156.122:11434/api/generate",
+         "model" : "deepseek-r1:1.5b"
+       }';
+     ```
+     
+     
+     
 8.   数据库中实现RAG，通过REST API调用外部大模型
 
      ```
