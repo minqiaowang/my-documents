@@ -1,4 +1,4 @@
-# Demo for 蒙牛
+# Demo for MN
 
 ## Task 1. 加载嵌入模型到数据库中
 
@@ -121,9 +121,9 @@
        jo json_object_t;
      begin
        jo := json_object_t();
-       jo.put('access_token', 'gFRJhbySGRcUBTQphYPXar9iGZLbtT1E78yFnExZ');
+       jo.put('access_token', 'input_deepseek_key');
        dbms_vector.create_credential(
-         credential_name   => 'COHERE_CRED',
+         credential_name   => 'DEEPSEEK_CRED',
          params            => json(jo.to_string));
      end;
      /
@@ -166,10 +166,11 @@
        
        input := user_prompt;
        params := '{
-         "provider" : "cohere",
-         "credential_name" : "COHERE_CRED",
-         "url" : "https://api.cohere.com/v1/chat",
-         "model" : "command-r-plus"
+         "provider" : "openai",
+         "credential_name" : "DEEPSEEK_CRED",
+         "url" : "https://api.deepseek.com/v1",
+         "model" : "deepseek-chat"
+         -- or "model" : "deepseek-reasoner"
        }';
      
        output := DBMS_VECTOR_CHAIN.UTL_TO_GENERATE_TEXT(input, json(params));
@@ -245,7 +246,7 @@
        apex_web_service.g_request_headers(1).name := 'Content-Type';
        apex_web_service.g_request_headers(1).value := 'application/json';
        apex_web_service.g_request_headers(2).name := 'Authorization';
-       apex_web_service.g_request_headers(2).value := 'Bearer gFRJhbySGRcUBTQphYPXar9iGZLbtT1E78yFnExZ';
+       apex_web_service.g_request_headers(2).value := 'Bearer input_open_api_key';
        
      -- 创建主 JSON 对象
              jo := json_object_t();
@@ -262,7 +263,7 @@
              
        -- dbms_output.put_line(l_request_text);
      
-       l_response := apex_web_service.make_rest_request(p_url => 'https://api.cohere.com/v1/chat', p_http_method => 'POST', p_body => l_request_text
+       l_response := apex_web_service.make_rest_request(p_url => 'https://api.deepseek.com/v1/chat/completions', p_http_method => 'POST', p_body => l_request_text
      );
        -- Do something with the response here
        -- dbms_output.put_line(l_response);
