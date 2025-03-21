@@ -4,7 +4,7 @@
 
 
 
-## Task 1: DB23ai 安装OML4PY, 加载onnx模型
+## Task 1: DB23ai 安装OML4PY, 生成onnx模型
 
 1.   opc用户, 安装所需模块
 

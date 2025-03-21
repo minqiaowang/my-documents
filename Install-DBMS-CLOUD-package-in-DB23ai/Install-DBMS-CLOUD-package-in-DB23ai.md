@@ -737,6 +737,7 @@ Oracle DB23ai缺省没有安装`DBMS_CLOUD`函数包，需要在安装数据库�
 8.   调用大模型
 
      ```
+     set serveroutput on;
      BEGIN
          dbms_output.put_line(
              dbms_cloud_ai.generate(
