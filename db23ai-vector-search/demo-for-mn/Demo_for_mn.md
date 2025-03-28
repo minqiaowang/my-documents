@@ -194,7 +194,7 @@
        params := '{
          "provider" : "ollama",
          "host" : "local",
-         "url" : "http://130.162.156.122:11434/api/generate",
+         "url" : "http://130.162.*.*:11434/api/generate",
          "model" : "deepseek-r1:1.5b"
        }';
      ```
@@ -308,7 +308,7 @@
              
        -- dbms_output.put_line(l_request_text);
      
-       l_response := apex_web_service.make_rest_request(p_url => 'http://146.56.147.77:11434/api/embeddings', p_http_method => 'POST', p_body => l_request_text);
+       l_response := apex_web_service.make_rest_request(p_url => 'http://146.56.*.*:11434/api/embeddings', p_http_method => 'POST', p_body => l_request_text);
        -- Do something with the response here
        
        -- dbms_output.put_line(l_response);

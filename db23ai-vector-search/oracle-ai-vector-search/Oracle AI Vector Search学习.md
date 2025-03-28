@@ -109,7 +109,7 @@
 
       
 
-11.   查看可用的template，当前只支持文本。
+11.   查看可用的template。
 
       ```
       >>> EmbeddingModelConfig.show_templates()
@@ -473,7 +473,7 @@
 
      
 
-2.   创建向量索引，目前只支持HNSW。（注意：数据库重启后，向量索引需要重新创建）
+2.   创建向量索引。（注意：数据库重启后，HNSW向量索引需要重新创建）
 
      ```
      CREATE VECTOR INDEX doc_hnsw_idx ON doc_chunks (embed_vector)
