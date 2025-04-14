@@ -191,12 +191,24 @@
      SELECT id_a, id_e, id_b FROM GRAPH_TABLE (products_graph
        MATCH (src) -[e]-> (dst)
          COLUMNS (vertex_id(src) AS id_a, edge_id(e) AS id_e, vertex_id(dst) AS id_b)
-       )
+       );
      ```
 
      
 
-2.   查询customers graph
+2.   查询单价大于1000的产品
+
+     ```
+     SELECT * FROM GRAPH_TABLE (products_graph
+       MATCH (p IS prod )
+       WHERE p.list_price > 1000
+       COLUMNS(p.id, p.name as name, p.list_price as list_price)
+       );
+     ```
+
+     
+
+3.   查询customers graph
 
      ```
      SELECT id_a, id_e, id_b FROM GRAPH_TABLE (customers_graph
@@ -208,4 +220,4 @@
 
      
 
-3.   dsaf
+4.   dsaf
