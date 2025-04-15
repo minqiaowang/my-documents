@@ -194,7 +194,7 @@
        );
      ```
 
-     
+     ![image-20250415130550034](images/image-20250415130550034.png)
 
 2.   查询所有"belong_to"关系
 
@@ -207,7 +207,7 @@
      );
      ```
 
-     
+     ![image-20250415130457688](images/image-20250415130457688.png)
 
 2.   查询单价大于1000的产品
 
@@ -219,7 +219,7 @@
        );
      ```
 
-     
+     ![image-20250415130422277](images/image-20250415130422277.png)
 
 4.   查询所有购买关系
 
@@ -232,7 +232,7 @@
      fetch first 100 rows only;
      ```
 
-     
+     ![image-20250415130348213](images/image-20250415130348213.png)
 
 5.   查找购买了特定产品的客户
 
@@ -245,20 +245,20 @@
      );
      ```
 
-     
+     ![image-20250415130308459](images/image-20250415130308459.png)
 
 6.   查找购买了属于某子类别产品的客户
 
      ```
      SELECT *
      FROM GRAPH_TABLE(total_graph
-         MATCH (c IS cust) -[b IS buy]-> (p1 IS prod) -[bt IS belong_to]-> (p2 IS prod)
-         WHERE p2.id = 2013  -- 替换为子类别ID
+         MATCH (c IS cust) -[b IS buy]-> (p1 IS prod) -[bt IS belong_to]-> {1}(p2 IS prod)
+         WHERE p2.id = 2013  
          COLUMNS (c.id AS customer_id, c.name AS customer_name, p1.name AS product_name, p2.name AS subcategory_name)
      );
      ```
 
-     
+     ![image-20250415130225304](images/image-20250415130225304.png)
 
 7.   查找购买了属于某类别产品的客户
 
@@ -271,7 +271,7 @@
      );
      ```
 
-     
+     ![image-20250415125656459](images/image-20250415125656459.png)
 
 8.   计算每个客户的购买总金额
 
@@ -285,7 +285,7 @@
      ORDER BY total_spent DESC;
      ```
 
-     
+     ![image-20250415125619299](images/image-20250415125619299.png)
 
 9.   查找住在同一地区且购买过相同产品的客户对
 
@@ -299,7 +299,7 @@
      );
      ```
 
-     
+     ![image-20250415125542225](images/image-20250415125542225.png)
 
 10.   查找购买金额超过1000的高价值客户及其购买的产品
 
@@ -313,7 +313,7 @@
       ORDER BY amount_sold DESC;
       ```
 
-      
+      ![image-20250415125324509](images/image-20250415125324509.png)
 
 11.   sdf
 
