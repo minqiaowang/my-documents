@@ -196,6 +196,19 @@
 
      
 
+2.   查询所有"belong_to"关系
+
+     ```
+     SELECT *
+     FROM GRAPH_TABLE(products_graph
+         MATCH (src) -[e IS belong_to]-> (dst)
+         COLUMNS (e.id_a as source_id, e.id_b as target_id, 
+                  src.name as source_name, dst.name as target_name)
+     );
+     ```
+
+     
+
 2.   查询单价大于1000的产品
 
      ```
@@ -208,16 +221,100 @@
 
      
 
-3.   查询customers graph
+4.   查询所有购买关系
 
      ```
-     SELECT id_a, id_e, id_b FROM GRAPH_TABLE (customers_graph
-       MATCH (src) -[e]-> (dst)
-         COLUMNS (vertex_id(src) AS id_a, edge_id(e) AS id_e, vertex_id(dst) AS id_b)
-       )
-     fetch first 100 rows only
+     SELECT *
+     FROM GRAPH_TABLE(total_graph
+         MATCH () -[e IS buy]-> ()
+         COLUMNS (e.cust_id, e.prod_id, e.quantity_sold, e.amount_sold)
+     )
+     fetch first 100 rows only;
      ```
 
      
 
-4.   dsaf
+5.   查找购买了特定产品的客户
+
+     ```
+     SELECT *
+     FROM GRAPH_TABLE(total_graph
+         MATCH (cust IS cust) -[e IS buy]-> (prod IS prod)
+         WHERE prod.id = 148  
+         COLUMNS (cust.id as customer_id, cust.name as customer_name, prod.id AS product_id, prod.name AS product_name)
+     );
+     ```
+
+     
+
+6.   查找购买了属于某子类别产品的客户
+
+     ```
+     SELECT *
+     FROM GRAPH_TABLE(total_graph
+         MATCH (c IS cust) -[b IS buy]-> (p1 IS prod) -[bt IS belong_to]-> (p2 IS prod)
+         WHERE p2.id = 2013  -- 替换为子类别ID
+         COLUMNS (c.id AS customer_id, c.name AS customer_name, p1.name AS product_name, p2.name AS subcategory_name)
+     );
+     ```
+
+     
+
+7.   查找购买了属于某类别产品的客户
+
+     ```
+     SELECT *
+     FROM GRAPH_TABLE(total_graph
+         MATCH (c IS cust) -[b IS buy]-> (p1 IS prod) -[bt IS belong_to]->{2} (p2 IS prod)
+         WHERE p2.id = 201  
+         COLUMNS (c.id AS customer_id, c.name AS customer_name, p1.name AS product_name, p2.name AS category_name)
+     );
+     ```
+
+     
+
+8.   计算每个客户的购买总金额
+
+     ```
+     SELECT customer_id, customer_name, SUM(amount_sold) AS total_spent
+     FROM GRAPH_TABLE(total_graph
+         MATCH (c IS cust) -[b IS buy]-> (p IS prod)
+         COLUMNS (c.id as customer_id, c.name as customer_name, b.amount_sold as amount_sold)
+     )
+     GROUP BY customer_id, customer_name
+     ORDER BY total_spent DESC;
+     ```
+
+     
+
+9.   查找住在同一地区且购买过相同产品的客户对
+
+     ```
+     SELECT *
+     FROM GRAPH_TABLE(total_graph
+         MATCH (c1 IS cust) -[b1 IS buy]-> (p IS prod) <-[b2 IS buy]- (c2 IS cust),
+                      (c1) -[l1 IS live_in]-> (l) <-[l2 IS live_in]- (c2)
+         WHERE c1.id < c2.id  -- 避免重复对
+         COLUMNS (c1.name AS customer1, c2.name AS customer2, p.name AS product_name, l.id AS location_id)
+     );
+     ```
+
+     
+
+10.   查找购买金额超过1000的高价值客户及其购买的产品
+
+      ```
+      SELECT *
+      FROM GRAPH_TABLE(total_graph
+          MATCH (c IS cust) -[b IS buy]-> (p IS prod)
+          WHERE b.amount_sold > 1000
+          COLUMNS (c.id AS customer_id, c.name AS customer_name, p.id AS product_id, p.name AS product_name, b.amount_sold AS amount_sold)
+      )
+      ORDER BY amount_sold DESC;
+      ```
+
+      
+
+11.   sdf
+
+4.   
