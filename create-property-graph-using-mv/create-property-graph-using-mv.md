@@ -290,16 +290,17 @@
 9.   查找住在同一地区且购买过相同产品的客户对
 
      ```
+     -- 查找住在同一地区且购买过相同产品的客户对
      SELECT *
      FROM GRAPH_TABLE(total_graph
          MATCH (c1 IS cust) -[b1 IS buy]-> (p IS prod) <-[b2 IS buy]- (c2 IS cust),
                       (c1) -[l1 IS live_in]-> (l) <-[l2 IS live_in]- (c2)
          WHERE c1.id < c2.id  -- 避免重复对
-         COLUMNS (c1.name AS customer1, c2.name AS customer2, p.name AS product_name, l.id AS location_id)
+         COLUMNS (c1.name AS customer1, c2.name AS customer2, p.name AS product_name, l.id AS location_id, l.name AS location_name)
      );
      ```
 
-     ![image-20250415125542225](images/image-20250415125542225.png)
+     ![image-20250416092204332](images/image-20250416092204332.png)
 
 10.   查找购买金额超过1000的高价值客户及其购买的产品
 
