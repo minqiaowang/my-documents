@@ -46,17 +46,27 @@
 
      
 
+2.   因为有重复的id值，所以做些修改。
+
+     ```
+     update sh.customers set cust_state_province_id=cust_state_province_id+400000;
+     update sh.customers set cust_city_id=cust_city_id+200000;
+     commit;
+     ```
+     
+     
+     
 2.   创建MV
 
      ```
      drop MATERIALIZED VIEW products_mv;
      CREATE MATERIALIZED VIEW products_mv 
         REFRESH complete start with sysdate NEXT sysdate + 1/1440 AS
-        select prod_id as id, prod_name as name, 'product' as proddesc, prod_list_price as list_price from products
+        select prod_id as id, prod_name as name, '1' as prodlevel, 'product' as proddesc, prod_list_price as list_price from products
      union all
-     select distinct prod_subcategory_id as id, prod_subcategory as name, 'subcategory' as proddesc, null as list_price from products
+     select distinct prod_subcategory_id as id, prod_subcategory as name, '2' as prodlevel, 'subcategory' as proddesc, null as list_price from products
      union all
-     select distinct prod_category_id as id, prod_category as name, 'category' as proddesc, null as list_price from products;
+     select distinct prod_category_id as id, prod_category as name, '3' as prodlevel, 'category' as proddesc, null as list_price from products;
      
      drop MATERIALIZED VIEW prod_belong_to_mv;
      CREATE MATERIALIZED VIEW prod_belong_to_mv 
@@ -68,13 +78,13 @@
      drop MATERIALIZED VIEW customers_mv;
      CREATE MATERIALIZED VIEW customers_mv 
         REFRESH complete start with sysdate NEXT sysdate + 1/24 AS
-        select cust_id as id, cust_first_name||' '||cust_last_name as name, 'customer' as custdesc, cust_year_of_birth as year_of_birth from customers
+        select cust_id as id, cust_first_name||' '||cust_last_name as name, '1' as custlevel, 'customer' as custdesc, cust_year_of_birth as year_of_birth from customers
      union all
-     select distinct cust_city_id as id, cust_city as name, 'city' as custdesc, NULL as year_of_birth from customers
+     select distinct cust_city_id as id, cust_city as name, '2' as custlevel, 'city' as custdesc, NULL as year_of_birth from customers
      union all
-     select distinct cust_state_province_id as id, cust_state_province as name, 'province' as custdesc, NULL as year_of_birth from customers
+     select distinct cust_state_province_id as id, cust_state_province as name, '3' as custlevel, 'province' as custdesc, NULL as year_of_birth from customers
      union all
-     select distinct country_id as id, to_char(country_id) as name, 'country' as custdesc, NULL as year_of_birth from customers;
+     select country_id as id, country_name as name, '4' as custlevel, 'country' as custdesc, NULL as year_of_birth from countries;
      
      drop MATERIALIZED VIEW cust_live_in_mv;
      CREATE MATERIALIZED VIEW cust_live_in_mv 
@@ -112,7 +122,7 @@
        VERTEX TABLES (
          sh.products_mv as prod KEY (id)
            LABEL prod
-             PROPERTIES (id, name, proddesc, list_price)
+             PROPERTIES (id, name, prodlevel, proddesc, list_price)
        )
        EDGE TABLES (
          sh.prod_belong_to_mv as prodbt
@@ -132,7 +142,7 @@
        VERTEX TABLES (
          sh.customers_mv as cust KEY (id)
            LABEL cust
-             PROPERTIES (id, name, custdesc, year_of_birth)
+             PROPERTIES (id, name, custlevel, custdesc, year_of_birth)
        )
        EDGE TABLES (
          sh.cust_live_in_mv as custln
@@ -152,10 +162,10 @@
        VERTEX TABLES (
          sh.products_mv as prod KEY (id)
            LABEL prod
-             PROPERTIES (id, name, proddesc, list_price),
+             PROPERTIES (id, name, prodlevel, proddesc, list_price),
          sh.customers_mv as cust KEY (id)
            LABEL cust
-             PROPERTIES (id, name, custdesc, year_of_birth)
+             PROPERTIES (id, name, custlevel, custdesc, year_of_birth)
        )
        EDGE TABLES (
          sh.prod_belong_to_mv as prodbt
@@ -316,6 +326,198 @@
 
       ![image-20250415125324509](images/image-20250415125324509.png)
 
-11.   sdf
+11.   查询类别`Tennis`在各个国家总的销售额。
 
-4.   
+      ```
+      SELECT country_id, country_name,category_name,sum(amount_sold) as amount
+      FROM GRAPH_TABLE(total_graph
+          MATCH (c IS cust) -[b IS buy]-> (p1 IS prod) -[bt IS belong_to]-> {2}(p2 IS prod),
+          (c is cust)-[l is live_in]->{3}(c2 IS cust)
+          WHERE p2.name = 'Tennis'  
+          COLUMNS (c2.id as country_id, c2.name as country_name,c.id AS customer_id, c.name AS customer_name, b.amount_sold AS amount_sold, p1.name AS product_name, p2.name AS category_name)
+      ) group by country_id, country_name,category_name
+      order by amount desc;
+      ```
+
+      ![image-20250423165407637](images/image-20250423165407637.png)
+
+12.   sdf
+
+4.   sdf
+
+
+
+## Task 6: 增加时间维度
+
+1.   连接到sh，创建MV log，增加时间维度。
+
+     ```
+     drop MATERIALIZED VIEW LOG ON sales;
+     CREATE MATERIALIZED VIEW LOG ON sales 
+        WITH ROWID, SEQUENCE(prod_id, cust_id, time_id, quantity_sold, amount_sold)
+        INCLUDING NEW VALUES;
+     ```
+
+     
+
+2.   创建MV，增加时间维度。
+
+     ```
+     drop MATERIALIZED VIEW sales_mv;
+     CREATE MATERIALIZED VIEW sales_mv
+       REFRESH FAST start with sysdate NEXT sysdate + 1/24 AS
+       select prod_id, cust_id, time_id, sum(quantity_sold) as quantity_sold, sum(amount_sold) as amount_sold from sales group by prod_id, cust_id, time_id;
+     ```
+
+     
+
+3.   连接vector用户，创建property graph
+
+     ```
+     CREATE or REPLACE PROPERTY GRAPH total_graph
+       VERTEX TABLES (
+         sh.products_mv as prod KEY (id)
+           LABEL prod
+             PROPERTIES (id, name, prodlevel, proddesc, list_price),
+         sh.customers_mv as cust KEY (id)
+           LABEL cust
+             PROPERTIES (id, name, custlevel, custdesc, year_of_birth)
+       )
+       EDGE TABLES (
+         sh.prod_belong_to_mv as prodbt
+           KEY (id_a,id_b)
+           SOURCE KEY (id_a) REFERENCES prod(id)
+           DESTINATION KEY (id_b) REFERENCES prod(id)
+           LABEL belong_to,
+         sh.cust_live_in_mv as custln
+           KEY (id_a,id_b)
+           SOURCE KEY (id_a) REFERENCES cust(id)
+           DESTINATION KEY (id_b) REFERENCES cust(id)
+           LABEL live_in,
+         sh.sales_mv as sales
+           KEY (prod_id,cust_id,time_id)
+           SOURCE KEY (cust_id) REFERENCES cust(id)
+           DESTINATION KEY (prod_id) REFERENCES prod(id)
+           LABEL buy
+             PROPERTIES (cust_id,prod_id,time_id,quantity_sold, amount_sold)
+       ); 
+     ```
+
+     
+
+4.   计算每个季度，Tennis类别的商品在美国的销售额。
+
+     ```
+     SELECT time_id, q_id, country_id, country_name,category_name,sum(amount_sold) as amount
+     FROM GRAPH_TABLE(total_graph
+         MATCH (c IS cust) -[b IS buy]-> (p1 IS prod) -[bt IS belong_to]-> {2}(p2 IS prod),
+         (c is cust)-[l is live_in]->{3}(c2 IS cust)
+         WHERE p2.name = 'Tennis' and c2.name='United States of America' 
+         COLUMNS (c2.id as country_id, c2.name as country_name,c.id AS customer_id, c.name AS customer_name, to_char(b.time_id,'YYYY') AS time_id, 'Q'||to_char(b.time_id,'Q') AS q_id, b.amount_sold AS amount_sold, p1.name AS product_name, p2.name AS category_name)
+     ) group by time_id,q_id,country_id, country_name,category_name
+     order by time_id,q_id;
+     ```
+
+     ![image-20250424103601098](images/image-20250424103601098.png)
+
+5.   计算Tennis子类在美国每年的销售金额。
+
+     ```
+     SELECT time_id, country_id, country_name,subcategory_name,category_name,sum(amount_sold) as amount
+     FROM GRAPH_TABLE(total_graph
+         MATCH (c IS cust) -[b IS buy]-> (p1 IS prod) -[bt IS belong_to]-> (p2 IS prod)-[bt2 IS belong_to]-> (p3 IS prod),
+         (c is cust)-[l is live_in]->{3}(c2 IS cust)
+         WHERE p3.name = 'Tennis' and c2.name='United States of America'
+         COLUMNS (c2.id as country_id, c2.name as country_name,c.id AS customer_id, c.name AS customer_name, to_char(b.time_id,'YYYY') AS time_id, b.amount_sold AS amount_sold, p1.name AS product_name, p2.name AS subcategory_name,p3.name AS category_name)
+     ) group by time_id,country_id, country_name,subcategory_name,category_name
+     order by time_id;
+     ```
+
+     ![image-20250424110544756](images/image-20250424110544756.png)
+
+6.   sadf
+
+7.   sdf
+
+
+
+## Task 7: 用函数来拼接SQL
+
+1.   sdf
+
+     ```
+     CREATE OR REPLACE FUNCTION generate_sql (
+         c_level IN NUMBER,       -- 客户维level
+         c_value IN VARCHAR2,  -- 客户维值
+         p_level IN NUMBER,        -- 产品维level
+         p_value IN VARCHAR2   -- 产品维值
+     ) RETURN VARCHAR2             -- 返回值类型
+     IS
+         v_result VARCHAR2(2000);        -- 局部变量
+         v_sql varchar2(4000);
+         v_custdesc varchar2(40);
+         v_proddesc varchar2(100);
+         v_column varchar2(1000);
+         vc_level number;
+         vp_level number;
+         vc_where number;
+         vp_where number;
+     BEGIN
+         -- 找到customer level对应的名称
+         
+         vc_where:=c_level+1;
+         vp_where:=p_level+1;
+         
+         v_result := 'time_id ';
+         v_column := ' COLUMNS (to_char(b.time_id,'''||'YYYY'||''') AS time_id ';
+         dbms_output.put_line(v_column);
+         vc_level:=c_level;
+         for i in c_level..4 loop
+           select custdesc into v_custdesc from sh.customers_mv where custlevel=vc_level fetch first rows only;
+           if v_custdesc is not null then
+             v_result:=v_result||','||v_custdesc;
+             v_column:=v_column||', c'||vc_level||'.name'||' AS '||v_custdesc;
+           end if;
+           vc_level:=vc_level+1;
+         end loop;
+         dbms_output.put_line(v_column);
+         
+         vp_level:=p_level;
+         for i in p_level..3 loop
+           select proddesc into v_proddesc from sh.products_mv where prodlevel=vp_level fetch first rows only;
+           if v_proddesc is not null then
+             v_result:=v_result||','||v_proddesc;
+             v_column:=v_column||', p'||vp_level||'.name'||' AS '||v_proddesc;
+           end if;
+           vp_level:=vp_level+1;
+         end loop; 
+         
+         v_sql:='select '||v_result||', sum(amount_sold)'||' FROM GRAPH_TABLE(total_graph '||' MATCH (c1 IS cust) -[b IS buy]-> (p1 IS prod) -[]-> (p2 IS prod)-[]-> (p3 IS prod),';
+         v_sql:=v_sql||' (c1 is cust)-[]-> (c2 IS cust)-[]-> (c3 IS cust)-[]-> (c4 IS cust) ';
+         v_sql:=v_sql||' Where c'||vc_where||q'[.name=']'||c_value||q'[']';
+         v_sql:=v_sql||' AND p'||vp_where||q'[.name=']'||p_value||q'[']';
+         v_sql:=v_sql||v_column||',b.amount_sold AS amount_sold)) group by '||v_result;
+         
+         -- 返回结果
+         RETURN v_sql;
+         
+     EXCEPTION
+         WHEN OTHERS THEN
+             -- 异常处理
+             DBMS_OUTPUT.PUT_LINE('Error occurred: ' || SQLERRM);
+             RETURN NULL;
+     END generate_sql;
+     ```
+
+     
+
+2.   生成SQL
+
+     ```
+     set serveroutput on;
+     select generate_sql(3,'United States of America',2,'Tennis') from dual;
+     ```
+
+     
+
+3.   Pdf
