@@ -450,10 +450,13 @@
          c_level IN NUMBER,       -- 客户维level
          c_value IN VARCHAR2,  -- 客户维值
          p_level IN NUMBER,        -- 产品维level
-         p_value IN VARCHAR2   -- 产品维值
+         p_value IN VARCHAR2,   -- 产品维值
+         d_year  IN number :=0,
+         d_quarter IN number :=0,
+         d_month  IN number :=0
      ) RETURN VARCHAR2             -- 返回值类型
      IS
-         v_result VARCHAR2(2000);        -- 局部变量
+         v_result_list VARCHAR2(2000);
          v_sql varchar2(4000);
          v_custdesc varchar2(40);
          v_proddesc varchar2(100);
@@ -462,41 +465,63 @@
          vp_level number;
          vc_where number;
          vp_where number;
+         v_where_list varchar2(2000);
+        -- v_groupby_list varchar2(2000);
      BEGIN
          -- 找到customer level对应的名称
          
-         vc_where:=c_level+1;
-         vp_where:=p_level+1;
+         vc_where:=c_level;
+         vp_where:=p_level;
+             
+         if d_month <>0 then
+           v_result_list:=',MONTH ';
+           v_column:=q'[ ,to_char(b.time_id,'MM') as MONTH]';
+           v_where_list:=q'[ to_char(b.time_id,'MM')=]'||d_month||' AND ';
+         end if;
          
-         v_result := 'time_id ';
-         v_column := ' COLUMNS (to_char(b.time_id,'''||'YYYY'||''') AS time_id ';
+         if d_quarter <>0 then
+           v_result_list:=',QUARTER '||v_result_list;
+           v_column:=q'[ ,to_char(b.time_id,'Q') as QUARTER]'||v_column;
+           v_where_list:=q'[ to_char(b.time_id,'Q')=]'||d_quarter||' AND'||v_where_list;
+         end if;
+         
+         if d_year <>0 then
+           v_result_list:='YEAR '||v_result_list;
+           v_column:=q'[ COLUMNS ( to_char(b.time_id,'YYYY') as YEAR]'||v_column;
+           v_where_list:=q'[ to_char(b.time_id,'YYYY')=]'||d_year||' AND '||v_where_list;
+         else
+           v_result_list:='YEAR '||v_result_list;
+           v_column:=q'[ COLUMNS ( to_char(b.time_id,'YYYY') as YEAR]'||v_column;    
+         end if;
+         
+         
          dbms_output.put_line(v_column);
-         vc_level:=c_level;
-         for i in c_level..4 loop
+         vc_level:=c_level-1;
+         for i in (c_level-1)..4 loop
            select custdesc into v_custdesc from sh.customers_mv where custlevel=vc_level fetch first rows only;
            if v_custdesc is not null then
-             v_result:=v_result||','||v_custdesc;
+             v_result_list:=v_result_list||','||v_custdesc;
              v_column:=v_column||', c'||vc_level||'.name'||' AS '||v_custdesc;
            end if;
            vc_level:=vc_level+1;
          end loop;
          dbms_output.put_line(v_column);
          
-         vp_level:=p_level;
-         for i in p_level..3 loop
+         vp_level:=p_level-1;
+         for i in (p_level-1)..3 loop
            select proddesc into v_proddesc from sh.products_mv where prodlevel=vp_level fetch first rows only;
            if v_proddesc is not null then
-             v_result:=v_result||','||v_proddesc;
+             v_result_list:=v_result_list||','||v_proddesc;
              v_column:=v_column||', p'||vp_level||'.name'||' AS '||v_proddesc;
            end if;
            vp_level:=vp_level+1;
          end loop; 
          
-         v_sql:='select '||v_result||', sum(amount_sold)'||' FROM GRAPH_TABLE(total_graph '||' MATCH (c1 IS cust) -[b IS buy]-> (p1 IS prod) -[]-> (p2 IS prod)-[]-> (p3 IS prod),';
+         v_sql:='select '||v_result_list||', sum(amount_sold)'||' FROM GRAPH_TABLE(total_graph '||' MATCH (c1 IS cust) -[b IS buy]-> (p1 IS prod) -[]-> (p2 IS prod)-[]-> (p3 IS prod),';
          v_sql:=v_sql||' (c1 is cust)-[]-> (c2 IS cust)-[]-> (c3 IS cust)-[]-> (c4 IS cust) ';
-         v_sql:=v_sql||' Where c'||vc_where||q'[.name=']'||c_value||q'[']';
+         v_sql:=v_sql||' Where '||v_where_list||' c'||vc_where||q'[.name=']'||c_value||q'[']';
          v_sql:=v_sql||' AND p'||vp_where||q'[.name=']'||p_value||q'[']';
-         v_sql:=v_sql||v_column||',b.amount_sold AS amount_sold)) group by '||v_result;
+         v_sql:=v_sql||v_column||',b.amount_sold AS amount_sold)) group by '||v_result_list;
          
          -- 返回结果
          RETURN v_sql;
@@ -515,9 +540,30 @@
 
      ```
      set serveroutput on;
-     select generate_sql(3,'United States of America',2,'Tennis') from dual;
+     select generate_sql(4,'United States of America',3,'Tennis') from dual;
+     ```
+
+     生成的结果：
+
+     ```
+     select time_id ,province,country,subcategory,category, sum(amount_sold) FROM GRAPH_TABLE(total_graph  MATCH (c1 IS cust) -[b IS buy]-> (p1 IS prod) -[]-> (p2 IS prod)-[]-> (p3 IS prod), (c1 is cust)-[]-> (c2 IS cust)-[]-> (c3 IS cust)-[]-> (c4 IS cust)  Where c4.name='United States of America' AND p3.name='Tennis' COLUMNS (to_char(b.time_id,'YYYY') AS time_id , c3.name AS province, c4.name AS country, p2.name AS subcategory, p3.name AS category,b.amount_sold AS amount_sold)) group by time_id ,province,country,subcategory,category
      ```
 
      
 
-3.   Pdf
+3.   或者：
+
+     ```
+     set serveroutput on;
+     select generate_sql(4,'United States of America',3,'Tennis',2022,1,2) from dual;
+     ```
+
+     生成的SQL
+
+     ```
+     select YEAR ,QUARTER ,MONTH ,province,country,subcategory,category, sum(amount_sold) FROM GRAPH_TABLE(total_graph  MATCH (c1 IS cust) -[b IS buy]-> (p1 IS prod) -[]-> (p2 IS prod)-[]-> (p3 IS prod), (c1 is cust)-[]-> (c2 IS cust)-[]-> (c3 IS cust)-[]-> (c4 IS cust)  Where  to_char(b.time_id,'YYYY')=2022 AND  to_char(b.time_id,'Q')=1 AND to_char(b.time_id,'MM')=2 AND  c4.name='United States of America' AND p3.name='Tennis' COLUMNS ( to_char(b.time_id,'YYYY') as YEAR ,to_char(b.time_id,'Q') as QUARTER ,to_char(b.time_id,'MM') as MONTH, c3.name AS province, c4.name AS country, p2.name AS subcategory, p3.name AS category,b.amount_sold AS amount_sold)) group by YEAR ,QUARTER ,MONTH ,province,country,subcategory,category
+     ```
+
+     
+
+4.   sdf
