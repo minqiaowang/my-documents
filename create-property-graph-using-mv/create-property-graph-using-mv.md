@@ -564,6 +564,226 @@
      select YEAR ,QUARTER ,MONTH ,province,country,subcategory,category, sum(amount_sold) FROM GRAPH_TABLE(total_graph  MATCH (c1 IS cust) -[b IS buy]-> (p1 IS prod) -[]-> (p2 IS prod)-[]-> (p3 IS prod), (c1 is cust)-[]-> (c2 IS cust)-[]-> (c3 IS cust)-[]-> (c4 IS cust)  Where  to_char(b.time_id,'YYYY')=2022 AND  to_char(b.time_id,'Q')=1 AND to_char(b.time_id,'MM')=2 AND  c4.name='United States of America' AND p3.name='Tennis' COLUMNS ( to_char(b.time_id,'YYYY') as YEAR ,to_char(b.time_id,'Q') as QUARTER ,to_char(b.time_id,'MM') as MONTH, c3.name AS province, c4.name AS country, p2.name AS subcategory, p3.name AS category,b.amount_sold AS amount_sold)) group by YEAR ,QUARTER ,MONTH ,province,country,subcategory,category
      ```
 
+
+
+## 大模型生成SQL语句
+
+1.   提示词
+
+     ```
+     ## 现有Oracle中定义的property graph 如下：
+     CREATE or REPLACE PROPERTY GRAPH total_graph
+       VERTEX TABLES (
+         sh.products_mv as prod KEY (id)
+           LABEL prod
+             PROPERTIES (id, name, prodlevel, proddesc, list_price),
+         sh.customers_mv as cust KEY (id)
+           LABEL cust
+             PROPERTIES (id, name, custlevel, custdesc, year_of_birth)
+       )
+       EDGE TABLES (
+         sh.prod_belong_to_mv as prodbt
+           KEY (id_a,id_b)
+           SOURCE KEY (id_a) REFERENCES prod(id)
+           DESTINATION KEY (id_b) REFERENCES prod(id)
+           LABEL belong_to,
+         sh.cust_live_in_mv as custln
+           KEY (id_a,id_b)
+           SOURCE KEY (id_a) REFERENCES cust(id)
+           DESTINATION KEY (id_b) REFERENCES cust(id)
+           LABEL live_in,
+         sh.sales_mv as sales
+           KEY (prod_id,cust_id,time_id)
+           SOURCE KEY (cust_id) REFERENCES cust(id)
+           DESTINATION KEY (prod_id) REFERENCES prod(id)
+           LABEL buy
+             PROPERTIES (cust_id,prod_id,time_id,quantity_sold, amount_sold)
+       ); 
+     ## 其中两个维度：
+     a. cust维度有4层：1:customer, 2:city, 3:province, 4:country
+     b. prod维度有3层： 1:product, 2:subcategory, 3:category
+     ## country的值有：'United States of America', 'Germany', 'United Kingdom', 'France'等等。
+      其中'United States of America'下的province的值有: 'CA', 'CO', 'KY', 'FL'等等。
+      category的值有: 'Tennis', 'Baseball', 'Cricket', 'Golf'等等
+      其中'Tennis'下的subcategory的值有: 'Tennis Racquet', 'Tennis Balls', 'Tennis Strings', 'Tennis Racquet Grip'等。
+     
+     ##这是几个使用SQL graph的语法的例子：
+     #例子1: 查询2022年1季度2月份，'United States of America'的各个province中'Tennis'的subcategory销售总额是多少？
+     答案：select YEAR ,QUARTER ,MONTH ,province,country,subcategory,category, sum(amount_sold) 
+     FROM GRAPH_TABLE(total_graph  
+     MATCH (c1 IS cust) -[b IS buy]-> (p1 IS prod) -[]-> (p2 IS prod)-[]-> (p3 IS prod), 
+     (c1 is cust)-[]-> (c2 IS cust)-[]-> (c3 IS cust)-[]-> (c4 IS cust)  
+     Where  to_char(b.time_id,'YYYY')=2022 AND  to_char(b.time_id,'Q')=1 AND to_char(b.time_id,'MM')=2 AND  c4.name='United States of America' AND p3.name='Tennis' 
+     COLUMNS ( to_char(b.time_id,'YYYY') as YEAR ,to_char(b.time_id,'Q') as QUARTER ,to_char(b.time_id,'MM') as MONTH, c3.name AS province, c4.name AS country, p2.name AS subcategory, p3.name AS category,b.amount_sold AS amount_sold)) 
+     group by YEAR ,QUARTER ,MONTH ,province,country,subcategory,category;
+     
+     #例子2: 查询2022年1季度，'United States of America'的各个province中'Tennis'的subcategory销售总额是多少？
+     答案：select YEAR ,QUARTER ,province,country,subcategory,category, sum(amount_sold) 
+     FROM GRAPH_TABLE(total_graph  
+     MATCH (c1 IS cust) -[b IS buy]-> (p1 IS prod) -[]-> (p2 IS prod)-[]-> (p3 IS prod), 
+     (c1 is cust)-[]-> (c2 IS cust)-[]-> (c3 IS cust)-[]-> (c4 IS cust)  
+     Where  to_char(b.time_id,'YYYY')=2022 AND  to_char(b.time_id,'Q')=1 AND to_char(b.time_id,'MM')=2 AND  c4.name='United States of America' AND p3.name='Tennis' 
+     COLUMNS ( to_char(b.time_id,'YYYY') as YEAR ,to_char(b.time_id,'Q') as QUARTER , c3.name AS province, c4.name AS country, p2.name AS subcategory, p3.name AS category,b.amount_sold AS amount_sold)) 
+     group by YEAR ,QUARTER ,province,country,subcategory,category;
+     
+     #例子3: 查询2022年，'United States of America'的各个province销售总额是多少？
+     答案：select YEAR ,province,country, sum(amount_sold) 
+     FROM GRAPH_TABLE(total_graph  
+     MATCH (c1 IS cust) -[b IS buy]-> (p1 IS prod) -[]-> (p2 IS prod)-[]-> (p3 IS prod), 
+     (c1 is cust)-[]-> (c2 IS cust)-[]-> (c3 IS cust)-[]-> (c4 IS cust)  
+     Where  to_char(b.time_id,'YYYY')=2022 AND  c4.name='United States of America'  
+     COLUMNS ( to_char(b.time_id,'YYYY') as YEAR , c3.name AS province, c4.name AS country,b.amount_sold AS amount_sold)) 
+     group by YEAR  ,province,country;
+     
+     #例子4: 查询'United States of America'的各个province销售总额是多少？
+     答案：select province,country, sum(amount_sold) 
+     FROM GRAPH_TABLE(total_graph  
+     MATCH (c1 IS cust) -[b IS buy]-> (p1 IS prod) -[]-> (p2 IS prod)-[]-> (p3 IS prod), 
+     (c1 is cust)-[]-> (c2 IS cust)-[]-> (c3 IS cust)-[]-> (c4 IS cust)  
+     Where  c4.name='United States of America'  
+     COLUMNS (  c3.name AS province, c4.name AS country,b.amount_sold AS amount_sold)) 
+     group by province,country;
+     
+     #例子5: 2022年2月，'United States of America'的各个province中'Baseball'的销售总额跟上个月比的变化是多少？
+     答案：SELECT
+     curr.YEAR,
+     curr.MONTH,
+     curr.province,
+     curr.country,
+     curr.category,
+     curr.total_amount AS current_month_amount,
+     prev.total_amount AS previous_month_amount,
+     (curr.total_amount - prev.total_amount) AS amount_change
+     FROM (
+     SELECT
+      YEAR,
+       MONTH,
+      province,
+     country,
+     category,
+     sum(amount_sold) AS total_amount
+     FROM GRAPH_TABLE(total_graph
+     MATCH (c1 IS cust) -[b IS buy]-> (p1 IS prod) -[]-> (p2 IS prod)-[]-> (p3 IS prod),
+     (c1 is cust)-[]-> (c2 IS cust)-[]-> (c3 IS cust)-[]-> (c4 IS cust)
+     WHERE to_char(b.time_id,'YYYY') = '2022'
+     AND to_char(b.time_id,'MM') = '02'
+     AND c4.name = 'United States of America'
+     AND p3.name = 'Baseball'
+     COLUMNS (
+     to_char(b.time_id,'YYYY') as YEAR,
+     to_char(b.time_id,'MM') as MONTH,
+     c3.name AS province,
+     c4.name AS country,
+     p3.name AS category,
+     b.amount_sold AS amount_sold
+     )
+     )
+     GROUP BY YEAR, MONTH, province, country, category
+     ) curr
+     LEFT JOIN (
+     SELECT
+     YEAR,
+      MONTH,
+     province,
+     country,
+     category,
+     sum(amount_sold) AS total_amount
+     FROM GRAPH_TABLE(total_graph
+     MATCH (c1 IS cust) -[b IS buy]-> (p1 IS prod) -[]-> (p2 IS prod)-[]-> (p3 IS prod),
+     (c1 is cust)-[]-> (c2 IS cust)-[]-> (c3 IS cust)-[]-> (c4 IS cust)
+     WHERE to_char(b.time_id,'YYYY') = '2022'
+     AND to_char(b.time_id,'MM') = '01'
+     AND c4.name = 'United States of America'
+     AND p3.name = 'Baseball'
+     COLUMNS (
+     to_char(b.time_id,'YYYY') as YEAR,
+     to_char(b.time_id,'MM') as MONTH,
+     c3.name AS province,
+     c4.name AS country,
+     p3.name AS category,
+     b.amount_sold AS amount_sold
+     )
+     )
+     GROUP BY YEAR, MONTH, province, country, category
+     ) prev ON curr.province = prev.province AND curr.country = prev.country AND curr.category = prev.category;
+     
+     ## 根据以上的示例，回答下列问题，生成相应的SQL语句，仅返回SQL语句，不需要其它解释：
+     问题：2022年一季度，'United States of America'的各个province中'Baseball'的销售总额跟上个季度比的变化是多少？
+     
+     
+     问题：2022年2月份，'United States of America'的'CA'的各个city中'Baseball'的销售总额是多少？
+     问题：2022年2月份，'France'的各个province中'Baseball'的销售总额是多少？
+     问题：2022年2月份，'United States of America'的各个province中'Baseball'的subcategory销售总额是多少？
+     ```
+
      
 
-4.   sdf
+2.   例如：2022年一季度，'United States of America'的各个province中'Baseball'的销售总额跟上个季度比的变化是多少？生成的SQL语句：
+
+     ```
+     SELECT
+     curr.YEAR,
+     curr.QUARTER,
+     curr.province,
+     curr.country,
+     curr.category,
+     curr.total_amount AS current_quarter_amount,
+     prev.total_amount AS previous_quarter_amount,
+     (curr.total_amount - prev.total_amount) AS amount_change
+     FROM (
+     SELECT
+      YEAR,
+       QUARTER,
+      province,
+     country,
+     category,
+     sum(amount_sold) AS total_amount
+     FROM GRAPH_TABLE(total_graph
+     MATCH (c1 IS cust) -[b IS buy]-> (p1 IS prod) -[]-> (p2 IS prod)-[]-> (p3 IS prod),
+     (c1 is cust)-[]-> (c2 IS cust)-[]-> (c3 IS cust)-[]-> (c4 IS cust)
+     WHERE to_char(b.time_id,'YYYY') = '2022'
+     AND to_char(b.time_id,'Q') = '1'
+     AND c4.name = 'United States of America'
+     AND p3.name = 'Baseball'
+     COLUMNS (
+     to_char(b.time_id,'YYYY') as YEAR,
+     to_char(b.time_id,'Q') as QUARTER,
+     c3.name AS province,
+     c4.name AS country,
+     p3.name AS category,
+     b.amount_sold AS amount_sold
+     )
+     )
+     GROUP BY YEAR, QUARTER, province, country, category
+     ) curr
+     LEFT JOIN (
+     SELECT
+     YEAR,
+      QUARTER,
+     province,
+     country,
+     category,
+     sum(amount_sold) AS total_amount
+     FROM GRAPH_TABLE(total_graph
+     MATCH (c1 IS cust) -[b IS buy]-> (p1 IS prod) -[]-> (p2 IS prod)-[]-> (p3 IS prod),
+     (c1 is cust)-[]-> (c2 IS cust)-[]-> (c3 IS cust)-[]-> (c4 IS cust)
+     WHERE to_char(b.time_id,'YYYY') = '2021'
+     AND to_char(b.time_id,'Q') = '4'
+     AND c4.name = 'United States of America'
+     AND p3.name = 'Baseball'
+     COLUMNS (
+     to_char(b.time_id,'YYYY') as YEAR,
+     to_char(b.time_id,'Q') as QUARTER,
+     c3.name AS province,
+     c4.name AS country,
+     p3.name AS category,
+     b.amount_sold AS amount_sold
+     )
+     )
+     GROUP BY YEAR, QUARTER, province, country, category
+     ) prev ON curr.province = prev.province AND curr.country = prev.country AND curr.category = prev.category;
+     ```
+
+     
+
+3.   sdf
