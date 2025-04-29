@@ -707,7 +707,13 @@
      GROUP BY YEAR, MONTH, province, country, category
      ) prev ON curr.province = prev.province AND curr.country = prev.country AND curr.category = prev.category;
      
+     ## 注意：Select 字段只能用别名 from graph_table。
      ## 根据以上的示例，回答下列问题，生成相应的SQL语句，仅返回SQL语句，不需要其它解释：
+     问题：列出历年来每个国家，每个category的销售总额
+     发现'United States of America'的'Baseball'在2022年的销售总额比去年减少，需要按产品维度向下钻取一层查询销售总额，请生成相应的SQL graph语句。
+     按customer维度向下钻取一层查询销售总额，请生成相应的SQL graph语句
+     
+     
      问题：2022年一季度，'United States of America'的各个province中'Baseball'的销售总额跟上个季度比的变化是多少？
      
      
