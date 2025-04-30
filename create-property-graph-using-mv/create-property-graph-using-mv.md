@@ -193,7 +193,7 @@
 
 
 
-## Task 5: 查询Graph
+## Task 4: 查询Graph
 
 1.   查询products graph
 
@@ -347,7 +347,7 @@
 
 
 
-## Task 6: 增加时间维度
+## Task 5: 增加时间维度
 
 1.   连接到sh，创建MV log，增加时间维度。
 
@@ -441,9 +441,9 @@
 
 
 
-## Task 7: 用函数来拼接SQL
+## Task 6: 用函数来拼接SQL
 
-1.   sdf
+1.   创建函数：
 
      ```
      CREATE OR REPLACE FUNCTION generate_sql (
@@ -566,7 +566,7 @@
 
 
 
-## 大模型生成SQL语句
+## Task 7: 大模型生成SQL语句
 
 1.   提示词
 
