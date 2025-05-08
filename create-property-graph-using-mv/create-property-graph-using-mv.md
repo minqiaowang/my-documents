@@ -609,7 +609,7 @@
      
      ##这是几个使用SQL graph的语法的例子：
      #例子1: 查询2022年1季度2月份，'United States of America'的各个province中'Tennis'的subcategory销售总额是多少？
-     答案：select YEAR ,QUARTER ,MONTH ,province,country,subcategory,category, sum(amount_sold) 
+     答案：select YEAR ,QUARTER ,MONTH ,province,country,subcategory,category, sum(amount_sold) as total_amount
      FROM GRAPH_TABLE(total_graph  
      MATCH (c1 IS cust) -[b IS buy]-> (p1 IS prod) -[]-> (p2 IS prod)-[]-> (p3 IS prod), 
      (c1 is cust)-[]-> (c2 IS cust)-[]-> (c3 IS cust)-[]-> (c4 IS cust)  
@@ -618,16 +618,17 @@
      group by YEAR ,QUARTER ,MONTH ,province,country,subcategory,category;
      
      #例子2: 查询2022年1季度，'United States of America'的各个province中'Tennis'的subcategory销售总额是多少？
-     答案：select YEAR ,QUARTER ,province,country,subcategory,category, sum(amount_sold) 
+     答案：select YEAR ,QUARTER ,province,country,subcategory,category, sum(amount_sold) as total_amount
      FROM GRAPH_TABLE(total_graph  
      MATCH (c1 IS cust) -[b IS buy]-> (p1 IS prod) -[]-> (p2 IS prod)-[]-> (p3 IS prod), 
      (c1 is cust)-[]-> (c2 IS cust)-[]-> (c3 IS cust)-[]-> (c4 IS cust)  
      Where  to_char(b.time_id,'YYYY')=2022 AND  to_char(b.time_id,'Q')=1 AND to_char(b.time_id,'MM')=2 AND  c4.name='United States of America' AND p3.name='Tennis' 
      COLUMNS ( to_char(b.time_id,'YYYY') as YEAR ,to_char(b.time_id,'Q') as QUARTER , c3.name AS province, c4.name AS country, p2.name AS subcategory, p3.name AS category,b.amount_sold AS amount_sold)) 
-     group by YEAR ,QUARTER ,province,country,subcategory,category;
+     group by YEAR ,QUARTER ,province,country,subcategory,category
+     order by total_amount desc;
      
      #例子3: 查询2022年，'United States of America'的各个province销售总额是多少？
-     答案：select YEAR ,province,country, sum(amount_sold) 
+     答案：select YEAR ,province,country, sum(amount_sold) as total_amount
      FROM GRAPH_TABLE(total_graph  
      MATCH (c1 IS cust) -[b IS buy]-> (p1 IS prod) -[]-> (p2 IS prod)-[]-> (p3 IS prod), 
      (c1 is cust)-[]-> (c2 IS cust)-[]-> (c3 IS cust)-[]-> (c4 IS cust)  
@@ -636,7 +637,7 @@
      group by YEAR  ,province,country;
      
      #例子4: 查询'United States of America'的各个province销售总额是多少？
-     答案：select province,country, sum(amount_sold) 
+     答案：select province,country, sum(amount_sold) as total_amount
      FROM GRAPH_TABLE(total_graph  
      MATCH (c1 IS cust) -[b IS buy]-> (p1 IS prod) -[]-> (p2 IS prod)-[]-> (p3 IS prod), 
      (c1 is cust)-[]-> (c2 IS cust)-[]-> (c3 IS cust)-[]-> (c4 IS cust)  
@@ -707,9 +708,12 @@
      GROUP BY YEAR, MONTH, province, country, category
      ) prev ON curr.province = prev.province AND curr.country = prev.country AND curr.category = prev.category;
      
-     ## 注意：Select 字段只能用别名 from graph_table。
+     ## 注意：Select 字段只能用别名 from graph_table 中select后面的字段列表只能用别名
+     ## 注意：检查'('和')'的匹配情况
      ## 根据以上的示例，回答下列问题，生成相应的SQL语句，仅返回SQL语句，不需要其它解释：
-     问题：列出每年每个国家，每个category的销售总额
+     问题：列出2020年到2022年每个国家，baseball大类的销售总额与去年同期的比较
+     
+     列出每年每个国家，每个category的销售总额
      发现'United States of America'的'Baseball'在2022年的销售总额比去年减少，需要按产品维度向下钻取一层查询销售总额，请生成相应的SQL graph语句。
      按customer维度向下钻取一层查询销售总额，请生成相应的SQL graph语句
      
