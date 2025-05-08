@@ -708,7 +708,7 @@
      GROUP BY YEAR, MONTH, province, country, category
      ) prev ON curr.province = prev.province AND curr.country = prev.country AND curr.category = prev.category;
      
-     ## 注意：Select 字段只能用别名 from graph_table 中select后面的字段列表只能用别名
+     ## 注意：Select 字段1, 字段2, 字段3... from graph_table 中select后面的字段列表只能用别名
      ## 注意：检查'('和')'的匹配情况
      ## 根据以上的示例，回答下列问题，生成相应的SQL语句，仅返回SQL语句，不需要其它解释：
      问题：列出2020年到2022年每个国家，baseball大类的销售总额与去年同期的比较
