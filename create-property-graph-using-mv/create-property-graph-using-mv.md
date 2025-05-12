@@ -708,7 +708,7 @@
      GROUP BY YEAR, MONTH, province, country, category
      ) prev ON curr.province = prev.province AND curr.country = prev.country AND curr.category = prev.category;
      
-     ## 注意：Select 字段1, 字段2, 字段3... from graph_table 中select后面的字段列表只能用别名
+     ## 注意：检查生成的SQL语句中'Select 字段1, 字段2, 字段3... from graph_table' 中select后面的字段列表只能用COLUMNS( )子句中包含的别名
      ## 注意：检查'('和')'的匹配情况
      ## 根据以上的示例，回答下列问题，生成相应的SQL语句，仅返回SQL语句，不需要其它解释：
      问题：列出2020年到2022年每个国家，baseball大类的销售总额与去年同期的比较
@@ -796,4 +796,170 @@
 
      
 
-3.   sdf
+3.   另一种提示：
+
+     ```
+     ## 现有Oracle中定义的property graph 如下：
+     CREATE or REPLACE PROPERTY GRAPH total_graph
+       VERTEX TABLES (
+         sh.products_mv as prod KEY (id)
+           LABEL prod
+             PROPERTIES (id, name, prodlevel, proddesc, list_price),
+         sh.customers_mv as cust KEY (id)
+           LABEL cust
+             PROPERTIES (id, name, custlevel, custdesc, year_of_birth)
+       )
+       EDGE TABLES (
+         sh.prod_belong_to_mv as prodbt
+           KEY (id_a,id_b)
+           SOURCE KEY (id_a) REFERENCES prod(id)
+           DESTINATION KEY (id_b) REFERENCES prod(id)
+           LABEL belong_to,
+         sh.cust_live_in_mv as custln
+           KEY (id_a,id_b)
+           SOURCE KEY (id_a) REFERENCES cust(id)
+           DESTINATION KEY (id_b) REFERENCES cust(id)
+           LABEL live_in,
+         sh.sales_mv as sales
+           KEY (prod_id,cust_id,time_id)
+           SOURCE KEY (cust_id) REFERENCES cust(id)
+           DESTINATION KEY (prod_id) REFERENCES prod(id)
+           LABEL buy
+             PROPERTIES (cust_id,prod_id,time_id,quantity_sold, amount_sold)
+       ); 
+     ## 其中两个维度：
+     a. cust维度有4层：1:customer, 2:city, 3:province, 4:country
+     b. prod维度有3层： 1:product, 2:subcategory, 3:category
+     ## country的值有：'United States of America', 'Germany', 'United Kingdom', 'France'等等。
+      其中'United States of America'下的province的值有: 'CA', 'CO', 'KY', 'FL'等等。
+      category的值有: 'Tennis', 'Baseball', 'Cricket', 'Golf'等等
+      其中'Tennis'下的subcategory的值有: 'Tennis Racquet', 'Tennis Balls', 'Tennis Strings', 'Tennis Racquet Grip'等。
+     
+     ##这是几个使用SQL graph的语法的例子：
+     #例子1: 查询2022年1季度2月份，'United States of America'的各个province中'Tennis'的subcategory销售总额是多少？
+     答案：select YEAR ,QUARTER ,MONTH ,province,country,subcategory,category, sum(amount_sold) as total_amount
+     FROM GRAPH_TABLE(total_graph  
+     MATCH (c1 IS cust) -[b IS buy]-> (p1 IS prod) -[]-> (p2 IS prod)-[]-> (p3 IS prod), 
+     (c1 is cust)-[]-> (c2 IS cust)-[]-> (c3 IS cust)-[]-> (c4 IS cust)  
+     Where  to_char(b.time_id,'YYYY')=2022 AND  to_char(b.time_id,'Q')=1 AND to_char(b.time_id,'MM')=2 AND  c4.name='United States of America' AND p3.name='Tennis' 
+     COLUMNS ( to_char(b.time_id,'YYYY') as YEAR ,to_char(b.time_id,'Q') as QUARTER ,to_char(b.time_id,'MM') as MONTH, c3.name AS province, c4.name AS country, p2.name AS subcategory, p3.name AS category,b.amount_sold AS amount_sold)) 
+     group by YEAR ,QUARTER ,MONTH ,province,country,subcategory,category;
+     
+     #例子2: 查询2022年1季度，'United States of America'的各个province中'Tennis'的subcategory销售总额是多少？
+     答案：select YEAR ,QUARTER ,province,country,subcategory,category, sum(amount_sold) as total_amount
+     FROM GRAPH_TABLE(total_graph  
+     MATCH (c1 IS cust) -[b IS buy]-> (p1 IS prod) -[]-> (p2 IS prod)-[]-> (p3 IS prod), 
+     (c1 is cust)-[]-> (c2 IS cust)-[]-> (c3 IS cust)-[]-> (c4 IS cust)  
+     Where  to_char(b.time_id,'YYYY')=2022 AND  to_char(b.time_id,'Q')=1 AND to_char(b.time_id,'MM')=2 AND  c4.name='United States of America' AND p3.name='Tennis' 
+     COLUMNS ( to_char(b.time_id,'YYYY') as YEAR ,to_char(b.time_id,'Q') as QUARTER , c3.name AS province, c4.name AS country, p2.name AS subcategory, p3.name AS category,b.amount_sold AS amount_sold)) 
+     group by YEAR ,QUARTER ,province,country,subcategory,category
+     order by total_amount desc;
+     
+     #例子3: 查询2022年，'United States of America'的各个province销售总额是多少？
+     答案：select YEAR ,province,country, sum(amount_sold) as total_amount
+     FROM GRAPH_TABLE(total_graph  
+     MATCH (c1 IS cust) -[b IS buy]-> (p1 IS prod) -[]-> (p2 IS prod)-[]-> (p3 IS prod), 
+     (c1 is cust)-[]-> (c2 IS cust)-[]-> (c3 IS cust)-[]-> (c4 IS cust)  
+     Where  to_char(b.time_id,'YYYY')=2022 AND  c4.name='United States of America'  
+     COLUMNS ( to_char(b.time_id,'YYYY') as YEAR , c3.name AS province, c4.name AS country,b.amount_sold AS amount_sold)) 
+     group by YEAR  ,province,country;
+     
+     
+     #例子4: 查询'France'的Baseball大类在2022年各个季度的销售总额与去年的同期比较？
+     答案：SELECT
+     YEAR,
+     QUARTER,
+     category,
+     sum(amount_sold) AS total_amount,
+     sum(amount_sold) - LAG(sum(amount_sold)) OVER (PARTITION BY QUARTER ORDER BY YEAR) AS amount_change
+     FROM GRAPH_TABLE(total_graph
+     MATCH (c1 IS cust) -[b IS buy]-> (p1 IS prod) -[]-> (p2 IS prod)-[]-> (p3 IS prod),
+     (c1 is cust)-[]-> (c2 IS cust)-[]-> (c3 IS cust)-[]-> (c4 IS cust)
+     WHERE to_char(b.time_id,'YYYY') IN ('2021','2022')
+     AND c4.name = 'France'
+     AND p3.name = 'Baseball'
+     COLUMNS (
+     to_char(b.time_id,'YYYY') as YEAR,
+     to_char(b.time_id,'Q') as QUARTER,
+     p3.name AS category,
+     b.amount_sold AS amount_sold
+     )
+     )
+     GROUP BY YEAR, QUARTER, category
+     ORDER BY amount_change ASC;
+     
+     
+     ##下面是2022年每个国家，baseball大类的销售总额与去年同期的比较：
+     生成的SQL语句：
+     SELECT
+     YEAR,
+     country,
+     category,
+     sum(amount_sold) AS total_amount,
+     sum(amount_sold) - LAG(sum(amount_sold)) OVER (PARTITION BY country ORDER BY YEAR) AS amount_change
+     FROM GRAPH_TABLE(total_graph
+     MATCH (c1 IS cust) -[b IS buy]-> (p1 IS prod) -[]-> (p2 IS prod)-[]-> (p3 IS prod),
+     (c1 is cust)-[]-> (c2 IS cust)-[]-> (c3 IS cust)-[]-> (c4 IS cust)
+     WHERE to_char(b.time_id,'YYYY') IN ('2021','2022')
+     AND p3.name = 'Baseball'
+     COLUMNS (
+     to_char(b.time_id,'YYYY') as YEAR,
+     c4.name AS country,
+     p3.name AS category,
+     b.amount_sold AS amount_sold
+     )
+     )
+     GROUP BY YEAR, country, category
+     ORDER BY country, YEAR;
+     
+     运行的结果如下：
+     YEAR COUNTRY                 CATEGORY               TOTAL_AMOUNT AMOUNT_CHANGE
+     ---- ------------------------------------------------------------- -------------------------------------------------- ------------ -------------
+     2021 Argentina                 Baseball              2925.01
+     2022 Argentina                 Baseball               546.17  -2378.84
+     2021 Australia                 Baseball             230347.9
+     2022 Australia                 Baseball             293083.5   62735.6
+     2021 Brazil                Baseball              2833.01
+     2022 Brazil                Baseball              2961.28    128.27
+     2021 Canada                Baseball            179022.41
+     2022 Canada                Baseball            254375.02  75352.61
+     2021 China                 Baseball                22.99
+     2021 Denmark                 Baseball            107550.68
+     2022 Denmark                 Baseball            156103.18   48552.5
+     
+     YEAR COUNTRY                 CATEGORY               TOTAL_AMOUNT AMOUNT_CHANGE
+     ---- ------------------------------------------------------------- -------------------------------------------------- ------------ -------------
+     2021 France                Baseball            262391.74
+     2022 France                Baseball            232410.82     -29980.92
+     2021 Germany                 Baseball            607463.95
+     2022 Germany                 Baseball            756627.86     149163.91
+     2021 Italy                 Baseball            259195.28
+     2022 Italy                 Baseball            347188.01  87992.73
+     2021 Japan                 Baseball            462764.65
+     2022 Japan                 Baseball            630767.43     168002.78
+     2021 Poland                Baseball               172.98
+     2021 Saudi Arabia              Baseball               250.96
+     2021 Singapore                 Baseball            219087.67
+     
+     YEAR COUNTRY                 CATEGORY               TOTAL_AMOUNT AMOUNT_CHANGE
+     ---- ------------------------------------------------------------- -------------------------------------------------- ------------ -------------
+     2022 Singapore                 Baseball            241203.28  22115.61
+     2021 Spain                 Baseball            115434.89
+     2022 Spain                 Baseball            204156.52  88721.63
+     2021 Turkey                Baseball                22.99
+     2021 United Kingdom              Baseball            424389.23
+     2022 United Kingdom              Baseball            485284.72  60895.49
+     2021 United States of America            Baseball           3590909.88
+     2022 United States of America            Baseball           4254999.92     664090.04
+     
+     你是一个数据分析专家，找到上面数据里负向变化最大的国家，应该如何继续提问下一个问题，才能找到数据下降的根因，只保留前三个问题
+     请列出问题，并根据这个生成新的SQL Graph语句
+     注意：检查生成的SQL语句中'Select 字段1, 字段2, 字段3... from graph_table' 中select后面的字段列表只能用COLUMNS( )子句中包含的别名
+     注意：检查'('和')'的匹配情况
+     ```
+
+     
+
+4.   sdaf
+
+3.   
