@@ -381,7 +381,79 @@
 
 
 
-## Task 6: 清除环境
+## Task 6: 与APEX集成
+
+1.   以admin用户登录到internal Workspace，点击**Manage Instance**
+
+     ![image-20250602082846269](images/image-20250602082846269.png)
+
+2.   点击**Security**
+
+     ![image-20250602082950078](images/image-20250602082950078.png)
+
+3.   在**Real Application Security**的页面将**Allow Real Application Security**设置为**Yes**，然后点击**Apply Changes**
+
+     ![image-20250602083050313](images/image-20250602083050313.png)
+
+4.   登录到应用的Workspace
+
+     ![image-20250602083249792](images/image-20250602083249792.png)
+
+5.   点击**App Builder**
+
+     ![image-20250602083441381](images/image-20250602083441381.png)
+
+6.   点击事先做好的应用
+
+     ![image-20250602083547551](images/image-20250602083547551.png)
+
+7.   点击**Shared Components**
+
+     ![image-20250602083639173](images/image-20250602083639173.png)
+
+8.   点击**Authentication Schemes**
+
+     ![image-20250602083733395](images/image-20250602083733395.png)
+
+9.   点击**Oracle APEX Accounts**
+
+     ![image-20250602083838354](images/image-20250602083838354.png)
+
+10.   在**Real Application Security**页面将**RAS Mode**设置为**Internal Users**，然后点击**Apply Changes**
+
+      ![image-20250602083946937](images/image-20250602083946937.png)
+
+11.   点击右上角**Administration**，选择**Manage Users and Groups**
+
+      ![image-20250602084346753](images/image-20250602084346753.png)
+
+12.   点击**Create User**
+
+      ![image-20250602084525032](images/image-20250602084525032.png)
+
+13.   创建跟之前数据库中创建的应用用户同名的用户**user10**
+
+      ![image-20250602084749705](images/image-20250602084749705.png)
+
+14.   同样创建用户**user20**
+
+      ![image-20250602084853780](images/image-20250602084853780.png)
+
+15.   运行应用，用**user10**登录，只能看到部门10的记录
+
+      ![image-20250602085004311](images/image-20250602085004311.png)
+
+16.   用**user20**登录，只能看到部门20的记录
+
+      ![image-20250602085105503](images/image-20250602085105503.png)
+
+17.   用admin用户登录，提示RAS错误
+
+      ![image-20250602085249667](images/image-20250602085249667.png)
+
+18.   sdf
+
+## Task 7: 清除环境
 
 1.   连接到rasadm
 
