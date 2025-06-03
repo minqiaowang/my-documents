@@ -439,7 +439,7 @@
 
       ![image-20250602084853780](images/image-20250602084853780.png)
 
-15.   运行应用，用**user10**登录，只能看到部门10的记录
+15.   运行应用，用**user10**登录，只能看到部门10的记录。需要有hr.jobs的查询条件（`grant select on hr.jobs to db_emp`)
 
       ![image-20250602085004311](images/image-20250602085004311.png)
 
