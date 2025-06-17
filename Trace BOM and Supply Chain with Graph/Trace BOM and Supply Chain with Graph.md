@@ -230,7 +230,7 @@
 2.   查询M01批号为003产品的生产地点和存放地点。
 
      ```
-     SELECT src_name, path1,dst_name FROM GRAPH_TABLE ( trace_all_1
+     SELECT src_name, path1,dst_name FROM GRAPH_TABLE ( trace_all
      MATCH (src ) -[e1 ]->{0,9} (dst)
      WHERE src.PART_ID = 'M01' 
      and src.LOT='003'
