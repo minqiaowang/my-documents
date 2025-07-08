@@ -238,6 +238,12 @@
      /
      ```
 
+     或者试试：
+
+     ```
+     l_enable_roles:= XS$NAME_LIST('dyn_employee', 'dyn_dept10');
+     ```
+
      
 
 5.   查看当前用户
