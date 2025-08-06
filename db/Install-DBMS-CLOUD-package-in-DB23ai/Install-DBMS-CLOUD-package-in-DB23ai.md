@@ -342,7 +342,7 @@ Oracle DB23ai缺省没有安装`DBMS_CLOUD`函数包，需要在安装数据库�
 
 
 
-## Task 4: 配置用户或角色使用`DBMS_CLOU`函数包
+## Task 4: 配置用户或角色使用`DBMS_CLOUD`函数包
 
 1.   配置用户或角色使用`DBMS_CLOUD`函数包的最低权限，二选一
 
@@ -521,7 +521,7 @@ Oracle DB23ai缺省没有安装`DBMS_CLOUD`函数包，需要在安装数据库�
 
          在PDB中的sys用户下运行该脚本。
 
-     -   或者配置用户ACE的权限，编写文件`ace_user.sql`，拷贝以下内容。注意修改`clouduser`和sslwalletdir`变量。
+     -   或者配置用户ACE的权限，编写文件`ace_user.sql`，拷贝以下内容。注意修改`clouduser`和`sslwalletdir`变量。
 
          ```
          @$ORACLE_HOME/rdbms/admin/sqlsessstart.sql
@@ -620,7 +620,7 @@ Oracle DB23ai缺省没有安装`DBMS_CLOUD`函数包，需要在安装数据库�
 
 
 
-## Task 6: 使用`DBMS_CLOUD_AI` 和Select AI
+## Task 6: 使用`DBMS_CLOUD_AI` 和`Select AI`
 
 1.   以普通用户登录到PDB
 
